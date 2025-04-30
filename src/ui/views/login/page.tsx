@@ -148,7 +148,7 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
                 </Form>
               </CardContent>
               <CardFooter className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground"> version 1.0.0</p>
+                <p className="text-sm text-muted-foreground"> version 1.1.0</p>
               </CardFooter>
         </Card>
         <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
