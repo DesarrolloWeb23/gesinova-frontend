@@ -1,10 +1,5 @@
-import { User } from "../domain/User";
-import { IUserRepository } from "@/core/infrastructure/repositories/userRepository";
+import { userService } from '@/core/infrastructure/api/userService'
 
-export class GetUsers {
-    constructor(private userRepository: typeof IUserRepository) {}
-
-    async execute(): Promise<User[]> {
-        return await this.userRepository.getUsers();
-    }
+export const getUsers = async () => {
+  return await userService.getAll()
 }

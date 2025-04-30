@@ -8,7 +8,7 @@ export default function Dasboard({ listUser, comeBack, mensaje }: { listUser: ()
             <button onClick={listUser}>ver usuarios</button>
             <button onClick={comeBack}>Regresar</button>
             <h1>Dashboard</h1>
-            este es el mensaje recibido: {mensaje}
+     
         </div>
         );
     }

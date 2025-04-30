@@ -21,9 +21,11 @@ import { useForm } from "react-hook-form"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react";
+import { loginUser } from '@/core/infrastructure/api/authService'
 
 const formSchema = z.object({
-  username: z.string().min(2).max(50),
+  username: z.string().min(2, "El usuario es requerido"),
+  password: z.string().min(4, "La contraseña es requerida")
 })
 
 
@@ -64,45 +66,22 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
       resolver: zodResolver(formSchema),
       defaultValues: {
         username: "",
+        password: "",
       },
     })
     
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof formSchema>) {
-      // Do something with the form values.
-      // ✅ This will be type-safe and validated.
-
-      // fetch("http://localhost:8080/auth/nosecured")
-      // .then((response) => {
-      //   if (!response.ok) {
-      //     throw new Error(`HTTP error! Status: ${response.status}`);
-      //   }
-      //   const contentType = response.headers.get("content-type");
-      //   if (!contentType || !contentType.includes("application/json")) {
-      //     throw new Error("La respuesta no es JSON");
-      //   }
-      //   return response.json();
-      // })
-      // .then((data) => {
-      //   console.log("Datos obtenidos:", data);
-      // })
-      // .catch((error) => {
-      //   console.error("Error al obtener datos:", error);
-      // });
-      
-
-      fetch("http://localhost:8080/auth/nosecured")
-      .then((response) => response.text())
+      loginUser
+      .login(values.username, values.password)
       .then((data) => {
-        console.log("Texto recibido:", data);
-        //enviar el texto a la vista de dashboard
-        onLogin(data);
+        console.log("Login exitoso:", data)
+        onLogin(data) // Llamas a tu callback
       })
       .catch((error) => {
-        console.error("Error al obtener datos:", error);
-      });
-
-
+        console.error("Error al hacer login:", error)
+        alert("Usuario o contraseña incorrectos")
+      })
     }
     
     return (
