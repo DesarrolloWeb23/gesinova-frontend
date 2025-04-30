@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { User } from '@/core/domain/User'
-import { IUserRepository } from '@/infrastructure/repositories/userRepository'
+import { IUserRepository } from '@/core/infrastructure/repositories/userRepository'
 
 export const ProductList: React.FC = () => {
   const [products, setProducts] = React.useState<User[]>([])
