@@ -1,4 +1,4 @@
-import { http } from '@/core/infrastructure/api/http'
+import { http } from '@/core/infrastructure/api/http/http'
 import { UserDTO } from '@/core/infrastructure/api/dto/UserDTO'
 import { User } from '@/core/domain/User'
 

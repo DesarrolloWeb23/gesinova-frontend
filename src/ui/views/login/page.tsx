@@ -20,8 +20,12 @@ import {
 import { useForm } from "react-hook-form"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect } from "react";
-import { loginUser } from '@/core/infrastructure/api/authService'
+import { useEffect, useState } from "react";
+import { toast } from 'sonner'
+import { AuthApiService } from '@/core/infrastructure/api/services/authService'
+import { LoginUser } from '@/core/domain/use-cases/LoginUser'
+import { useAuth } from "@/ui/context/AuthContext";
+import { Version } from "@/ui/components/Version";
 
 const formSchema = z.object({
   username: z.string().min(2, "El usuario es requerido"),
@@ -30,14 +34,17 @@ const formSchema = z.object({
 
 
 
-export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, onRemember: () => void }) {
-
+export default function Login({ setView }: {  setView: (view: string) => void; }) {
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
+  
   useEffect(() => {
     const movementStrength = 25;
     const height = movementStrength / window.innerHeight;
     const width = movementStrength / window.innerWidth;
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const pageX = e.pageX - window.innerWidth / 2;
       const pageY = e.pageY - window.innerHeight / 2;
       const newvalueX = width * pageX * -1 - 25;
@@ -61,7 +68,6 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
     };
   }, []);
 
-    // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
@@ -69,19 +75,55 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
         password: "",
       },
     })
-    
-    // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
-      loginUser
-      .login(values.username, values.password)
-      .then((data) => {
-        console.log("Login exitoso:", data)
-        onLogin(data) // Llamas a tu callback
-      })
-      .catch((error) => {
-        console.error("Error al hacer login:", error)
-        alert("Usuario o contraseña incorrectos")
-      })
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+      if (isSubmitting) return; // Previene múltiples envíos
+      setIsSubmitting(true); // Establece el estado de envío a verdadero
+      const loginUseCase = new LoginUser(new AuthApiService());
+
+      try {
+        await toast.promise(
+          loginUseCase.execute(values.username, values.password)  
+          .then((response) => {
+
+              if (response.status === "ACTIVATE_MFA") {
+                login(response.data , response.data.accessToken);
+                setView("ActivateMfa");
+                setIsSubmitting(false);
+                return;
+              }
+
+              if (response.status === "MFA_INHABILITATED") {
+                login(response.data , response.data.accessToken);
+                setView("dashboard");
+                setIsSubmitting(false);
+                return;
+              }
+
+              if (response.status === "MFA_REQUIRED") {
+                validationToken(response.data.tempToken);
+                setView("requiredMfa");
+                setIsSubmitting(false);
+                return;
+              }
+            })
+            .catch((error) => {
+              setIsSubmitting(false);
+              throw error;
+            }),
+          {
+            loading: "Iniciando sesión...",
+            success: "Bienvenido " + values.username,
+            error: (error) => 
+              error?.data?.message 
+                ? "Error: " + error?.data?.message
+                : "Error no manejado: " + error.message,
+          }
+        );
+      } catch (error) {
+        setIsSubmitting(false);
+        console.error("Error al iniciar sesión:", error);
+      }
     }
     
     return (
@@ -127,7 +169,11 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
                     <div className="flex items-center justify-between">
                       <div className="items-top flex space-x-2">
                         
-                        <Checkbox id="remember" />
+                        <Checkbox 
+                          id="remember" 
+                          checked={rememberMe}
+                          onCheckedChange={handleRememberMeChange} 
+                        />
                         <div className="grid gap-1.5 leading-none">
                           <label
                             htmlFor="remember"
@@ -137,18 +183,20 @@ export default function Login({ onLogin, onRemember }: { onLogin: (x) => void, o
                           </label>
                         </div>
                       </div>
-                      <a onClick={onRemember}  className="text-sm font-medium text-blue-600 hover:underline">Olvidaste tu contraseña?</a>
+                      <a className="text-sm font-medium text-blue-600 hover:underline">Olvidaste tu contraseña?</a>
                       
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Button type="submit"  className="w-full">Ingresar</Button>
+                      <Button type="submit" disabled={isSubmitting} className="w-full">
+                        {isSubmitting === true ? "Ingresando..." : "Ingresar"}
+                      </Button>
                     </div>
                   </form>
                 </Form>
               </CardContent>
               <CardFooter className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground"> version 1.1.0</p>
+                <Version></Version>
               </CardFooter>
         </Card>
         <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">

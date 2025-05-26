@@ -1,27 +1,60 @@
 "use client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Login from "@/ui/views/login/page";
 import Dashboard from "@/ui/views/dashboard/page";
+import ActivateMfa from "@/ui/views/mfa/page";
+import RequiredMfa from "@/ui/views/validateMfa/page";
 import User from "@/ui/views/user/page";
 import Remember from "@/ui/views/remember/page";
+import { Toaster } from 'sonner'
+import { useAuth } from "@/ui/context/AuthContext";
 
 export default function Home() {
   
-  const [view, setView] = useState("login"); // Estado para manejar la vista actual
-  const [x, setX] = useState(""); // Estado para manejar el mensaje recibido
+  const { logout } = useAuth();
+  const [view, setView] = useState("");
 
-  // Función para manejar el cambio de vista y pasar el mensaje recibido
-  const handleLogin = (mensaje: string) => {
-    setX(mensaje); // Guardar el mensaje recibido
-    setView("dashboard"); // Cambiar a la vista de dashboard
-  };
+  useEffect(() => {
+    const savedView = localStorage.getItem("currentView");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+
+    if (savedView) {
+      setView(savedView);
+    } else {
+      setView(token ? "dashboard" : "login");
+    }
+  }, []);
+
 
   return (
     <main>
-      {view === "login" && <Login onLogin={handleLogin} onRemember={() => setView("remember")} />}
-      {view === "dashboard" && <Dashboard listUser={() => setView("user")} comeBack={() => setView("login")} mensaje={x}/>}
-      {view === "user" && <User comeBack={() => setView("login")}/>}
-      {view === "remember" && <Remember comeBack={() => setView("login")}/>}
+      {view === "login" && (
+        <Login
+          setView={setView}
+        />
+      )}
+      {view === "dashboard" && (
+        <Dashboard
+          listUser={() => setView("user")}
+          comeBack={() => {
+            logout();
+            setView("login");
+          }}
+        />
+      )}
+      {view === "ActivateMfa" && (
+        <ActivateMfa
+          setView={setView}
+        />
+      )}
+      {view === "requiredMfa" && (
+        <RequiredMfa
+          setView={setView}
+        />
+      )}
+      {view === "user" && <User comeBack={() => setView("login")} />}
+      {view === "remember" && <Remember comeBack={() => setView("login")} />}
+      <Toaster richColors position="top-right" />
     </main>
   );
 }

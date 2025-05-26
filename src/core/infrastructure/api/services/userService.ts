@@ -1,4 +1,4 @@
-import { http } from './http'
+import { http } from '../http/http'
 import { UsersResponse } from './dto/UserDTO'
 
 export const userService = {
