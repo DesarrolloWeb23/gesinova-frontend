@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/ui/components/ui/card"
 import { Input } from "@/ui/components/ui/input"
-import { Checkbox } from "@/ui/components/ui/checkbox"
 import {
   Form,
   FormControl,
