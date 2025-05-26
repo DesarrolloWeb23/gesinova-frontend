@@ -1,5 +1,5 @@
 import { http } from '../http/http'
-import { UsersResponse } from './dto/UserDTO'
+import { UsersResponse } from '@/core/dto/UserDTO'
 
 export const userService = {
   async getAll() {
