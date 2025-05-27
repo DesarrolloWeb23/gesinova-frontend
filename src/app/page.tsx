@@ -8,6 +8,7 @@ import User from "@/ui/views/user/page";
 import Remember from "@/ui/views/remember/page";
 import { Toaster } from 'sonner'
 import { useAuth } from "@/ui/context/AuthContext";
+import { ModeToggle } from "@/ui/components/ModeToggle";
 
 export default function Home() {
   
@@ -28,6 +29,9 @@ export default function Home() {
 
   return (
     <main>
+      <div className="flex justify-end p-4">
+        <ModeToggle />
+      </div>
       {view === "login" && (
         <Login
           setView={setView}
