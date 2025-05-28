@@ -73,7 +73,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
       defaultValues: {
         username: "",
         password: "",
-      },
+      }, 
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -115,9 +115,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
             loading: "Iniciando sesión...",
             success: "Bienvenido " + values.username,
             error: (error) => 
-              error?.data?.message 
-                ? "Error: " + error?.data?.message
-                : "Error no manejado: " + error.message,
+              error?.message
           }
         );
       } catch (error) {
@@ -183,7 +181,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                           </label>
                         </div>
                       </div>
-                      <a className="text-sm font-medium text-blue-600 hover:underline">Olvidaste tu contraseña?</a>
+                      <a className="text-sm font-medium hover:underline">Olvidaste tu contraseña?</a>
                       
                     </div>
 

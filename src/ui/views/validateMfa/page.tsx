@@ -55,6 +55,11 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
             login(response.data, response.data.accessToken);
             setIsSubmitting(false);
             setView("dashboard");
+          })
+          .catch((error) => {
+            setIsSubmitting(false);
+            setView("login");
+            throw error;
           }),
         {
           loading: "Cargando...",

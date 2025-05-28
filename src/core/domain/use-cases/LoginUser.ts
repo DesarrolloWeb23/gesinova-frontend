@@ -1,5 +1,6 @@
 import { AuthRepository } from "@/core/domain/ports/AuthRepository";
 import { AuthResult } from "@/core/dto/AuthResultDTO";
+import { ResponseError } from "@/core/dto/ResponseErrorDTO";
 
 
 export class LoginUser {
@@ -8,7 +9,6 @@ export class LoginUser {
     async execute(username: string, password: string): Promise<AuthResult> {
         try {
                 const response = await this.authRepository.login(username, password);
-                //response.data.firstLogin = true;
 
                 if (response.data.mfaRequired === false && response.data.firstLogin) {
                     return {
@@ -38,8 +38,19 @@ export class LoginUser {
                 }
 
                 return response;
-            } catch (error) {
-                throw error;
+            } catch (err) {
+                const error = err as ResponseError;
+                if (error?.data?.status === 403) {
+                    throw {
+                        status: "ACCESS_DENIED",
+                        message: "Acceso denegado. Usuario o contraseña incorrectas."
+                    }
+                } else {
+                    throw {
+                        status: "ACCESS_ERROR",
+                        message: error?.data?.message || "Error no manejado al iniciar sesión."
+                    }
+                }
             }
         }
     }

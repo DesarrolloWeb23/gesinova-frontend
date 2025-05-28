@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { AuthApiService } from '@/core/infrastructure/api/services/authService';
 import { LogoutUser } from '@/core/domain/use-cases/LogoutUser'
 import { useAuth } from "@/ui/context/AuthContext";
+import { Button } from "@/ui/components/ui/button";
 
 export default function Dasboard({ listUser, comeBack }: { listUser: () => void, comeBack: () => void }) {
 
@@ -58,7 +59,9 @@ export default function Dasboard({ listUser, comeBack }: { listUser: () => void,
                 <button onClick={sendLogout} className="bg-red-500 text-white px-4 py-2 rounded">Cerrar Sesión</button>
             </div>
             <div className="mt-4">
-                <button onClick={sendSecured} className="bg-red-500 text-white px-4 py-2 rounded">secured</button>
+                <Button onClick={sendSecured} className="w-40">
+                    secured
+                </Button>
             </div>
         </div>
         );
