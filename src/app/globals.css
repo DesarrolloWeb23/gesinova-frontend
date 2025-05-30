@@ -68,7 +68,7 @@
   --accent-foreground: oklch(0.25 0.06 265);
 
   --destructive: oklch(0.6 0.17 25);  /* tono rojizo personalizado */
-  
+
   --border: oklch(0.94 0.04 210);
   --input: oklch(0.94 0.04 210);
   --ring: oklch(0.72 0.14 220);
@@ -115,8 +115,7 @@
 
   --border: oklch(0.98 0.02 210 / 10%);
   --input: oklch(0.98 0.0094 222.05);
-  
-  
+
   --ring: oklch(0.72 0.14 220);
 
   --chart-1: oklch(0.52 0.1 220);
@@ -154,5 +153,5 @@
     height:100%;
     background-size: calc(100% + 50px);
   }
-  
+
   
