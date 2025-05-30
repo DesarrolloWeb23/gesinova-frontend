@@ -11,6 +11,7 @@ import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { ActivateTwoFactor } from '@/core/domain/use-cases/ActivateTwoFactor'
 import { toast } from 'sonner'
 import { Version } from "@/ui/components/Version";
+import { getMessage } from "@/core/domain/messages";
 
 
 export default function ActivateMfa( {setView }: { setView: (view: string) => void; }) {
@@ -37,14 +38,14 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
               setView("login");
               toast.success(response.message);
             } else {
-              toast.success("Segundo factor activado");
+              toast.success(getMessage("success", "mfa_activation_success"));
             }
           })
           .catch((error) => {
             toast.error(
               error?.data?.message
                 ? "Error: " + error.data.message
-                : "Error no manejado: " + error.message
+                : getMessage("errors", "handle_error") + error.message
             );
           })
         );

@@ -1,5 +1,6 @@
 import { AuthRepository } from "../ports/AuthRepository";
 import { AuthResult } from "@/core/dto/AuthResultDTO";
+import { getMessage } from "@/core/domain/messages";
 
 export class ActivateTwoFactor {
     constructor(private authRepository: AuthRepository) {}
@@ -12,14 +13,14 @@ export class ActivateTwoFactor {
                 return {
                     status: "TOPT_ACTIVATED",
                     path: "/activate-totp",
-                    message: "Segundo factor activado con código QR",
+                    message: getMessage("success", "mfa_qr_code"),
                     data: response.data
                 };
             } else if (method === 2) {
                 return {
                     status: "OPT_ACTIVATED",
                     path: "/activate-opt",
-                    message: "Se ha enviado un correo con el código de activación",
+                    message: getMessage("success", "mfa_code_sent"),
                     data: response.data
                 };
             }

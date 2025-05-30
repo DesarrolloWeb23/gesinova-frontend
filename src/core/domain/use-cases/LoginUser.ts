@@ -1,6 +1,7 @@
 import { AuthRepository } from "@/core/domain/ports/AuthRepository";
 import { AuthResult } from "@/core/dto/AuthResultDTO";
 import { ResponseError } from "@/core/dto/ResponseErrorDTO";
+import { getMessage } from "@/core/domain/messages";
 
 
 export class LoginUser {
@@ -43,12 +44,12 @@ export class LoginUser {
                 if (error?.data?.status === 403) {
                     throw {
                         status: "ACCESS_DENIED",
-                        message: "Acceso denegado. Usuario o contraseña incorrectas."
+                        message: getMessage("errors", "access_denied")
                     }
                 } else {
                     throw {
                         status: "ACCESS_ERROR",
-                        message: error?.data?.message || "Error no manejado al iniciar sesión."
+                        message: error?.data?.message || getMessage("errors", "access_error")
                     }
                 }
             }

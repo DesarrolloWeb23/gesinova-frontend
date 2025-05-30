@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/ui/context/AuthContext";
 import { SessionModalProvider } from "@/ui/components/SessionModalProvider";
 import { ThemeProvider } from "@/ui/components/theme-provider"
+import { AccessibilityButton } from "@/ui/components/AccessibilityButton";
 
 
 const geistSans = Geist({
@@ -47,6 +48,7 @@ export default function RootLayout({
           >
             <AuthProvider>
               {children}
+              <AccessibilityButton />
             </AuthProvider>
           </ThemeProvider>
       </body>

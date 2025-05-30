@@ -26,10 +26,11 @@ import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { LoginUser } from '@/core/domain/use-cases/LoginUser'
 import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
+import { getMessage } from "@/core/domain/messages";
 
 const formSchema = z.object({
-  username: z.string().min(2, "El usuario es requerido"),
-  password: z.string().min(4, "La contraseña es requerida")
+  username: z.string().min(2, getMessage("errors", "zod_username_required")),
+  password: z.string().min(4, getMessage("errors", "zod_password_required"))
 })
 
 
@@ -112,8 +113,8 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
               throw error;
             }),
           {
-            loading: "Iniciando sesión...",
-            success: "Bienvenido " + values.username,
+            loading: getMessage("success", "access_loading"),
+            success: getMessage("success", "access_success") + values.username,
             error: (error) => 
               error?.message
           }
@@ -130,7 +131,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
         <div id="top-image"></div>
         <Card className="absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
-                <CardTitle className="font-bold text-2xl">Bienvenidos a Gesinova</CardTitle>
+                <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -141,7 +142,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Usuario</FormLabel>
+                          <FormLabel>{getMessage("ui", "login_username")}</FormLabel>
                           <FormControl>
                             <Input placeholder="shadcn" {...field} />
                           </FormControl>
@@ -155,7 +156,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contraseña</FormLabel>
+                          <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
                           <FormControl>
                             <Input type="password" placeholder="********" {...field} />
                           </FormControl>
@@ -177,17 +178,17 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                             htmlFor="remember"
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            Recordarme
+                            {getMessage("ui", "login_remember_me")}
                           </label>
                         </div>
                       </div>
-                      <a className="text-sm font-medium hover:underline">Olvidaste tu contraseña?</a>
+                      <a className="text-sm font-medium hover:underline">{getMessage("ui", "login_forgot_password")}</a>
                       
                     </div>
 
                     <div className="flex items-center justify-between">
                       <Button type="submit" disabled={isSubmitting} className="w-full">
-                        {isSubmitting === true ? "Ingresando..." : "Ingresar"}
+                        {isSubmitting === true ? getMessage("ui", "login_submiting") : getMessage("ui", "login_submit")}
                       </Button>
                     </div>
                   </form>

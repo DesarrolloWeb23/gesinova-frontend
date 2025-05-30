@@ -8,12 +8,14 @@ import User from "@/ui/views/user/page";
 import Remember from "@/ui/views/remember/page";
 import { Toaster } from 'sonner'
 import { useAuth } from "@/ui/context/AuthContext";
-import { ModeToggle } from "@/ui/components/ModeToggle";
+import { setErrorMap } from "zod";
+import { customZodErrorMap } from "@/ui/hooks/useZodErrorMap";
 
 export default function Home() {
   
   const { logout } = useAuth();
   const [view, setView] = useState("");
+  setErrorMap(customZodErrorMap);
 
   useEffect(() => {
     const savedView = localStorage.getItem("currentView");
@@ -29,9 +31,6 @@ export default function Home() {
 
   return (
     <main>
-      <div className="flex justify-end p-4">
-        <ModeToggle />
-      </div>
       {view === "login" && (
         <Login
           setView={setView}

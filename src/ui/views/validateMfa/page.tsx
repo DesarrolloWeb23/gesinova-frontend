@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form"
 import { useState } from "react";
 import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
+import { getMessage } from "@/core/domain/messages";
 
 const formSchema = z.object({
   code: z.string().min(6, "El codigo es requerido"),
@@ -62,12 +63,12 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
             throw error;
           }),
         {
-          loading: "Cargando...",
-          success: "Login exitoso",
+          loading:  getMessage("success", "access_loading"),
+          success: getMessage("success", "mfa_validation_success"),
           error: (error) =>
             error?.data?.message
               ? "Error: " + error?.data?.message
-              : "Error no manejado: " + error.message,
+              : getMessage("errors", "handle_error") + error.message,
         }
       );
     } catch (error) {
