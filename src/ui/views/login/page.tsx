@@ -20,7 +20,7 @@ import {
 import { useForm } from "react-hook-form"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from 'sonner'
 import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { LoginUser } from '@/core/domain/use-cases/LoginUser'
@@ -40,34 +40,6 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
   
-  useEffect(() => {
-    const movementStrength = 25;
-    const height = movementStrength / window.innerHeight;
-    const width = movementStrength / window.innerWidth;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const pageX = e.pageX - window.innerWidth / 2;
-      const pageY = e.pageY - window.innerHeight / 2;
-      const newvalueX = width * pageX * -1 - 25;
-      const newvalueY = height * pageY * -1 - 50;
-
-      const topImage = document.getElementById("top-image");
-      if (topImage) {
-        topImage.style.backgroundPosition = `${newvalueX}px ${newvalueY}px`;
-      }
-    };
-
-    const topImage = document.getElementById("container");
-    if (topImage) {
-      topImage.addEventListener("mousemove", handleMouseMove);
-    }
-
-    return () => {
-      if (topImage) {
-        topImage.removeEventListener("mousemove", handleMouseMove);
-      }
-    };
-  }, []);
 
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -127,9 +99,11 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
     
     return (
       
-      <div id="container" className="flex h-screen w-screen items-center justify-center">
+      <div id="container" className="">
+        <div className="indio"></div>
         <div id="top-image"></div>
-        <Card className="absolute w-[350px]">
+        <div className=" flex h-screen  w-screen items-center justify-center">
+          <Card className="absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
                 <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
               </CardHeader>
@@ -144,7 +118,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                         <FormItem>
                           <FormLabel>{getMessage("ui", "login_username")}</FormLabel>
                           <FormControl>
-                            <Input placeholder="shadcn" {...field} />
+                            <Input placeholder="Tu usuario" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -197,9 +171,15 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
               <CardFooter className="flex justify-between items-center">
                 <Version></Version>
               </CardFooter>
-        </Card>
+          </Card>
+        </div>
         <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
-          <p>© 2025 Gesinova. Todos los derechos reservados.</p>
+          <div className="absolute h-12 items-center justify-center text-sm">
+            <p>© 2025 Gesinova. Todos los derechos reservados.</p>
+          </div>
+          <div className="absolute flex h-12 items-center justify-center text-sm">
+            <a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a> - <a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a>
+          </div>
         </div>
       </div>
     );
