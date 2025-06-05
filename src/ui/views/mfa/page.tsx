@@ -3,15 +3,16 @@ import { Button } from "@/ui/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card"
 import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { ActivateTwoFactor } from '@/core/domain/use-cases/ActivateTwoFactor'
 import { toast } from 'sonner'
-import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
+import { TbArrowBackUp } from "react-icons/tb";
+import { RiQrCodeFill } from "react-icons/ri";
+import { IoMailOutline } from "react-icons/io5";
 
 
 export default function ActivateMfa( {setView }: { setView: (view: string) => void; }) {
@@ -59,19 +60,16 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
       <div id="top-image"></div>
       <Card className="absolute w-[350px]">
           <CardHeader  className="items-center justify-center">
-              <Button onClick={() => setView("login")} className="bg-blue-500 text-white px-4 py-2 rounded">Volver</Button>
-              <CardTitle className="font-bold text-2xl">Activacion de doble factor</CardTitle>
+              <Button onClick={() => setView("login")} className="w-10" variant={"tertiary"}><TbArrowBackUp /></Button>
+              <CardTitle className="font-bold text-2xl">{getMessage("ui","mfa_activation_card_title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Para activar el doble factor de autenticacion, ppuedes hacerlos por QR o por codigo al correo electronico.</p>
+              <p className="text-sm text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</p>
               <div className="flex justify-between mt-4">
-                  <Button onClick={() => activate(1)} className="bg-blue-500 text-white px-4 py-2 rounded">QR</Button>
-                  <Button onClick={() => activate(2)} className="bg-red-500 text-white px-4 py-2 rounded">Codigo</Button>
+                  <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
+                  <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <Version></Version>
-            </CardFooter>
       </Card>
       <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
         <p>© 2025 Gesinova. Todos los derechos reservados.</p>

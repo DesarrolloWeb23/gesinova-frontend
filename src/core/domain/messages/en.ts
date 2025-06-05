@@ -29,5 +29,7 @@ export const messages = {
       mfa_validation_wait: "Please wait...",
       mfa_validation_card_title: "Multi-factor Authentication Validation",
       mfa_validation_card_subtitle: "Enter the verification code sent to your email",
+      mfa_activation_card_title: "Activate Multi-factor Authentication",
+      mfa_activation_card_subtitle: "Choose your preferred method for multi-factor authentication",
   }
 };

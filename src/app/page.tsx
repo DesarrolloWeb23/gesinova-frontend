@@ -24,7 +24,7 @@ export default function Home() {
     if (savedView) {
       setView(savedView);
     } else {
-      setView(token ? "dashboard" : "login");
+      setView(token ? "dashboard" : "ActivateMfa");
     }
   }, []);
 
