@@ -10,7 +10,6 @@ import {
 import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { ValidateMfa } from '@/core/domain/use-cases/ValidateMfa'
 import { toast } from 'sonner'
-import { Input } from "@/ui/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -25,6 +24,7 @@ import { useState } from "react";
 import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
+import { CodeInput } from "@/ui/components/CodeInput";
 
 const formSchema = z.object({
   code: z.string().min(6, "El codigo es requerido"),
@@ -33,6 +33,7 @@ const formSchema = z.object({
 export default function RequiredMfa( {setView }: { setView: (view: string) => void; }) {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorTrigger, setErrorTrigger] = useState(0);
   const { tempToken, login } = useAuth();
   
   
@@ -59,7 +60,12 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
           })
           .catch((error) => {
             setIsSubmitting(false);
-            setView("login");
+            // setView("login");
+            setErrorTrigger((prev) => prev + 1); // Esto reiniciará el CodeInput
+            form.setError("code", {
+              type: "manual",
+              message: "Código incorrecto",
+            });
             throw error;
           }),
         {
@@ -97,10 +103,15 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
                     <FormField
                       control={form.control}
                       name="code"
-                      render={({ field }) => (
+                      render={({ field, fieldState }) => (
                         <FormItem>
                           <FormControl>
-                            <Input placeholder="Codigo de verificacion" {...field} />
+                            <CodeInput
+                              value={field.value}
+                              onChange={field.onChange}
+                              hasError={!!fieldState.error}
+                              resetTrigger={errorTrigger}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
