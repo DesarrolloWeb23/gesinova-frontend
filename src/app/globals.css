@@ -41,6 +41,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
 }
 
 :root {
@@ -60,6 +62,9 @@
 
   --secondary: oklch(0.6997 0.1579 239.37); /* #04a9f5 */  
   --secondary-foreground: oklch(0.98 0.02 210); /* #eafdff */
+
+  --tertiary: oklch(0.8201 0.1669 81.51); /* #fab710 */
+  --tertiary-foreground: oklch(0 0 0); /* #000000 */
 
   --muted: oklch(0.88 0.06 210);  /* no se esta usando */   
   --muted-foreground: oklch(0.82 0 1);  /* #c4c4c4 revisar donde se esta usando*/
@@ -104,6 +109,9 @@
 
   --secondary: oklch(0.6997 0.1579 239.37); /* #04a9f5 */  
   --secondary-foreground: oklch(0.98 0.02 210); /* #eafdff */
+
+  --tertiary: oklch(0.8201 0.1669 81.51); /* #fab710 */
+  --tertiary-foreground: oklch(0 0 0); /* #000000 */
 
   --muted: oklch(0.35 0.07 230);
   --muted-foreground: oklch(0.98 0.02 210 / 10%);

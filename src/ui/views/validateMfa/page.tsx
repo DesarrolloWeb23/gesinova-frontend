@@ -3,7 +3,6 @@ import { Button } from "@/ui/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card"
@@ -22,12 +21,13 @@ import {
 import { useForm } from "react-hook-form"
 import { useState } from "react";
 import { useAuth } from "@/ui/context/AuthContext";
-import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
 import { CodeInput } from "@/ui/components/CodeInput";
+import { TbArrowBackUp } from "react-icons/tb";
+import { BsCheck2Circle } from "react-icons/bs";
 
 const formSchema = z.object({
-  code: z.string().min(6, "El codigo es requerido"),
+  code: z.string().min(6, getMessage("errors", "zod_code_required")).max(6, getMessage("errors", "zod_code_required"))
 })
 
 export default function RequiredMfa( {setView }: { setView: (view: string) => void; }) {
@@ -91,11 +91,10 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
       <div id="top-image"></div>
       <Card className="absolute w-[350px]">
           <CardHeader  className="items-center justify-center">
-              <Button onClick={() => setView("login")} className="bg-blue-500 text-white px-4 py-2 rounded">Volver</Button>
-              <CardTitle className="font-bold text-2xl">Validacion de doble factor</CardTitle>
+              <CardTitle className="font-bold text-2xl">{getMessage("ui", "mfa_validation_card_title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Ingresa el codigo de verificacion que se ha enviado.</p>
+              <p className="text-sm text-foreground">{getMessage("ui", "mfa_validation_card_subtitle")}</p>
               <div className="flex flex-col gap-4">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -119,17 +118,17 @@ export default function RequiredMfa( {setView }: { setView: (view: string) => vo
                     />
 
                     <div className="flex items-center justify-between">
-                      <Button type="submit" disabled={isSubmitting} className="w-full">
-                        {isSubmitting === true ? "Validando..." : "Validar"}
+                      <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
+                        <TbArrowBackUp />{getMessage("ui", "mfa_validation_back")}
+                      </Button>
+                      <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
+                        <BsCheck2Circle />{isSubmitting === true ? getMessage("ui", "mfa_validation_wait") : getMessage("ui", "mfa_validation_send_code")}
                       </Button>
                     </div>
                   </form>
                 </Form>
               </div>
             </CardContent>
-              <CardFooter className="flex justify-between items-center">
-                <Version></Version>
-              </CardFooter>
         </Card>
       <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
         <p>© 2025 Gesinova. Todos los derechos reservados.</p>

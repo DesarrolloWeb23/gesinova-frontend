@@ -5,6 +5,7 @@ export const messages = {
     access_error: "Unhandled error while logging in.",
     zod_username_required: "Username is required.",
     zod_password_required: "Password is required.",
+    zod_code_required: "Verification code is required.",
   },
   success: {
     access_success: "Access granted successfully ",
@@ -22,5 +23,11 @@ export const messages = {
       login_submit: "Log in",
       login_submiting: "Logging in...",
       login_remember_me: "Remember me",
+      mfa_validation_back: "Back to login",
+      mfa_validation_send_code: "Send code",
+      mfa_validation_code: "Enter the verification code sent to your email",
+      mfa_validation_wait: "Please wait...",
+      mfa_validation_card_title: "Multi-factor Authentication Validation",
+      mfa_validation_card_subtitle: "Enter the verification code sent to your email",
   }
 };
