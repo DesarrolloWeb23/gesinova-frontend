@@ -42,11 +42,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            powershell -Command "
-              cd 'C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com';
-              npm install --omit=dev --no-audit --no-fund;
-              Start-Sleep -Seconds 5;
-              nssm stop 'Gesinova-Frontend';
-              Start-Sleep -Seconds 5;
-              nssm start 'Gesinova-Frontend';
-            "
+            cd "C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com"
+            npm install --omit=dev --no-audit --no-fund
+            timeout /t 5
+            nssm stop "Gesinova-Frontend"
+            timeout /t 5
+            nssm start "Gesinova-Frontend"
+
