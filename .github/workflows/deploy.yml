@@ -35,17 +35,13 @@ jobs:
           target: "C:/inetpub/vhosts/pijaossalud.com/gesinova.pijaossalud.com"
           strip_components: 0
 
-      - name: Restart NSSM frontend service
+      - name: Restart NSSM service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd "C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com"
-            npm install --omit=dev --no-audit --no-fund
-            timeout /t 5
-            nssm stop "Gesinova-Frontend"
-            timeout /t 5
-            nssm start "Gesinova-Frontend"
+            nssm stop gesinovaapi
+            nssm start gesinovaapi
 
