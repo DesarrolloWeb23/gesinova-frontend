@@ -71,6 +71,21 @@ export class AuthApiService implements AuthRepository {
             }
         }
     }
+
+    //funcion para cerrar sesión
+    async logout(): Promise<AuthResult> {
+        try {
+            const response = await http.post('/auth/logout', {}, { withCredentials: true });
+            return response.data;
+        } catch (err) {
+            const error = err as AxiosError;
+            if (error?.response?.data) {
+                throw ApiErrorDTO.safeParse(error.response.data);
+            } else {
+                throw error;
+            }
+        }
+    }
 };
 
 // Puedes agregar más funciones luego: logoutUser, refreshToken, etc.

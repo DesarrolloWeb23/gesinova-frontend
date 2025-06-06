@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/ui/context/AuthContext";
+import { SessionModalProvider } from "@/ui/components/SessionModalProvider";
+import { ThemeProvider } from "@/ui/components/theme-provider"
+import { AccessibilityButton } from "@/ui/components/AccessibilityButton";
 
 
 const geistSans = Geist({
@@ -32,13 +35,22 @@ export default function RootLayout({
 }>) {
   
   return (
-    <html lang="en">
+    <html lang="es" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <SessionModalProvider />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              {children}
+              <AccessibilityButton />
+            </AuthProvider>
+          </ThemeProvider>
       </body>
     </html>
   );
