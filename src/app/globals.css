@@ -163,7 +163,7 @@
   background-repeat: no-repeat;
   }
 
-.indio {
+#indio {
   background-image: url("indio_pijao.png");
   background-color: white;
   position:fixed ;

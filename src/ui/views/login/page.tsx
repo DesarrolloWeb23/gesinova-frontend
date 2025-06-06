@@ -100,7 +100,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
     return (
       
       <div id="container" className="">
-        <div className="indio"></div>
+        <div id="indio" className="max-sm:hidden "></div>
         <div id="top-image"></div>
         <div className=" flex h-screen  w-screen items-center justify-center">
           <Card className="absolute w-[350px]">
