@@ -3,14 +3,16 @@ import { Button } from "@/ui/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card"
 import { AuthApiService } from '@/core/infrastructure/api/services/authService'
 import { ActivateTwoFactor } from '@/core/domain/use-cases/ActivateTwoFactor'
 import { toast } from 'sonner'
-import { Version } from "@/ui/components/Version";
+import { getMessage } from "@/core/domain/messages";
+import { TbArrowBackUp } from "react-icons/tb";
+import { RiQrCodeFill } from "react-icons/ri";
+import { IoMailOutline } from "react-icons/io5";
 
 
 export default function ActivateMfa( {setView }: { setView: (view: string) => void; }) {
@@ -26,9 +28,37 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
           .then((response) => {
             if (response.status === "TOPT_ACTIVATED") {
               const qrWindow = window.open("", "_blank");
-              if (qrWindow) {
-                qrWindow.document.write("<h1>QR Code</h1>");
-                qrWindow.document.write("<img src='" + response.data.qrUri + "' />");
+                if (qrWindow) {
+                  const html = `
+                    <html>
+                      <head>
+                        <title>QR Code</title>
+                        <style>
+                          body {
+                            font-family: sans-serif;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                            margin: 0;
+                            background: white;
+                          }
+                          img {
+                            width: 256px;
+                            height: 256px;
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        <h2>Escanea este código QR</h2>
+                        <img src="${response.data.qrUri}" alt="QR Code" />
+                      </body>
+                    </html>
+                  `
+                  qrWindow.document.write(html);
                 qrWindow.document.close();
               }
               setView("login");
@@ -37,14 +67,14 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
               setView("login");
               toast.success(response.message);
             } else {
-              toast.success("Segundo factor activado");
+              toast.success(getMessage("success", "mfa_activation_success"));
             }
           })
           .catch((error) => {
             toast.error(
               error?.data?.message
                 ? "Error: " + error.data.message
-                : "Error no manejado: " + error.message
+                : getMessage("errors", "handle_error") + error.message
             );
           })
         );
@@ -58,19 +88,16 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
       <div id="top-image"></div>
       <Card className="absolute w-[350px]">
           <CardHeader  className="items-center justify-center">
-              <Button onClick={() => setView("login")} className="bg-blue-500 text-white px-4 py-2 rounded">Volver</Button>
-              <CardTitle className="font-bold text-2xl">Activacion de doble factor</CardTitle>
+              <Button onClick={() => setView("login")} className="w-10" variant={"tertiary"}><TbArrowBackUp /></Button>
+              <CardTitle className="font-bold text-2xl">{getMessage("ui","mfa_activation_card_title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Para activar el doble factor de autenticacion, ppuedes hacerlos por QR o por codigo al correo electronico.</p>
+              <p className="text-sm text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</p>
               <div className="flex justify-between mt-4">
-                  <Button onClick={() => activate(1)} className="bg-blue-500 text-white px-4 py-2 rounded">QR</Button>
-                  <Button onClick={() => activate(2)} className="bg-red-500 text-white px-4 py-2 rounded">Codigo</Button>
+                  <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
+                  <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <Version></Version>
-            </CardFooter>
       </Card>
       <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
         <p>© 2025 Gesinova. Todos los derechos reservados.</p>

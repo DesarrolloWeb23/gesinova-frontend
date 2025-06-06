@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { showSessionModal } from "@/ui/components/SessionModalManager";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -12,43 +13,44 @@ export const http = axios.create({
 
 http.interceptors.request.use(
   async (config) => {
-    const excludedRoutes = ["/auth/login", "/auth/refresh"];
+    const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa"];
 
-    // Evita aplicar el interceptor en rutas excluidas
-    if (excludedRoutes.some((route) => config.url?.includes(route))) {
-      return config;
-    }
-
-    try {
-        
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        if (!token) {
-        const response = await axios.post(
-          `${baseURL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newToken = response.data.data.accessToken;
-        if (localStorage.getItem("rememberMe") === "true") {
-          localStorage.setItem("token", newToken);
-        }
-        else {
-          sessionStorage.setItem("token", newToken);
-        }
-
-        config.headers.Authorization = `Bearer ${newToken}`;
+    
+      // Evita aplicar el interceptor en rutas excluidas
+      if (excludedRoutes.some((route) => config.url?.includes(route))) {
         return config;
       }
 
-      config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    } catch (error) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      window.location.href = "/";
-      return Promise.reject(error);
-    }
+      try {
+          
+          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+          if (!token) {
+          const response = await axios.post(
+            `${baseURL}/auth/refresh`,
+            {},
+            { withCredentials: true }
+          );
+
+          const newToken = response.data.data.accessToken;
+          if (localStorage.getItem("rememberMe") === "true") {
+            localStorage.setItem("token", newToken);
+          }
+          else {
+            sessionStorage.setItem("token", newToken);
+          }
+
+          config.headers.Authorization = `Bearer ${newToken}`;
+          return config;
+        }
+
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      } catch (error) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/";
+        return Promise.reject(error);
+      }
   },
   (error) => Promise.reject(error)
 );
@@ -80,34 +82,39 @@ http.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      const shouldRenew = await showSessionModal();
+      if (shouldRenew) {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            if (!token) {
+            const response = await axios.post(
+              `${baseURL}/auth/refresh`,
+              {},
+              { withCredentials: true }
+            );
+    
+            const newToken = response.data.data.accessToken ;
 
-      try {
-          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-          if (!token) {
-          const response = await axios.post(
-            `${baseURL}/auth/refresh`,
-            {},
-            { withCredentials: true }
-          );
-  
-          const newToken = response.data.data.accessToken ;
+            if (localStorage.getItem("rememberMe") === "true") {
+              localStorage.setItem("token", newToken);
+            }
+            else {
+              sessionStorage.setItem("token", newToken);
+            }
 
-          if (localStorage.getItem("rememberMe") === "true") {
-            localStorage.setItem("token", newToken);
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
-          else {
-            sessionStorage.setItem("token", newToken);
-          }
 
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return http(originalRequest);
+
+        } catch (refreshError) {
+          localStorage.removeItem("token");
+          window.location.href = "/";
+          return Promise.reject(refreshError);
         }
-
-        return http(originalRequest);
-
-      } catch (refreshError) {
-        localStorage.removeItem("token");
+      } else {
+        // logout();
         window.location.href = "/";
-        return Promise.reject(refreshError);
       }
     }
 
