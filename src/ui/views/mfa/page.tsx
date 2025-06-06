@@ -28,9 +28,37 @@ export default function ActivateMfa( {setView }: { setView: (view: string) => vo
           .then((response) => {
             if (response.status === "TOPT_ACTIVATED") {
               const qrWindow = window.open("", "_blank");
-              if (qrWindow) {
-                qrWindow.document.write("<h1>QR Code</h1>");
-                qrWindow.document.write("<img src='" + response.data.qrUri + "' />");
+                if (qrWindow) {
+                  const html = `
+                    <html>
+                      <head>
+                        <title>QR Code</title>
+                        <style>
+                          body {
+                            font-family: sans-serif;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                            margin: 0;
+                            background: white;
+                          }
+                          img {
+                            width: 256px;
+                            height: 256px;
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        <h2>Escanea este código QR</h2>
+                        <img src="${response.data.qrUri}" alt="QR Code" />
+                      </body>
+                    </html>
+                  `
+                  qrWindow.document.write(html);
                 qrWindow.document.close();
               }
               setView("login");
