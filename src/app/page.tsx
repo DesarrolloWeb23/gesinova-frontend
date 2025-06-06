@@ -38,7 +38,6 @@ export default function Home() {
       )}
       {view === "dashboard" && (
         <Dashboard
-          listUser={() => setView("user")}
           comeBack={() => {
             logout();
             setView("login");

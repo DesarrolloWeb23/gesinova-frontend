@@ -16,19 +16,8 @@ import {
     BreadcrumbSeparator,
 } from "@/ui/components/ui/breadcrumb"
 import { Separator } from "@/ui/components/ui/separator"
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from "@/ui/components/ui/card"
-import { Input } from "@/ui/components/ui/input";
-import { Label } from "@/ui/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/ui/select";
 
-export default function Dasboard({ listUser, comeBack }: { listUser: () => void, comeBack: () => void }) {
+export default function Dasboard({ comeBack }: {  comeBack: () => void }) {
 
     const user = localStorage.getItem("user");
     const testUseCase = new Test(new AuthApiService());
