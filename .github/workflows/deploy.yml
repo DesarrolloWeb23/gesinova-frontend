@@ -35,6 +35,16 @@ jobs:
           target: "C:/inetpub/vhosts/pijaossalud.com/gesinova.pijaossalud.com"
           strip_components: 0
 
+      - name: Build frontend in server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /d C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com
+            npm run build
+
       - name: Restart NSSM service
         uses: appleboy/ssh-action@master
         with:
