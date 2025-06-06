@@ -45,4 +45,5 @@ jobs:
             cd C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com
             npm install --omit=dev --no-audit --no-fund
             npm run build
-            nssm restart Gesinova-Frontend
+            nssm stop Gesinova-Frontend
+            nssm start Gesinova-Frontend
