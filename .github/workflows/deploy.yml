@@ -42,6 +42,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            nssm stop gesinovaapi
-            nssm start gesinovaapi
+            nssm stop Gesinova-Frontend
+            nssm start Gesinova-Frontend
 
