@@ -502,6 +502,7 @@ const sidebarMenuButtonVariants = cva(
 )
 
 function SidebarMenuButton({
+  onClick,
   asChild = false,
   isActive = false,
   variant = "default",
@@ -516,12 +517,17 @@ function SidebarMenuButton({
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const Comp = asChild ? Slot : "button"
   const { isMobile, state } = useSidebar()
+  const { toggleSidebar } = useSidebar()
 
   const button = (
     <Comp
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
+      onClick={(event) => {
+        onClick?.(event)
+        toggleSidebar()
+      }}
       className={cn(sidebarMenuButtonVariants({ variant, size, active: isActive }), className)}
       {...props}
     />

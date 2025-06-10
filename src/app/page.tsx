@@ -7,13 +7,11 @@ import RequiredMfa from "@/ui/views/validateMfa/page";
 import User from "@/ui/views/user/page";
 import Remember from "@/ui/views/remember/page";
 import { Toaster } from 'sonner'
-import { useAuth } from "@/ui/context/AuthContext";
 import { setErrorMap } from "zod";
 import { customZodErrorMap } from "@/ui/hooks/useZodErrorMap";
 
 export default function Home() {
   
-  const { logout } = useAuth();
   const [view, setView] = useState("");
   setErrorMap(customZodErrorMap);
 
@@ -37,12 +35,7 @@ export default function Home() {
         />
       )}
       {view === "dashboard" && (
-        <Dashboard
-          comeBack={() => {
-            logout();
-            setView("login");
-          }}
-        />
+        <Dashboard/>
       )}
       {view === "ActivateMfa" && (
         <ActivateMfa

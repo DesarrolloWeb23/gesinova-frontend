@@ -53,6 +53,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       sessionStorage.removeItem("token"); 
     }
+    setTempToken(null);
+    setRememberMe(false);
+    localStorage.removeItem("rememberMe");
+    sessionStorage.removeItem("rememberMe");
+    window.location.href = "/";
   };
 
   return (

@@ -15,86 +15,52 @@ import {
   SidebarRail,
 } from "@/ui/components/ui/sidebar"
 
-// This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-      ],
-    }
-  ],
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  setSubView, 
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { setSubView: (view: string) => void; }) {
     return (
         <Sidebar {...props}>
         <SidebarHeader>
             <VersionSwitcher
-            versions={data.versions}
-            defaultVersion={data.versions[0]}
+            versions={["1.0.1", "1.1.0-alpha", "2.0.0-beta1"]}
+            defaultVersion={"1.0.1"}
             />
             <SearchForm />
         </SidebarHeader>
         <SidebarContent>
-            {/* We create a SidebarGroup for each parent. */}
-            {data.navMain.map((item) => (
-            <SidebarGroup key={item.title}>
-                <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroup key="main">
+                <SidebarGroupLabel>Menú</SidebarGroupLabel>
                 <SidebarGroupContent>
-                <SidebarMenu>
-                    {item.items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={item.isActive}>
-                        <a href={item.url}>{item.title}</a>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
+                  <SidebarMenu>
+                      <SidebarMenuItem key="turnos">
+                          <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("turnos")}> 
+                          <a >Turnos</a>
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem key="Papelería">
+                          <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("stationery")}>
+                          <a>Papelería</a>
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem key="Elementos Tecnologicos">
+                          <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("technologicalElements")}>
+                          <a>Elementos Tecnologicos</a>
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem key="EQS">
+                          <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("eqs")}>
+                          <a>EQS</a>
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem key="Soportes">
+                          <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("supports")}>
+                          <a>Soportes</a>
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                  </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
-            ))}
         </SidebarContent>
         <SidebarRail />
         </Sidebar>

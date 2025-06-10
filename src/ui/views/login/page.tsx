@@ -173,13 +173,10 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
               </CardFooter>
           </Card>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
-          <div className="absolute h-12 items-center justify-center text-sm">
-            <p>© 2025 Gesinova. Todos los derechos reservados.</p>
-          </div>
-          <div className="absolute flex h-12 items-center justify-center text-sm">
-            <a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a> - <a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a>
-          </div>
+        <div className="h-1/3 text-center text-xs">
+          <div><p>© 2025 Gesinova. Todos los derechos reservados.</p></div>
+          <div><a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a></div>
+          <div><a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a></div>
         </div>
       </div>
     );
