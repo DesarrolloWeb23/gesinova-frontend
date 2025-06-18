@@ -13,7 +13,7 @@ export const http = axios.create({
 
 http.interceptors.request.use(
   async (config) => {
-    const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa"];
+    const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa", "/auth/logout", "/auth/reset-password"];
 
     
       // Evita aplicar el interceptor en rutas excluidas

@@ -86,6 +86,21 @@ export class AuthApiService implements AuthRepository {
             }
         }
     }
+
+    //funcion para reestablecer contraseña
+    async resetPassword(email: string): Promise<AuthResult> {
+        try {
+            const response = await http.post('/auth/reset-password', { email });
+            return response.data;
+        } catch (err) {
+            const error = err as AxiosError;
+            if (error?.response?.data) {
+                throw ApiErrorDTO.safeParse(error.response.data);
+            } else {
+                throw error;
+            }
+        }
+    }
 };
 
 // Puedes agregar más funciones luego: logoutUser, refreshToken, etc.

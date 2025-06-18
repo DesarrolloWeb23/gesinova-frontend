@@ -39,6 +39,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
+  const [showIndio, setShowIndio] = useState(true)
   
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -48,6 +49,14 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
         password: "",
       }, 
     })
+  
+    const handleChangeView = (view: string) => {
+      setShowIndio(false)
+
+      setTimeout(() => {
+        setView(view) 
+      }, 500)
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
       if (isSubmitting) return; // Previene múltiples envíos
@@ -59,23 +68,24 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
           loginUseCase.execute(values.username, values.password)  
           .then((response) => {
 
-              if (response.status === "ACTIVATE_MFA") {
+              if (response.message === "ACTIVATE_MFA") {
                 login(response.data , response.data.accessToken);
+                validationToken(response.data.tempToken);
                 setView("ActivateMfa");
                 setIsSubmitting(false);
                 return;
               }
 
-              if (response.status === "MFA_INHABILITATED") {
+              if (response.message === "MFA_INHABILITATE") {
                 login(response.data , response.data.accessToken);
-                setView("dashboard");
+                handleChangeView("dashboard");
                 setIsSubmitting(false);
                 return;
               }
 
-              if (response.status === "MFA_REQUIRED") {
+              if (response.message === "VALIDATE_MFA") {
                 validationToken(response.data.tempToken);
-                setView("requiredMfa");
+                setView("validateMfa");
                 setIsSubmitting(false);
                 return;
               }
@@ -99,10 +109,12 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
     
     return (
       
-      <div id="container" className="">
-        <div className="indio"></div>
+      <div id="container" className="h-dvh">
+        <div  className={`indio transition-opacity duration-500 animate-in fade-in slide-in-from-top-8 duration-900 ${
+          showIndio ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          ></div>
         <div id="top-image"></div>
-        <div className=" flex h-screen  w-screen items-center justify-center">
+        <div className=" flex h-9/10 w-screen items-center justify-center">
           <Card className="absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
                 <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
@@ -156,7 +168,9 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
                           </label>
                         </div>
                       </div>
-                      <a className="text-sm font-medium hover:underline">{getMessage("ui", "login_forgot_password")}</a>
+                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm font-medium hover:cursor-pointer">
+                        {getMessage("ui", "login_forgot_password")}
+                      </a>
                       
                     </div>
 
@@ -173,7 +187,7 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
               </CardFooter>
           </Card>
         </div>
-        <div className="h-1/3 text-center text-xs">
+        <div className="text-center text-xs">
           <div><p>© 2025 Gesinova. Todos los derechos reservados.</p></div>
           <div><a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a></div>
           <div><a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a></div>

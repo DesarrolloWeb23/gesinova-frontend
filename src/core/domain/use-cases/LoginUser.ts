@@ -11,29 +11,47 @@ export class LoginUser {
         try {
                 const response = await this.authRepository.login(username, password);
 
-                if (response.data.mfaRequired === false && response.data.firstLogin) {
+                if (response.data.mfaRequired === false && response.data.mfaVerified === false && response.data.firstLogin === true) {
                     return {
-                    status: "ACTIVATE_MFA",
+                    status: 200,
                     path: "/activate-mfa",
-                    message: "Multi-factor authentication required.",
+                    message: "ACTIVATE_MFA",
                     data: response.data,
                     };
                 }
 
-                if (response.data.mfaRequired === false && !response.data.firstLogin) {
+                if (response.data.mfaRequired === false && response.data.mfaVerified === false && response.data.firstLogin === false) {
                     return {
-                        status: "MFA_INHABILITATED",
+                        status: 200,
                         path: "/",
-                        message: "Multi-factor authentication not enabled.",
+                        message: "MFA_INHABILITATE",
                         data: response.data,
                     };
                 }
 
-                if (response.data.mfaRequired === true) {
+                if (response.data.mfaRequired === true && response.data.mfaVerified === false && response.data.firstLogin === true) {
                     return {
-                        status: "MFA_REQUIRED",
-                        path: "/required-mfa",
-                        message: "Multi-factor authentication required.",
+                        status: 200,
+                        path: "/activate-mfa",
+                        message: "ACTIVATE_MFA",
+                        data: response.data,
+                    };
+                }
+
+                if (response.data.mfaRequired === true && response.data.mfaVerified === false  && response.data.firstLogin === false) {
+                    return {
+                        status: 200,
+                        path: "/validate-mfa",
+                        message: "ACTIVATE_MFA",
+                        data: response.data,
+                    };
+                }
+
+                if (response.data.mfaRequired === true && response.data.mfaVerified === true  && response.data.firstLogin === false) {
+                    return {
+                        status: 200,
+                        path: "/validate-mfa",
+                        message: "VALIDATE_MFA",
                         data: response.data,
                     };
                 }

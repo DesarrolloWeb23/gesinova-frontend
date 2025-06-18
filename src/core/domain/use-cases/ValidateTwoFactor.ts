@@ -2,7 +2,7 @@ import { AuthRepository } from "@/core/domain/ports/AuthRepository";
 import { AuthResult } from "@/core/dto/AuthResultDTO";
 
 
-export class ValidateMfa {
+export class ValidateTwoFactor {
     
     constructor(private authRepository: AuthRepository) {}
 

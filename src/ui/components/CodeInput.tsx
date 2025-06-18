@@ -67,7 +67,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
 
 
     return (
-        <div className="container">
         <div className={`code-inputs ${hasError ? "shake" : "border-gray-300"}`} id="inputsWrapper">
                 {code.map((digit, i) => (
                     <input
@@ -85,7 +84,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
                         className={`w-10 h-10 text-center border rounded ${hasError ? "error-border" : "border-gray-300"}`}
                     />
                 ))}
-        </div>
         </div>
     );
 };

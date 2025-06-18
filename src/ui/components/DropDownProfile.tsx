@@ -49,12 +49,12 @@ export function DropdownProfile({setSubView} : {setSubView: (view: string) => vo
 
     return (
         <DropdownMenu>
-            <Avatar className="hover:border hover:border-primary transition-all">
+            <Avatar className="hover:border hover:border-primary animate-in fade-in slide-in-from-right-8 duration-400">
                 <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                 <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">Mi Perfil</Button>
+                <Button variant="outline" className="animate-in fade-in slide-in-from-right-8 duration-200">Mi Perfil</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="start">
                 <DropdownMenuLabel>Mi Perfil</DropdownMenuLabel>

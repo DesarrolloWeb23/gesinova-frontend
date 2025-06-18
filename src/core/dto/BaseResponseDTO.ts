@@ -4,7 +4,7 @@ import { z } from 'zod'
 // DTO genérico
 export const BaseResponseDTO = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
-    status: z.string() || z.number(),
+    status:  z.number(),
     message: z.string(),
     path: z.string(),
     timestamp: z.string().optional().nullable(),

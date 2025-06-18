@@ -2,10 +2,9 @@
 import { useState,useEffect } from "react";
 import Login from "@/ui/views/login/page";
 import Dashboard from "@/ui/views/dashboard/page";
-import ActivateMfa from "@/ui/views/mfa/page";
-import RequiredMfa from "@/ui/views/validateMfa/page";
-import User from "@/ui/views/user/page";
-import Remember from "@/ui/views/remember/page";
+import ActivateMfa from "@/ui/views/activateMfa/page";
+import ValidateMfa from "@/ui/views/validateMfa/page";
+import ResetPassword from "@/ui/views/resetPasswordForm/page";
 import { Toaster } from 'sonner'
 import { setErrorMap } from "zod";
 import { customZodErrorMap } from "@/ui/hooks/useZodErrorMap";
@@ -42,13 +41,16 @@ export default function Home() {
           setView={setView}
         />
       )}
-      {view === "requiredMfa" && (
-        <RequiredMfa
+      {view === "validateMfa" && (
+        <ValidateMfa
           setView={setView}
         />
       )}
-      {view === "user" && <User comeBack={() => setView("login")} />}
-      {view === "remember" && <Remember comeBack={() => setView("login")} />}
+      {view === "resetPassword" && (
+        <ResetPassword
+          setView={setView}
+        />
+      )}
       <Toaster richColors position="top-right" />
     </main>
   );

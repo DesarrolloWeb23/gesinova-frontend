@@ -6,4 +6,5 @@ export interface AuthRepository {
     validateMFA(tokenTemp: string | null, code: string): Promise<AuthResult>
     test(): Promise<AuthResult>;
     logout(): Promise<AuthResult>;
+    resetPassword(email: string): Promise<AuthResult>;
 }

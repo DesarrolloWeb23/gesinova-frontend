@@ -25,7 +25,7 @@ const subViewsMap: Record<string, React.ComponentType> = {
 
 export default function Dasboard() {
     const [subView, setSubView] = useState("");
-    const user = localStorage.getItem("user");
+    const user = sessionStorage.getItem("user");
     const SubViewComponent = subViewsMap[subView];
     const [notificationCount, setNotificationCount] = useState(0);
 
@@ -55,32 +55,32 @@ export default function Dasboard() {
                     <h1 className="text-2xl font-bold max-sm:text-xs">Bienvenido {user}</h1>
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <div className="ml-auto accent text-white px-4 py-2 rounded"></div>
-                    <div className="flex items-center gap-2  hover:animate-vibrate">
+                    <div className="flex items-center gap-2  hover:animate-vibrate animate-in fade-in slide-in-from-right-8 duration-800">
                         <MdNotificationsActive className="text-black text-2xl dark:text-white vibrate-on-hover" />
                         <span className={notificationCount ? "bg-red-500 text-white rounded-full px-2 py-1 text-xs" : "display-none"}>{notificationCount ? notificationCount : ""}</span>
                     </div>
                     <DropdownProfile setSubView={setSubView}/>
                 </header>
 
-                <div className="flex flex-1 flex-col gap-4 p-4">
-                    <Breadcrumb className="hover:cursor-pointer">
+                <div className="flex flex-1 flex-col gap-1 p-4">
+                    <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink onClick={() => setSubView("dashboard")}>
+                                <BreadcrumbLink onClick={() => setSubView("dashboard")} className="hover:cursor-pointer">
                                     Dasboard
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator/>
                             { subView === "dashboard" ? null : (
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink onClick={() => setSubView(subView)}>
+                                    <BreadcrumbLink onClick={() => setSubView(subView)} className="hover:cursor-pointer">
                                         {subView.charAt(0).toUpperCase() + subView.slice(1).replace(/_/g, " ")}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             )}
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min animate-in fade-in">
+                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1 shadow-lg shadow-blue-500/50">
                         {SubViewComponent ? <SubViewComponent /> : <p>Vista no encontrada</p>}
                     </div>
                 </div>

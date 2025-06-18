@@ -20,7 +20,7 @@ export default function Transfer() {
     }
 
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col animate-in fade-in slide-in-from-top-8 duration-900">
             <header className="bg-primary flex h-16 shrink-0 items-center gap-2 border-b px-4">
                 <h1 className="text-2xl font-bold text-white">Turnos</h1>
             </header>

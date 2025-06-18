@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const login = (user: User, token: string) => {
-    localStorage.setItem("user", user.user.firstName + " " + user.user.lastName);
+    sessionStorage.setItem("user", user.user.firstName + " " + user.user.lastName);
 
     if (rememberMe) {
     localStorage.setItem("token", token); // Guarda el token solo si eligió "recordarme"
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     if (rememberMe) {
       localStorage.removeItem("token"); 
     } else {

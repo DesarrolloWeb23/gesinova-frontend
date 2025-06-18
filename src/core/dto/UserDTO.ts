@@ -5,6 +5,7 @@ export const UserDTO = z.object({
     accessToken : z.string(),
     expiresAt : z.string(),
     mfaRequired : z.boolean(),
+    mfaVerified : z.boolean(),
     firstLogin : z.boolean(),
     qrUri: z.string().optional(),
     tempToken: z.string(),

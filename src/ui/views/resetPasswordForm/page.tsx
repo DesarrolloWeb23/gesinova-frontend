@@ -3,11 +3,12 @@ import { Button } from "@/ui/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/ui/components/ui/card"
 import { AuthApiService } from '@/core/infrastructure/api/services/authService'
-import { ValidateTwoFactor } from '@/core/domain/use-cases/ValidateTwoFactor'
+import { ResetPassword } from '@/core/domain/use-cases/ResetPassword'
 import { toast } from 'sonner'
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -20,65 +21,55 @@ import {
 } from "@/ui/components/ui/form"
 import { useForm } from "react-hook-form"
 import { useState } from "react";
-import { useAuth } from "@/ui/context/AuthContext";
 import { getMessage } from "@/core/domain/messages";
-import { CodeInput } from "@/ui/components/CodeInput";
+import { Input } from "@/ui/components/ui/input";
 import { TbArrowBackUp } from "react-icons/tb";
-import { BsCheck2Circle } from "react-icons/bs";
+import { MdOutgoingMail } from "react-icons/md";
 
 const formSchema = z.object({
-  code: z.string().min(6, getMessage("errors", "zod_code_required")).max(6, getMessage("errors", "zod_code_required"))
+    email: z.string({required_error: getMessage("errors", "zod_mail_required"),}).email(getMessage("errors", "zod_mail_required"))
 })
 
-export default function ValidateMfa( {setView }: { setView: (view: string) => void; }) {
+export default function ResetPasswordForm( {setView }: { setView: (view: string) => void; }) {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorTrigger, setErrorTrigger] = useState(0);
-  const { tempToken, login } = useAuth();
-  
   
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      code: "",
+      email: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    const validateMfaUseCase = new ValidateTwoFactor(new AuthApiService());
+    const resetPasswordUseCase = new ResetPassword(new AuthApiService());
 
     try {
       await toast.promise(
-        validateMfaUseCase.execute(tempToken, values.code)
+        resetPasswordUseCase.execute(values.email)
           .then((response) => {
-            login(response.data, response.data.accessToken);
-            setIsSubmitting(false);
-            setView("dashboard");
+            if(response.message === "RESET_PASSWORD_SUCCESS") {
+              setView("login");
+              setIsSubmitting(false);
+              return;
+            }
           })
           .catch((error) => {
             setIsSubmitting(false);
-            setErrorTrigger((prev) => prev + 1); // Esto reiniciará el CodeInput
-            form.setError("code", {
-              type: "manual",
-            });
             throw error;
           }),
         {
-          loading:  getMessage("success", "access_loading"),
-          success: getMessage("success", "mfa_validation_success"),
-          error: (error) =>
-            error?.data?.message
-              ? "Error: " + error?.data?.message
-              : getMessage("errors", "handle_error") + error.message,
+          loading:  getMessage("success", "sending"),
+          success: getMessage("success", "reset_password_success"),
+          error: (error) => 
+            error?.message
         }
       );
     } catch (error) {
-      console.error("Error al validar el doble factor:", error);
-    } finally {
       setIsSubmitting(false);
+      console.error("Error al enviar correo:", error);
     }
     
   }
@@ -89,26 +80,23 @@ export default function ValidateMfa( {setView }: { setView: (view: string) => vo
       <div id="top-image"></div>
       <Card className="absolute w-[350px]">
         <CardHeader  className="items-center justify-center">
-          <CardTitle className="font-bold text-2xl">{getMessage("ui", "mfa_validation_card_title")}</CardTitle>
+            <CardTitle className="font-bold text-2xl">{getMessage("ui", "reset_password_card_title")}</CardTitle>
         </CardHeader>
+        <CardDescription className="text-center">
+          <p className="text-sm text-foreground">{getMessage("ui", "reset_password_card_subtitle")}</p>
+        </CardDescription>
         <CardContent>
-          <p className="text-sm text-foreground">{getMessage("ui", "mfa_validation_card_subtitle")}</p>
           <div className="flex flex-col gap-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
                 <FormField
                   control={form.control}
-                  name="code"
-                  render={({ field, fieldState }) => (
+                  name="email"
+                  render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <CodeInput
-                          value={field.value}
-                          onChange={field.onChange}
-                          hasError={!!fieldState.error}
-                          resetTrigger={errorTrigger}
-                        />
+                        <Input placeholder={getMessage("ui", "reset_password_email_placeholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -117,10 +105,10 @@ export default function ValidateMfa( {setView }: { setView: (view: string) => vo
 
                 <div className="flex items-center justify-between">
                   <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
-                    <TbArrowBackUp />{getMessage("ui", "mfa_validation_back")}
+                    <TbArrowBackUp />{getMessage("ui", "reset_password_back")}
                   </Button>
                   <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
-                    <BsCheck2Circle />{isSubmitting === true ? getMessage("ui", "mfa_validation_wait") : getMessage("ui", "mfa_validation_send_code")}
+                    <MdOutgoingMail />{isSubmitting === true ? getMessage("ui", "wait") : getMessage("ui", "reset_password_send_code")}
                   </Button>
                 </div>
               </form>
