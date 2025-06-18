@@ -29,8 +29,16 @@ export default function Dasboard() {
     const SubViewComponent = subViewsMap[subView];
     const [notificationCount, setNotificationCount] = useState(0);
 
+    //funcion que simula la obtención de notificaciones
+    const fetchNotifications = () => {
+        // Simula una llamada a la API para obtener notificaciones
+        const notifications = Math.floor(Math.random() * 10); // Simula entre 0 y 9 notificaciones
+        setNotificationCount(notifications);
+    }
+
     useEffect(() => {
         const savedView = sessionStorage.getItem("SubView");
+        fetchNotifications(); // Llama a la función para obtener notificaciones al cargar el componente
 
         if (savedView) {
             setSubView(savedView);

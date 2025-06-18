@@ -1,5 +1,7 @@
 import { AuthRepository } from "../ports/AuthRepository";
 import { AuthResult } from "@/core/dto/AuthResultDTO";
+import { ResponseError } from "@/core/dto/ResponseErrorDTO";
+import { getMessage } from "@/core/domain/messages";
 
 export class ActivateTwoFactor {
     constructor(private authRepository: AuthRepository) {}

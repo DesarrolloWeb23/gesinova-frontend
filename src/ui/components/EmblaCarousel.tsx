@@ -1,12 +1,17 @@
 import React from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
+import type { EmblaOptionsType } from 'embla-carousel'
 
 import { DotButton, useDotButton } from '@/ui/components/EmblaCarouselDotButton'
 import { PrevButton, NextButton, usePrevNextButtons } from '@/ui/components/EmblaCarouselArrowButtons'
 
-const EmblaCarousel = (props) => {
-    const { slides, options } = props
+interface EmblaCarouselProps {
+    slides: string[]
+    options?: EmblaOptionsType
+}
+
+const EmblaCarousel: React.FC<EmblaCarouselProps> = ({ slides, options }) => {
 
     const autoplay = React.useRef(
         Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true })

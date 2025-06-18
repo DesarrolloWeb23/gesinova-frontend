@@ -9,9 +9,9 @@ export class LogoutUser {
             const response = await this.authRepository.logout();
             if (response) {
                 return {
-                status: "LOGOUT_SUCCESS",
+                status: 200,
                 path: response.path || "/",
-                message: response.message || "Logout successful.",
+                message: "LOGOUT_SUCCESS",
                 data: response.data,
                 };
             }
