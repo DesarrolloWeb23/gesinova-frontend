@@ -25,13 +25,13 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Copy frontend build to server
+      - name: Copy all source code to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".next,public,package.json,package-lock.json"
+          source: "."  # Esto copia todo el repositorio
           target: "C:/inetpub/vhosts/pijaossalud.com/gesinova.pijaossalud.com"
           strip_components: 0
 
@@ -42,7 +42,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /d C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com & npm run build
+            cd /d C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com
+            npm install
+            npm run build
 
       - name: Restart NSSM service
         uses: appleboy/ssh-action@master
@@ -51,5 +53,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            nssm stop Gesinova-Frontend || echo Already stopped & timeout /t 5 & nssm start Gesinova-Frontend
-
+            nssm stop Gesinova-Frontend || echo Already stopped
+            timeout /t 5
+            nssm start Gesinova-Frontend
