@@ -54,6 +54,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             nssm stop gesinova-frontend || echo Already stopped
-            timeout /t 5
+            Start-Sleep -Seconds 5
             nssm start gesinova-frontend || echo Already started
             sc query gesinova-frontend
+
