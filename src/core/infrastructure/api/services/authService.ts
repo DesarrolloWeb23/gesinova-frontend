@@ -17,6 +17,9 @@ type LogoutApiResponse = z.infer<typeof LogoutApiResponseDTO>;
 const AuthEnableResponseDTO = BaseResponseDTO(AuthEnableMfaDTO);
 type AuthEnableResponse = z.infer<typeof AuthEnableResponseDTO>;
 
+const ResetPasswordApiResponseDTO = BaseResponseDTO(ResponseDTO);
+type ResetPasswordApiResponse = z.infer<typeof ResetPasswordApiResponseDTO>;
+
 // Archivo que hace la llamada a la API y devuelve el resultado
 export class AuthApiService implements AuthRepository {
     async login (username: string, password: string): Promise<AuthApiResponse> {
@@ -226,10 +229,10 @@ export class AuthApiService implements AuthRepository {
     }
 
     //funcion para reestablecer contraseña
-    async resetPassword(email: string): Promise<AuthApiResponse> {
+    async resetPassword(email: string): Promise<ResetPasswordApiResponse> {
         try {
             const response = await http.post('/auth/reset-password', { email });
-            return AuthApiResponseDTO.parse(response.data);
+            return ResetPasswordApiResponseDTO.parse(response.data);
         } catch (err: unknown) {
             if (err instanceof ZodError) {
                 // Error de validación Zod en respuesta de la API
