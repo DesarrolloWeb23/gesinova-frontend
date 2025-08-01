@@ -11,9 +11,10 @@ export const http = axios.create({
   withCredentials: true,
 })
 
+// interceptor de peticiones
 http.interceptors.request.use(
   async (config) => {
-    const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa"];
+    const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa", "/auth/reset-password"];
 
     
       // Evita aplicar el interceptor en rutas excluidas
@@ -56,22 +57,20 @@ http.interceptors.request.use(
 );
 
 
-
+//interceptor de respuestas
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
     
-
+    
     if (error.response?.status === 429) {
       //corregir  ya que la api va a responder con la estructura de ApiErrorDTO
       const type = 'Error de negocio';
       const path = originalRequest.url; 
       const timestamp = new Date().toISOString();
       const message = error.response?.data?.message || "Demasiadas peticiones. Intenta más tarde.";
-
+      
       error.response.data = { message };
       error.response.data.path = path;
       error.response.data.error = type;
@@ -79,8 +78,10 @@ http.interceptors.response.use(
       error.response.data.status = error.response?.status;
       return Promise.reject(error);
     }
-
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
       originalRequest._retry = true;
       const shouldRenew = await showSessionModal();
       if (shouldRenew) {

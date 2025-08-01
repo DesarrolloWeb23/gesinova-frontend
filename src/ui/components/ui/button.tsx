@@ -15,6 +15,8 @@ const buttonVariants = cva(
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-card dark:border-input dark:hover:bg-input/50",
+        secondary:
+          "relative w-[190px] m-2 text-white transition-all duration-500 ease-in-out cursor-pointer hover:-translate-y-5",
         tertiary:
           "bg-tertiary text-tertiary-foreground dark:bg-tertiary dark:text-tertiary-foreground hover:bg-tertiary/70 dark:hover:bg-tertiary/80",
         ghost:
@@ -40,19 +42,33 @@ function Button({
   variant,
   size,
   asChild = false,
+  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
+  const baseClass = cn(buttonVariants({ variant, size, className }))
+
+  if (variant === "secondary") {
+    return (
+      <Comp className={baseClass} {...props}>
+        <div className="relative w-[190px] h-[50px] flex items-center justify-center content bg-secondary rounded-xl gap-2">
+          {children}
+        </div>
+      </Comp>
+    )
+  }
 
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={baseClass}
       {...props}
-    />
+    >
+      {children}
+    </Comp>
   )
 }
 

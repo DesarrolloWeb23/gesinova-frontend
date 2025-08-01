@@ -1,99 +1,104 @@
 import React from "react";
-import { Test } from "@/core/domain/use-cases/test";
-import { toast } from 'sonner';
-import { AuthApiService } from '@/core/infrastructure/api/services/authService';
-import { LogoutUser } from '@/core/domain/use-cases/LogoutUser'
-import { useAuth } from "@/ui/context/AuthContext";
-import { Button } from "@/ui/components/ui/button";
-import {AppSidebar} from "@/ui/components/app-sidebar";
+import {AppSidebar} from "@/ui/components/Sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/ui/components/ui/sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/ui/components/ui/breadcrumb"
 import { Separator } from "@/ui/components/ui/separator"
+import { DropdownProfile } from "@/ui/components/DropDownProfile";
+import { useState, useEffect } from "react";
+import SubDashboard from "@/ui/subViews/dashboard/page";
+import Transfer from "@/ui/subViews/transfer/page";
+import Profile from "@/ui/subViews/profile/page";
+import Configuracion from "@/ui/subViews/configuration/page";
+import Company from "@/ui/subViews/company/page";
+import Support from "@/ui/subViews/support/page";
+import { MdNotificationsActive } from "react-icons/md";
+import { useView } from "@/ui/context/ViewContext";
 
-export default function Dasboard({ comeBack }: {  comeBack: () => void }) {
+const subViewsMap: Record<string, React.ComponentType> = {
+    dashboard: SubDashboard,
+    turnos: Transfer,
+    mi_perfil: Profile,
+    configuracion: Configuracion,
+    mi_empresa: Company,
+    soportes: Support,
+    // aqui se agregan las demás vistas
+};
 
-    const user = localStorage.getItem("user");
-    const testUseCase = new Test(new AuthApiService());
-    const { logout } = useAuth();
+export default function Dashboard() {
+    const { subView, setSubView } = useView();
+    const user = sessionStorage.getItem("user");
+    const SubViewComponent = subViewsMap[subView];
+    const [notificationCount, setNotificationCount] = useState(0);
 
-
-    async function sendSecured() {
-        await toast.promise(
-            testUseCase.execute(), {
-            loading: "Cargando...",
-            success: "✅ Petición segura exitosa",
-            error: (error) => 
-                error?.data?.message 
-                ? "Error: " + error?.data?.message
-                : "Error no manejado: " + error.message,
-            },
-        );
+    //funcion que simula la obtención de notificaciones
+    const fetchNotifications = () => {
+        // Simula una llamada a la API para obtener notificaciones
+        const notifications = Math.floor(Math.random() * 10); // Simula entre 0 y 9 notificaciones
+        setNotificationCount(notifications);
     }
 
-    //Funcion para cerrar sesión
-    async function sendLogout() {
-        const logoutUseCase = new LogoutUser(new AuthApiService());
+    useEffect(() => {
+        const savedView = sessionStorage.getItem("SubView");
+        fetchNotifications(); // Llama a la función para obtener notificaciones al cargar el componente
 
-        await toast.promise(
-            logoutUseCase.execute()
-            .then((response) =>{
-                if (response.status === "LOGOUT_SUCCESS") {
-                    logout();
-                    comeBack();
-                    return;
-                }else {
-                    throw new Error(response.message || "Logout failed");
-                }
-            }), {
-            loading: "Cerrando sesión...",
-            success: "Sesión cerrada correctamente",
-            error: (error) => 
-                error?.data?.message 
-                ? "Error: " + error?.data?.message
-                : "Error no manejado: " + error.message,
-            },
-        );
-    }
+        if (savedView) {
+            setSubView(savedView);
+        } else {
+            setSubView("dashboard");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (subView) {
+            sessionStorage.setItem("SubView", subView);
+        }
+    }, [subView]); 
+
 
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar setSubView={setSubView} />
             <SidebarInset>
                 <header className="bg-primary flex h-16 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
-                    <h1 className="text-2xl font-bold">Bienvenido {user}</h1>
+                    <h1 className="font-bold max-sm:text-xs">Bienvenido {user}</h1>
                     <Separator orientation="vertical" className="mr-2 h-4" />
+                    <div className="ml-auto accent text-white px-4 py-2 rounded"></div>
+                    <div className="flex items-center gap-2  hover:animate-vibrate animate-in fade-in slide-in-from-right-8 duration-800">
+                        <MdNotificationsActive className="text-black text-2xl dark:text-white vibrate-on-hover" />
+                        <span className={notificationCount ? "bg-red-500 text-white rounded-full px-2 py-1 text-xs" : "display-none"}>{notificationCount ? notificationCount : ""}</span>
+                    </div>
+                    <DropdownProfile setSubView={setSubView}/>
+                </header>
+
+                <div className="flex flex-1 flex-col gap-1 p-4">
                     <Breadcrumb>
                         <BreadcrumbList>
-                        <BreadcrumbItem className="hidden md:block">
-                            <BreadcrumbLink href="#">
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator className="hidden md:block" />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                        </BreadcrumbItem>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink onClick={() => setSubView("dashboard")} className="hover:cursor-pointer">
+                                    Dashboard
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator/>
+                            { subView === "dashboard" ? null : (
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink onClick={() => setSubView(subView)} className="hover:cursor-pointer">
+                                        {subView.charAt(0).toUpperCase() + subView.slice(1).replace(/_/g, " ")}
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                            )}
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <Button onClick={sendLogout} className="ml-auto accent text-white px-4 py-2 rounded">
-                        Cerrar Sesión
-                    </Button>
-                </header>
-                <div className="flex flex-1 flex-col gap-4 p-4">
-                    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-
-                        <Button onClick={sendSecured} className="w-40">
-                            secured
-                        </Button>
+                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1 shadow-lg shadow-blue-500/50">
+                        {SubViewComponent ? <SubViewComponent /> : <p>Vista no encontrada</p>}
                     </div>
-                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
                 </div>
             </SidebarInset>
         </SidebarProvider>

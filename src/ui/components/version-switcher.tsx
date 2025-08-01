@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, GalleryVerticalEnd } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react"
 import packageJson from '@/../package.json';
+import Image from 'next/image'
 
 import {
     DropdownMenu,
@@ -34,9 +35,13 @@ export function VersionSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <GalleryVerticalEnd className="size-4" />
-              </div>
+                <Image
+                  src="/Logo_Gesinova.jpg"
+                  alt="Logo Gesinova"
+                  width={800}
+                  height={800}
+                  className="h-12 w-12 rounded-full object-cover"
+                />
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">Gesinova</span>
                 <span className="">v{packageJson.version}</span>

@@ -14,16 +14,25 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
 
     // Sincronizar valor externo
     useEffect(() => {
-        if (value !== code.join("")) {
-            setCode(value.split("").concat(Array(6 - value.length).fill("")));
-        }
+        const newCode = value.split("").concat(Array(6 - value.length).fill(""));
+        setCode(newCode);
     }, [value]);
 
     // Limpiar inputs al recibir nuevo trigger
     useEffect(() => {
         setCode(Array(6).fill(""));
-        onChange(""); // También limpia en el formulario
+        onChange("");
+        
+        inputsRef.current.forEach((input) => {
+            if (input) {
+                input.classList.remove("fade");
+                void input.offsetWidth;
+                input.classList.add("fade");
+            }
+        });
+
         inputsRef.current[0]?.focus();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resetTrigger]);
 
 
@@ -67,7 +76,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
 
 
     return (
-        <div className="container">
         <div className={`code-inputs ${hasError ? "shake" : "border-gray-300"}`} id="inputsWrapper">
                 {code.map((digit, i) => (
                     <input
@@ -85,7 +93,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
                         className={`w-10 h-10 text-center border rounded ${hasError ? "error-border" : "border-gray-300"}`}
                     />
                 ))}
-        </div>
         </div>
     );
 };
