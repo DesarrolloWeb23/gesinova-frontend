@@ -1,12 +1,12 @@
 import { AuthRepository } from "@/core/domain/ports/AuthRepository";
 import { Error } from "@/core/domain/models/Error";
-import { AuthResponse } from "@/core/domain/models/AuthResponse";
+import { Response } from "@/core/domain/models/Response";
 
 export class ResetPassword {
     
     constructor(private authRepository: AuthRepository) {}
 
-    async execute(mail: string): Promise<AuthResponse> {
+    async execute(mail: string): Promise<Response> {
         try {
             const response = await this.authRepository.resetPassword(mail);
 
@@ -15,10 +15,14 @@ export class ResetPassword {
                     status: 200,
                     path: "/reset-password-success",
                     message: "RESET_PASSWORD_SUCCESS",
-                    data: response.data,
                 }
             }
-            return response;
+
+            return {
+                status: response.status,
+                path: response.path,
+                message: response.message,
+            }
         } catch (err) {
             const error = err as Error;
             if (error.type === "api") {
@@ -35,6 +39,11 @@ export class ResetPassword {
                 } else if (error.status === 429) {
                     throw {
                         status: "TOO_MANY_REQUESTS",
+                        message: error.message,
+                    };
+                } else if (error.status === 404) {
+                    throw {
+                        status: "NOT_FOUND",
                         message: error.message,
                     };
                 }
