@@ -46,7 +46,7 @@ jobs:
             npm install
             npm run build
 
-      - name: Restart NSSM service
+      - name: Stop NSSM service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -54,7 +54,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             nssm stop gesinova-frontend || echo Already stopped
-            Start-Sleep -Seconds 5
+      
+      - name: Start NSSM service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             nssm start gesinova-frontend || echo Already started
-            sc query gesinova-frontend
-
