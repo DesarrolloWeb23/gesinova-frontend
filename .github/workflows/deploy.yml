@@ -53,6 +53,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            nssm stop Gesinova-Frontend || echo Already stopped
+            nssm stop gesinova-frontend || echo Already stopped
             timeout /t 5
-            nssm start Gesinova-Frontend
+            nssm start gesinova-frontend || echo Already started
