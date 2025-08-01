@@ -1,13 +1,12 @@
 import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { AuthResult } from "@/core/dto/AuthResultDTO";
-import { ResponseError } from "@/core/dto/ResponseErrorDTO";
-import { getMessage } from "@/core/domain/messages";
+import { Error } from "@/core/domain/models/Error";
+import { AuthResponse } from "@/core/domain/models/AuthResponse";
 
 export class ResetPassword {
     
     constructor(private authRepository: AuthRepository) {}
 
-    async execute(mail: string): Promise<AuthResult> {
+    async execute(mail: string): Promise<AuthResponse> {
         try {
             const response = await this.authRepository.resetPassword(mail);
 
@@ -21,18 +20,41 @@ export class ResetPassword {
             }
             return response;
         } catch (err) {
-            const error = err as ResponseError;
-            if (error?.data?.status === 404) {
-                throw {
-                    status: "USER_NOT_FOUND",
-                    message: getMessage("errors", "user_not_found")
-                }
-            } else {
-                throw {
-                    status: "RESET_PASSWORD_ERROR",
-                    message: error?.data?.message || getMessage("errors", "reset_password_error")
+            const error = err as Error;
+            if (error.type === "api") {
+                if(error.status === 403) {
+                    throw {
+                        status: "ACCESS_DENIED",
+                        message: error.message,
+                    };
+                } else if (error.status === 400) {
+                    throw {
+                        status: "VALIDATION_ERROR",
+                        message: error.message,
+                    };
+                } else if (error.status === 429) {
+                    throw {
+                        status: "TOO_MANY_REQUESTS",
+                        message: error.message,
+                    };
                 }
             }
+            if (error.type === "validation") {
+                throw {
+                    status: "VALIDATION_ERROR",
+                    message: "La estructura de datos recibida no es válida.",
+                };
+            }
+            if (error.type === "unknown_api_error") {
+                throw {
+                    status: "UNKNOWN_API_ERROR",
+                    message: "La estructura de error de la API no es válida.",
+                };
+            }
+            throw {
+                status: "UNKNOWN_ERROR",
+                message: "Error de red",
+            };
         }
     }
 }

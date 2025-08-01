@@ -1,5 +1,5 @@
 import React from "react";
-import {AppSidebar} from "@/ui/components/app-sidebar";
+import {AppSidebar} from "@/ui/components/Sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/ui/components/ui/sidebar";
 import {
     Breadcrumb,
@@ -11,20 +11,27 @@ import {
 import { Separator } from "@/ui/components/ui/separator"
 import { DropdownProfile } from "@/ui/components/DropDownProfile";
 import { useState, useEffect } from "react";
-import Dashboard from "@/ui/subViews/dasboard/page";
+import SubDashboard from "@/ui/subViews/dashboard/page";
 import Transfer from "@/ui/subViews/transfer/page";
 import Profile from "@/ui/subViews/profile/page";
+import Configuracion from "@/ui/subViews/configuration/page";
+import Company from "@/ui/subViews/company/page";
+import Support from "@/ui/subViews/support/page";
 import { MdNotificationsActive } from "react-icons/md";
+import { useView } from "@/ui/context/ViewContext";
 
 const subViewsMap: Record<string, React.ComponentType> = {
-    dashboard: Dashboard,
+    dashboard: SubDashboard,
     turnos: Transfer,
     mi_perfil: Profile,
+    configuracion: Configuracion,
+    mi_empresa: Company,
+    soportes: Support,
     // aqui se agregan las demás vistas
 };
 
-export default function Dasboard() {
-    const [subView, setSubView] = useState("");
+export default function Dashboard() {
+    const { subView, setSubView } = useView();
     const user = sessionStorage.getItem("user");
     const SubViewComponent = subViewsMap[subView];
     const [notificationCount, setNotificationCount] = useState(0);
@@ -45,6 +52,7 @@ export default function Dasboard() {
         } else {
             setSubView("dashboard");
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -60,7 +68,7 @@ export default function Dasboard() {
             <SidebarInset>
                 <header className="bg-primary flex h-16 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
-                    <h1 className="text-2xl font-bold max-sm:text-xs">Bienvenido {user}</h1>
+                    <h1 className="font-bold max-sm:text-xs">Bienvenido {user}</h1>
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <div className="ml-auto accent text-white px-4 py-2 rounded"></div>
                     <div className="flex items-center gap-2  hover:animate-vibrate animate-in fade-in slide-in-from-right-8 duration-800">
@@ -75,7 +83,7 @@ export default function Dasboard() {
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink onClick={() => setSubView("dashboard")} className="hover:cursor-pointer">
-                                    Dasboard
+                                    Dashboard
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator/>

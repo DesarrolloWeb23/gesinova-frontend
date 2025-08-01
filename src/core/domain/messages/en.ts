@@ -41,5 +41,14 @@ export const messages = {
       reset_password_email_placeholder: "Email",
       reset_password_back: "Back to login",
       reset_password_send_code: "Send code",
+      accessibility_button: "Change contrast",
+      accessibility_button_light: "Light",
+      accessibility_button_dark: "Dark",
+      accessibility_button_system: "System",
+      accessibility_button_more: "More options",
+      accessibility_button_spanish: "Language: Spanish",
+      accessibility_button_english: "Language: English",
+      accessibility_button_screen: "Screen",
+      accessibility_button_podium: "Podium",
   }
 };

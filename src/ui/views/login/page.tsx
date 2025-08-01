@@ -27,6 +27,7 @@ import { LoginUser } from '@/core/domain/use-cases/LoginUser'
 import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
+import { useView } from "@/ui/context/ViewContext";
 
 const formSchema = z.object({
   username: z.string().min(2, getMessage("errors", "zod_username_required")),
@@ -35,12 +36,12 @@ const formSchema = z.object({
 
 
 
-export default function Login({ setView }: {  setView: (view: string) => void; }) {
+export default function Login() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
   const [showIndio, setShowIndio] = useState(true)
-  
+  const { setView } = useView();
 
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -69,22 +70,22 @@ export default function Login({ setView }: {  setView: (view: string) => void; }
           .then((response) => {
 
               if (response.message === "ACTIVATE_MFA") {
-                login(response.data , response.data.accessToken);
-                validationToken(response.data.tempToken);
+                login(response.data.user! , response.data.accessToken!);
+                validationToken(response.data.tempToken as string);
                 setView("ActivateMfa");
                 setIsSubmitting(false);
                 return;
               }
 
               if (response.message === "MFA_INHABILITATE") {
-                login(response.data , response.data.accessToken);
+                login(response.data.user! , response.data.accessToken!);
                 handleChangeView("dashboard");
                 setIsSubmitting(false);
                 return;
               }
 
               if (response.message === "VALIDATE_MFA") {
-                validationToken(response.data.tempToken);
+                validationToken(response.data.tempToken as string);
                 setView("validateMfa");
                 setIsSubmitting(false);
                 return;

@@ -2,7 +2,7 @@ import React from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import type { EmblaOptionsType } from 'embla-carousel'
-
+import Image from 'next/image'
 import { DotButton, useDotButton } from '@/ui/components/EmblaCarouselDotButton'
 import { PrevButton, NextButton, usePrevNextButtons } from '@/ui/components/EmblaCarouselArrowButtons'
 
@@ -32,10 +32,12 @@ const EmblaCarousel: React.FC<EmblaCarouselProps> = ({ slides, options }) => {
                     key={index}
                     className={`embla__slide flex-[0_0_80%] min-w-0 h-[20rem] sm:h-[14rem] rounded-lg overflow-hidden transition-opacity duration-300 ${index === selectedIndex ? 'opacity-100' : 'opacity-40'}`}
                 >
-                    <img
+                    <Image
                     src={imgUrl}
                     alt={`Slide ${index + 1}`}
                     className="w-full h-full object-cover"
+                    width={800}
+                    height={400}
                     />
                 </div>
                 ))}

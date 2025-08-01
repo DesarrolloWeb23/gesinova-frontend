@@ -30,7 +30,7 @@ export function DropdownProfile({setSubView} : {setSubView: (view: string) => vo
         await toast.promise(
             logoutUseCase.execute()
             .then((response) =>{
-                if (response.status === 200) {
+                if (response.message === "LOGOUT_SUCCESS") {
                     logout();
                     return;
                 }else {

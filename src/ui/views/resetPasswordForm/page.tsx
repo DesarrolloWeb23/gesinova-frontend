@@ -25,14 +25,16 @@ import { getMessage } from "@/core/domain/messages";
 import { Input } from "@/ui/components/ui/input";
 import { TbArrowBackUp } from "react-icons/tb";
 import { MdOutgoingMail } from "react-icons/md";
+import { useView } from "@/ui/context/ViewContext";
 
 const formSchema = z.object({
     email: z.string({required_error: getMessage("errors", "zod_mail_required"),}).email(getMessage("errors", "zod_mail_required"))
 })
 
-export default function ResetPasswordForm( {setView }: { setView: (view: string) => void; }) {
+export default function ResetPasswordForm() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setView } = useView();
   
   const form = useForm({
     resolver: zodResolver(formSchema),

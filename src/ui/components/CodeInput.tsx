@@ -14,16 +14,25 @@ export const CodeInput: React.FC<CodeInputProps> = ({ value, onChange, hasError 
 
     // Sincronizar valor externo
     useEffect(() => {
-        if (value !== code.join("")) {
-            setCode(value.split("").concat(Array(6 - value.length).fill("")));
-        }
+        const newCode = value.split("").concat(Array(6 - value.length).fill(""));
+        setCode(newCode);
     }, [value]);
 
     // Limpiar inputs al recibir nuevo trigger
     useEffect(() => {
         setCode(Array(6).fill(""));
-        onChange(""); // También limpia en el formulario
+        onChange("");
+        
+        inputsRef.current.forEach((input) => {
+            if (input) {
+                input.classList.remove("fade");
+                void input.offsetWidth;
+                input.classList.add("fade");
+            }
+        });
+
         inputsRef.current[0]?.focus();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resetTrigger]);
 
 

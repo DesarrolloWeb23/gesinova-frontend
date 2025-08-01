@@ -14,11 +14,13 @@ import { TbArrowBackUp } from "react-icons/tb";
 import { RiQrCodeFill } from "react-icons/ri";
 import { IoMailOutline } from "react-icons/io5";
 import { useAuth } from "@/ui/context/AuthContext";
+import { useView } from "@/ui/context/ViewContext";
 
 
-export default function ActivateMfa( {setView }: { setView: (view: string) => void; }) {
+export default function ActivateMfa() {
 
   const { validationToken } = useAuth();
+  const { setView } = useView();
   //funcion para activar el doble factor
   const activate = (method: number) => {
 

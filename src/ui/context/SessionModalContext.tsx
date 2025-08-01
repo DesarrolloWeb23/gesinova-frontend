@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SessionModal } from "./SessionModal";
-import { resolveModal } from "./SessionModalManager";
+import { SessionModal } from "@/ui/components/SessionModal";
+import { resolveModal } from "@/ui/components/SessionModalManager";
 
 export const SessionModalProvider = () => {
     const [open, setOpen] = useState(false);

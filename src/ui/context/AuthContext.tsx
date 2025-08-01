@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState } from "react";
-import { User } from "@/core/dto/UserDTO";
+import { User } from "@/core/domain/models/User";
 import { CheckedState } from "@radix-ui/react-checkbox";
 
 interface AuthContextType {
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const login = (user: User, token: string) => {
-    sessionStorage.setItem("user", user.user.firstName + " " + user.user.lastName);
+    sessionStorage.setItem("user", user.name  + " " + user.lastName);
 
     if (rememberMe) {
     localStorage.setItem("token", token); // Guarda el token solo si eligió "recordarme"

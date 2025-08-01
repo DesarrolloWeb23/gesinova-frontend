@@ -25,17 +25,18 @@ import { getMessage } from "@/core/domain/messages";
 import { CodeInput } from "@/ui/components/CodeInput";
 import { TbArrowBackUp } from "react-icons/tb";
 import { BsCheck2Circle } from "react-icons/bs";
+import { useView } from "@/ui/context/ViewContext";
 
 const formSchema = z.object({
   code: z.string().min(6, getMessage("errors", "zod_code_required")).max(6, getMessage("errors", "zod_code_required"))
 })
 
-export default function ValidateMfa( {setView }: { setView: (view: string) => void; }) {
+export default function ValidateMfa() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorTrigger, setErrorTrigger] = useState(0);
   const { tempToken, login } = useAuth();
-  
+  const { setView } = useView();
   
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -54,7 +55,7 @@ export default function ValidateMfa( {setView }: { setView: (view: string) => vo
       await toast.promise(
         validateMfaUseCase.execute(tempToken, values.code)
           .then((response) => {
-            login(response.data, response.data.accessToken);
+            login(response.data.user!, response.data.accessToken!);
             setIsSubmitting(false);
             setView("dashboard");
           })
@@ -69,10 +70,8 @@ export default function ValidateMfa( {setView }: { setView: (view: string) => vo
         {
           loading:  getMessage("success", "access_loading"),
           success: getMessage("success", "mfa_validation_success"),
-          error: (error) =>
-            error?.data?.message
-              ? "Error: " + error?.data?.message
-              : getMessage("errors", "handle_error") + error.message,
+          error: (error) => 
+              error?.message
         }
       );
     } catch (error) {

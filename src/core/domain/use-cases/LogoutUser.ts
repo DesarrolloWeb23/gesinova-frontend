@@ -1,23 +1,62 @@
 import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { AuthResult } from "@/core/dto/AuthResultDTO";
+import { Response } from "@/core/domain/models/Response";
+import { Error } from "@/core/domain/models/Error";
 
 export class LogoutUser {
     constructor(private authRepository: AuthRepository) {}
 
-    async execute(): Promise<AuthResult> {
+    async execute(): Promise<Response> {
         try {
             const response = await this.authRepository.logout();
-            if (response) {
+            if (response.message === "Logout successful") {
                 return {
-                status: 200,
-                path: response.path || "/",
-                message: "LOGOUT_SUCCESS",
-                data: response.data,
+                    status: response.status,
+                    path: "/",
+                    message: "LOGOUT_SUCCESS",
                 };
             }
-            return response;
-        } catch (error) {
-            throw error;
+
+            return {
+                status: response.status,
+                path: "/",
+                message: "LOGOUT_FAILED",
+            };
+        } catch (err) {
+            const error = err as Error;
+            if (error.type === "api") {
+                if(error.status === 403) {
+                    throw {
+                        status: "ACCESS_DENIED",
+                        message: error.message,
+                    };
+                } else if (error.status === 400) {
+                    throw {
+                        status: "VALIDATION_ERROR",
+                        message: error.message,
+                    };
+                } else if (error.status === 429) {
+                    throw {
+                        status: "TOO_MANY_REQUESTS",
+                        message: error.message,
+                    };
+                }
+            }
+            if (error.type === "validation") {
+                throw {
+                    status: "VALIDATION_ERROR",
+                    message: "La estructura de datos recibida no es válida.",
+                };
+            }
+            if (error.type === "unknown_api_error") {
+                throw {
+                    status: "UNKNOWN_API_ERROR",
+                    message: "La estructura de error de la API no es válida.",
+                };
+            }
+            throw {
+                status: "UNKNOWN_ERROR",
+                message: "Error de red",
+            };
         }
     }
 }
