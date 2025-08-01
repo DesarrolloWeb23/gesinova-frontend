@@ -56,3 +56,4 @@ jobs:
             nssm stop gesinova-frontend || echo Already stopped
             timeout /t 5
             nssm start gesinova-frontend || echo Already started
+            sc query gesinova-frontend
