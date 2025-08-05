@@ -13,6 +13,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
 } from "@/ui/components/ui/form"
 import { Switch } from "@/ui/components/ui/switch"
 import {
@@ -21,6 +22,7 @@ import {
     CardDescription,
     CardFooter,
     CardHeader,
+    CardTitle,
 } from "@/ui/components/ui/card"
 import {
     Tabs,
@@ -47,10 +49,14 @@ import { GetUserInfo } from "@/core/domain/use-cases/GetUserInfo"
 import { UserApiService } from "@/core/infrastructure/api/services/userService"
 import { User } from "@/core/domain/models/User";
 import { useView } from "@/ui/context/ViewContext";
+import { Input } from "@/ui/components/ui/input"
+import { ChangePassword } from "@/core/domain/use-cases/ChangePassword"
 
 const FormSchema = z.object({
-    marketing_emails: z.boolean().default(false).optional(),
-    security_emails: z.boolean(),
+    oldPassword: z.string().min(4, getMessage("errors", "zod_password_required")),
+    confirmPassword: z.string().min(4, getMessage("errors", "zod_password_required")),
+    newPassword: z.string().min(4, getMessage("errors", "zod_password_required")),
+    admin_profile: z.boolean().optional(),
 })       
 
 export default function Profile() {
@@ -95,7 +101,10 @@ export default function Profile() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            security_emails: true,
+            oldPassword: "",
+            confirmPassword: "",
+            newPassword: "",
+            admin_profile: user?.swAdmin === "YES" ? true : false,
         },
     })
 
@@ -107,6 +116,32 @@ export default function Profile() {
             </pre>
         ),
     })
+    }
+
+    function changePassword(data: z.infer<typeof FormSchema>) {
+        setLoading(true);
+        const changePasswordUseCase = new ChangePassword(new UserApiService());
+        try {
+            toast.promise(
+                changePasswordUseCase.execute(data.oldPassword, data.confirmPassword, data.newPassword)
+                .then(() => {
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setLoading(false);
+                    throw error;
+                }),                
+                {
+                    loading: getMessage("success", "sending"),
+                    success: getMessage("success", "password_change_success"),
+                    error: (error) => 
+                        error?.message
+                }
+            );
+        } catch (error) {
+            setLoading(false);
+            console.error("Error al iniciar sesión:", error);
+        }
     }
 
     const activate = (method: number) => {
@@ -239,27 +274,7 @@ export default function Profile() {
                                                     <div className="space-y-4">
                                                         <FormField
                                                         control={form.control}
-                                                        name="marketing_emails"
-                                                        render={({ field }) => (
-                                                            <FormItem className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
-                                                                <div className="space-y-0.5">
-                                                                    <FormLabel>Doble factor</FormLabel>
-                                                                    <FormDescription>
-                                                                        Activacion del doble factor de autenticacion.
-                                                                    </FormDescription>
-                                                                </div>
-                                                            <FormControl>
-                                                                <Switch
-                                                                checked={user?.mfaActive}
-                                                                onCheckedChange={field.onChange}
-                                                                />
-                                                            </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                        />
-                                                        <FormField
-                                                        control={form.control}
-                                                        name="security_emails"
+                                                        name="admin_profile"
                                                         render={({ field }) => (
                                                             <FormItem className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
                                                                 <div className="space-y-0.5">
@@ -329,13 +344,63 @@ export default function Profile() {
                                 <TabsContent value="password">
                                     <Card className="border">
                                         <CardHeader>
-                                            
+                                            <CardTitle>Cambio de Contraseña</CardTitle>
                                         <CardDescription>
-                                            
+                                            Cambia tu contraseña actual por una nueva.
                                         </CardDescription>
                                         </CardHeader>
                                         <CardContent className="grid gap-6">
-                                            
+                                            <Form {...form}>
+                                                <form onSubmit={form.handleSubmit(changePassword)} className="w-full space-y-6">
+
+                                                    <div className="space-y-4">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="oldPassword"
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormControl>
+                                                                    <Input type="password" placeholder="********" {...field} />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="confirmPassword"
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormControl>
+                                                                    <Input type="password" placeholder="********" {...field} />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="newPassword"
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormControl>
+                                                                    <Input type="password" placeholder="********" {...field} />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center justify-end">
+                                                        <Button type="submit">Cambiar contraseña</Button>
+                                                    </div>
+                                                </form>
+                                            </Form>
                                         </CardContent>
                                         <CardFooter>
                                             

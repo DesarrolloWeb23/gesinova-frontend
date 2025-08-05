@@ -1,17 +1,21 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { AuthResponse } from "@/core/domain/models/AuthResponse";
-import { Error as AppError } from "@/core/domain/models/Error";
+import { UserRepository } from "@/core/domain/ports/UserRepository";
+import { Error } from "@/core/domain/models/Error";
+import { Response } from "@/core/domain/models/Response";
 
-export class ValidateTwoFactor {
-    
-    constructor(private authRepository: AuthRepository) {}
+export class AssignGroupToUser {
+    constructor(private userRepository: UserRepository) {}
 
-    async execute(tokenTemp: string | null, code: string): Promise<AuthResponse> {
+    async execute(userId: string, groupId: string[]): Promise<Response> {
         try {
-            const response = await this.authRepository.validateMFA(tokenTemp, code);
-            return response as AuthResponse;
+            const response = await this.userRepository.assignUserGroup(userId, groupId);
+            
+            return {
+                status: response.status,
+                path: "/",
+                message: "GROUP_ASSIGNED",
+            };
         } catch (err) {
-            const error = err as AppError;
+            const error = err as Error;
             if (error.type === "api") {
                 if(error.status === 403) {
                     throw {
@@ -43,7 +47,7 @@ export class ValidateTwoFactor {
             if (error.type === "validation") {
                 throw {
                     status: "VALIDATION_ERROR",
-                    message: error.message,
+                    message: "La estructura de datos recibida no es válida.",
                 };
             }
             if (error.type === "unknown_api_error") {

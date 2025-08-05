@@ -3,41 +3,19 @@
 import { Button } from "@/ui/components/ui/button"
 import { useState, useEffect } from "react"
 import  Loading  from "@/ui/components/Loading"
-import { Input } from "@/ui/components/ui/input"
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/ui/components/ui/dropdown-menu"
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/ui/components/ui/table"
-import {
     ColumnDef,
-    ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    SortingState,
-    useReactTable,
-    VisibilityState,
 } from "@tanstack/react-table"
-import { ChevronDown } from "lucide-react"
 import * as React from "react"
 import { Checkbox } from "@/ui/components/ui/checkbox"
 import { MoreHorizontal } from "lucide-react"
-import { AssignPermissionToUser } from "@/core/domain/use-cases/AssignPermissionToUser"
-import { AssignPermissionToGroup } from "@/core/domain/use-cases/AssignPermissionToGroup"
 import { GetUserById } from "@/core/domain/use-cases/GetUserById"
 import { GetPermissionsInfo } from "@/core/domain/use-cases/GetPermissionsInfo"
 import { PermissionApiService } from "@/core/infrastructure/api/services/permissionService"
@@ -52,6 +30,8 @@ import { GetGroupById } from "@/core/domain/use-cases/GetGroupById"
 import { Badge } from "@/ui/components/ui/badge"
 import TableGroups from "@/ui/components/TableGroups"
 import  { TableUsers } from "@/ui/components/TableUsers"
+import TablePermissions from "@/ui/components/TablePermissions"
+import { GetGroupsInfo } from "@/core/domain/use-cases/GetGroupsInfo"
 
 
 export const columnsPermissions = (handleAssignUserPermission: () => void, handleAssignGroupPermission: () => void, user :User, group :Group): ColumnDef<Permission>[] => [
@@ -123,15 +103,13 @@ export const columnsPermissions = (handleAssignUserPermission: () => void, handl
 
 export default function Permitions({ setView }: { setView: (view: string) => void }) {
     const [loading, setLoading] = useState(true);
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
     const [permissions, setPermissions] = useState<PermissionList>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [user, setUser] = useState<User>({} as User);
     const [group, setGroup] = useState<Group>({} as Group);
     const [accessDenied, setAccessDenied] = useState(false);
-    const [table, setTable] = useState("groups");
+    const [table, setTable] = useState("");
 
 
     const fetchPermissionsData = async () => {
@@ -161,30 +139,73 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                         error?.message
                 }            
             );
-            setTable("permissions");
         } catch (error) {
             setLoading(false);
             console.error("Error al iniciar sesión:", error);
         }
     }
 
+    const fetchGroupsData = async () => {
+        setLoading(true);
+        const groupsInfoUseCase = new GetGroupsInfo(new GroupApiService());
+        try {
+            await toast.promise(
+                groupsInfoUseCase.execute()
+                .then((response) => {
+                    setGroups(response);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setLoading(false);
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    success: getMessage("success", "success"),
+                    error: (error) => 
+                        error?.message
+                } 
+            );
+        } catch (error) {
+            setLoading(false);
+            console.error("Error al iniciar sesión:", error);
+        }
+    }
+    
+
     //funcion al momento de seleccionar un usuario
-    const handleUserSelect = (selectedUser: User) => {
+    const handleUserSelect = (selectedUser: User, type: string) => {
         setUser(selectedUser);
 
-        // Obtener permisos del usuario
-        const userPermissionCodes = selectedUser.permissions?.map(p => p.codename) ?? [];
+        if (type === "permissions") {
+            // Obtener permisos del usuario
+            const userPermissionCodes = selectedUser.permissions?.map(p => p.codename) ?? [];
 
-        // Calcular qué rows seleccionar
-        const newSelection = permissions.reduce((acc, perm, index) => {
-            if (userPermissionCodes.includes(perm.codename)) {
-            acc[index] = true;
-            }
-            return acc;
-        }, {} as Record<number, boolean>);
+            // Calcular qué rows seleccionar
+            const newSelection = permissions.reduce((acc, perm, index) => {
+                if (userPermissionCodes.includes(perm.codename)) {
+                acc[index] = true;
+                }
+                return acc;
+            }, {} as Record<number, boolean>);
 
-        setRowSelection(newSelection);
-        setTable("permissions");
+            setRowSelection(newSelection);
+            setTable("permissions");
+        } else if (type === "groups") {
+            // Obtener grupos del usuario
+            const userGroupIds = selectedUser.groups?.map(g => g.id) ?? [];
+
+            // Calcular qué rows seleccionar
+            const newSelection = groups.reduce((acc, perm, index) => {
+                if (userGroupIds.includes(perm.id)) {
+                    acc[index] = true;
+                }
+                return acc;
+            }, {} as Record<number, boolean>);
+
+            setRowSelection(newSelection);
+            setTable("groups");
+        }
     };
 
     //funcion al momento de seleccionar un grupo
@@ -206,7 +227,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
 
     //funcion para actualizar la variable user
     const handleUpdateUser = async (idUser: number) => {
-        
+        setLoading(true);
         const userInfoUseCase = new GetUserById(new UserApiService());
         try {
             await toast.promise(
@@ -234,7 +255,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
 
     //funcion para actualizar la variable group
     const handleUpdateGroup = async (idGroup: number) => {
-        
+        setLoading(true);
         const groupInfoUseCase = new GetGroupById(new GroupApiService());
         try {
             await toast.promise(
@@ -260,85 +281,6 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
         }
     }
 
-    //funcion para asignar permisos a un usuario
-    const handleAssignUserPermission = async () => {
-        setLoading(true);
-        const assignPermissionsUserUseCase = new AssignPermissionToUser(new PermissionApiService());
-        
-        if (!user) {
-            toast.error("Por favor, selecciona un usuario primero.");
-            setLoading(false);
-            return;
-        }
-        
-        try {
-            // Obtener los permisos seleccionados
-            const selectedPermissionCodenames = permissions.filter((_, index) => rowSelection[index]).map(p => p.codename);
-
-            await toast.promise(
-
-                assignPermissionsUserUseCase.execute(user.username, selectedPermissionCodenames)
-                .then(async (response) => {
-                    if (response.message === "PERMISSION_ASSIGNED") {
-                        await handleUpdateUser(user.id);
-                        
-                    }
-                })       
-                .catch((error) => {
-                    setLoading(false); 
-                    throw error;
-                }),
-                {
-                    loading:  getMessage("success", "sending"),
-                    success: getMessage("success", "reset_password_success"),
-                    error: (error) => 
-                    error?.message
-                }
-            );
-        } catch (error) {
-            setLoading(false);
-            console.error("Error al asignar permiso:", error);
-        }
-    }
-
-    //funcion para asignar permisos a un grupo
-    const handleAssignGroupPermission = async () => {
-        setLoading(true);
-        const assignPermissionsGroupUseCase = new AssignPermissionToGroup(new PermissionApiService());
-
-        if(!group) {
-            toast.error("Por favor, selecciona un grupo primero.");
-            setLoading(false);
-            return;
-        }
-        
-        try {
-            const selectedPermissionCodenames = permissions.filter((_, index) => rowSelection[index]).map(p => p.codename);
-            
-            await toast.promise(
-                assignPermissionsGroupUseCase.execute(group.id, selectedPermissionCodenames)
-                .then(async (response) => {
-                    if (response.message === "PERMISSION_ASSIGNED") {
-                        await handleUpdateGroup(group.id);
-                    }
-                })       
-                .catch((error) => {
-                    setLoading(false);
-                    throw error;
-                }),
-                {
-                    loading: getMessage("success", "sending"),
-                    success: getMessage("success", "reset_password_success"),
-                    error: (error) => 
-                        error?.message
-                }
-            );
-        } catch (error) {
-            setLoading(false);
-            console.error("Error al asignar permiso:", error);
-        }
-    }
-
     //funcion para manejar el acceso denegado
     const handleAccessDenied = () => {
         setAccessDenied(true);
@@ -346,28 +288,9 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
 
     useEffect(() => {
         fetchPermissionsData();
+        fetchGroupsData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
-
-
-    const tablePermissions = useReactTable({
-        data: permissions,
-        columns: columnsPermissions(handleAssignUserPermission, handleAssignGroupPermission, user, group),
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-        sorting,
-        columnFilters,
-        columnVisibility,
-        rowSelection,
-        },
-    })
 
     if (accessDenied) {
         return (
@@ -416,12 +339,12 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                                     <p className="text-sm text-muted-foreground">MFA Activo: {user.mfaActive ? "Sí" : "No"}</p>
                                     <p className="text-sm text-muted-foreground">MFA Requerido: {user.mfaRequired ? "Sí" : "No"}</p>
                                     <h4 className="text-md font-semibold mt-2">Grupos:</h4>
-                                    <ul className="list-disc list-inside">
+                                    <ul className="list-disc list-inside space-y-1 space-x-1">
                                         {user.groups.length > 0 ? (
                                             user.groups.map((group) => (
-                                                <li key={group.id} className="text-sm">
+                                                <Badge key={group.id} variant="secondary">
                                                     {group.name}
-                                                </li>
+                                                </Badge>
                                             ))
                                         ) : (
                                             <li className="text-sm text-muted-foreground">No pertenece a ningún grupo.</li>
@@ -477,124 +400,12 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                     </div>
 
                     {table === "groups" && (
-                        <TableGroups handleGroupSelect={handleGroupSelect} />
+                        <TableGroups handleGroupSelect={handleGroupSelect} userSelected={user} newSelection={rowSelection} handleUpdateUser={handleUpdateUser} />
                     )}
 
                     {table === "permissions" && (
-                        <div className="w-full p-4">
-                            <div className="flex items-center py-4">
-                                <Input
-                                placeholder="Filtrar permiso..."
-                                value={(tablePermissions.getColumn("name")?.getFilterValue() as string) ?? ""}
-                                onChange={(event) =>
-                                    tablePermissions.getColumn("name")?.setFilterValue(event.target.value)
-                                }
-                                className="max-w-sm"
-                                />
-                                <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="ml-auto">
-                                    Columnas <ChevronDown />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {tablePermissions
-                                    .getAllColumns()
-                                    .filter((column) => column.getCanHide())
-                                    .map((column) => {
-                                        return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.columnDef.header as string}
-                                        </DropdownMenuCheckboxItem>
-                                        )
-                                    })}
-                                </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                            <div className="rounded-md border">
-                                <Table>
-                                <TableHeader>
-                                    {tablePermissions.getHeaderGroups().map((headerGroup) => (
-                                    <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                            </TableHead>
-                                        )
-                                        })}
-                                    </TableRow>
-                                    ))}
-                                </TableHeader>
-                                <TableBody>
-                                    {tablePermissions.getRowModel().rows?.length ? (
-                                    tablePermissions.getRowModel().rows.map((row) => (
-                                        <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                        >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
-                                    ))
-                                    ) : (
-                                    <TableRow>
-                                        <TableCell
-                                        colSpan={tablePermissions.getAllColumns().length}
-                                        className="h-24 text-center"
-                                        >
-                                        Sin resultados.
-                                        </TableCell>
-                                    </TableRow>
-                                    )}
-                                </TableBody>
-                                </Table>
-                            </div>
-                            <div className="flex items-center justify-end space-x-2 py-4">
-                                <div className="text-muted-foreground flex-1 text-sm">
-                                {tablePermissions.getFilteredSelectedRowModel().rows.length} of{" "}
-                                {tablePermissions.getFilteredRowModel().rows.length} Fila(s) seleccionadas.
-                                </div>
-                                <div className="space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => tablePermissions.previousPage()}
-                                    disabled={!tablePermissions.getCanPreviousPage()}
-                                >
-                                    Anterior
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => tablePermissions.nextPage()}
-                                    disabled={!tablePermissions.getCanNextPage()}
-                                >
-                                    Siguiente
-                                </Button>
-                                </div>
-                            </div>
-                        </div>
-                        )
-                    }
+                        <TablePermissions newSelection={rowSelection} userSelected={user} groupSelected={group} handleUpdateUser={handleUpdateUser} handleUpdateGroup={handleUpdateGroup} />
+                    )}
 
                     {table === "users" && (
                         <TableUsers handleUserSelect={handleUserSelect} />

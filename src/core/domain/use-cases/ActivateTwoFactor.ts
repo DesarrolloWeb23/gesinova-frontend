@@ -1,6 +1,6 @@
 import { AuthRepository } from "../ports/AuthRepository";
 import { TwoFactor } from "@/core/domain/models/TwoFactor"
-import { Error } from "@/core/domain/models/Error";
+import { Error as AppError } from "@/core/domain/models/Error";
 export class ActivateTwoFactor {
     constructor(private authRepository: AuthRepository) {}
 
@@ -37,7 +37,7 @@ export class ActivateTwoFactor {
                 }
             };
         } catch (err) {
-            const error = err as Error;
+            const error = err as AppError;
             if (error.type === "api") {
                 if(error.status === 403) {
                     throw {
@@ -54,12 +54,22 @@ export class ActivateTwoFactor {
                         status: "TOO_MANY_REQUESTS",
                         message: error.message,
                     };
+                } else if (error.status === 401) {
+                    throw {
+                        status: "UNAUTHORIZED",
+                        message: error.message,
+                    };
+                } else if (error.status === 404) {
+                    throw {
+                        status: "NOT_FOUND",
+                        message: error.message,
+                    };
                 }
             }
             if (error.type === "validation") {
                 throw {
                     status: "VALIDATION_ERROR",
-                    message: "La estructura de datos recibida no es válida.",
+                    message: error.message,
                 };
             }
             if (error.type === "unknown_api_error") {

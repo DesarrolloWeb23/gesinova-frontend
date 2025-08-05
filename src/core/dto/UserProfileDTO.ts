@@ -5,7 +5,7 @@ export const UserProfileDTO = z.object({
     username: z.string().min(2).max(100),
     name: z.string().min(2).max(100),
     lastName: z.string().min(2).max(100),
-    email: z.string().email().nullable(),
+    email: z.string().nullable(),
     swAdmin: z.string().min(2).max(3),
     swActive: z.string().min(2).max(3),
     dateJoined: date().nullable(),
