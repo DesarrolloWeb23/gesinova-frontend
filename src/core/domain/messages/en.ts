@@ -19,6 +19,7 @@ export const messages = {
     mfa_code_sent: "Code sent to email successfully.",
     mfa_validation_success: "Multi-factor authentication validation successful.",
     reset_password_success: "Password reset email sent successfully.",
+    password_change_success: "Password changed successfully.",
   },
   ui: {
       wait: "Please wait...",
@@ -50,5 +51,11 @@ export const messages = {
       accessibility_button_english: "Language: English",
       accessibility_button_screen: "Screen",
       accessibility_button_podium: "Podium",
+      screen_back_to_login: "Back to login",
+      screen_title: "Home Screen",
+      screen_subtitle: "Welcome to the home screen",
+      screen_password: "Password",
+      screen_password_placeholder: "Enter your password",
+      screen_username: "Username",
   }
 };

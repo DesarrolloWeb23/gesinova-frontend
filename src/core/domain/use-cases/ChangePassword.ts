@@ -1,15 +1,28 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { AuthResponse } from "@/core/domain/models/AuthResponse";
-import { Error as AppError } from "@/core/domain/models/Error";
 
-export class ValidateTwoFactor {
-    
-    constructor(private authRepository: AuthRepository) {}
+import { UserRepository } from "@/core/domain/ports/UserRepository";
+import { Error as AppError  } from "@/core/domain/models/Error";
+import { Response } from "@/core/domain/models/Response";
 
-    async execute(tokenTemp: string | null, code: string): Promise<AuthResponse> {
+export class ChangePassword {
+    constructor(private userRepository: UserRepository) {}
+
+    async execute(oldPassword: string, confirmPassword: string, newPassword: string): Promise<Response> {
         try {
-            const response = await this.authRepository.validateMFA(tokenTemp, code);
-            return response as AuthResponse;
+            if (oldPassword !== confirmPassword) {
+                throw ({
+                    type: "validation",
+                    message: "Las contraseñas no coinciden.",
+                });
+            }
+
+            const response = await this.userRepository.changePassword(oldPassword, confirmPassword, newPassword);
+
+            return {
+                status: response.status,
+                path: "/",
+                message: "PASSWORD_CHANGED",
+            };
+            
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {

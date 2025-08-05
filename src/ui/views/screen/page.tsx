@@ -69,7 +69,7 @@ export default function Screen() {
         {/* boton para volver */}
         <div className="flex justify-end p-4">
           <Button variant="ghost" onClick={() => handleChangeView("login")}>
-            {getMessage("ui", "back_to_login")}
+            {getMessage("ui", "screen_back_to_login")}
           </Button>
         </div>
         <div className="flex flex-col items-center h-full">
@@ -87,16 +87,16 @@ export default function Screen() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{getMessage("ui", "password")}</FormLabel>
+                        <FormLabel>{getMessage("ui", "screen_password")}</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder={getMessage("ui", "password_placeholder")} {...field} />
+                          <Input type="password" placeholder={getMessage("ui", "screen_password_placeholder")} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <Button type="submit"  className="w-full">
-                    {getMessage("ui", "loading") }
+                    {getMessage("ui", "wait") }
                   </Button>
                 </form>
               </Form>
@@ -124,10 +124,10 @@ export default function Screen() {
               ))}
               </div>
           ))}
-          <div className="flex gap-2 w-[740px] justify-between mt-2">
+          {/* <div className="flex gap-2 w-[740px] justify-between mt-2">
               <button className="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
               <button className="bg-blue-600 text-white px-4 py-2 rounded flex-1">Space</button>
-          </div>
+          </div> */}
         </div>
       </div>
     );

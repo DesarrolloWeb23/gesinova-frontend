@@ -19,6 +19,7 @@ export const messages = {
         mfa_code_sent: "Código enviado al correo electrónico exitosamente.",
         mfa_validation_success: "Validación de multifactor autenticación exitosa.",
         reset_password_success: "Correo enviado exitosamente.",
+        password_change_success: "Contraseña cambiada exitosamente.",
     },
     ui: {
         wait: "Por favor espera...",
@@ -49,5 +50,11 @@ export const messages = {
         accessibility_button_english: "Idioma: Inglés",
         accessibility_button_screen: "Pantalla",
         accessibility_button_podium: "Atril",
+        screen_back_to_login: "Volver al inicio de sesión",
+        screen_title: "Pantalla de Inicio",
+        screen_subtitle: "Bienvenido a la pantalla de inicio",
+        screen_password: "Contraseña",
+        screen_password_placeholder: "Ingresa tu contraseña",
+        screen_username: "Nombre de usuario",
     }
 };

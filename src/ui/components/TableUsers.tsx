@@ -63,7 +63,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 type Props = {
-    handleUserSelect: (user: User) => void,
+    handleUserSelect: (user: User, type: string) => void,
 }
 
 type CompUserProps = {
@@ -110,7 +110,7 @@ async function fetchUserByUserNameFn(
     }
 }
 
-export const columnsUsers = (handleUserSelect: (user: User) => void): ColumnDef<User>[] => [
+export const columnsUsers = (handleUserSelect: (user: User, type: string) => void): ColumnDef<User>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -177,8 +177,11 @@ export const columnsUsers = (handleUserSelect: (user: User) => void): ColumnDef<
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                onClick={() =>  handleUserSelect(userSelected)}
+                onClick={() =>  handleUserSelect(userSelected, "permissions")}
                 >Gestionar permisos</DropdownMenuItem>
+                <DropdownMenuItem
+                onClick={() =>  handleUserSelect(userSelected, "groups")}
+                >Gestionar grupos</DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>
         )

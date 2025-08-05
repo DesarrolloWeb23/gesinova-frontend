@@ -1,6 +1,6 @@
 import { UsersRepository } from "@/core/domain/ports/UsersRepository";
 import { UserList} from "@/core/domain/models/User";
-import { Error } from "@/core/domain/models/Error";
+import { Error as AppError } from "@/core/domain/models/Error";
 
 export class GetUsersInfo {
     constructor(private usersRepository: UsersRepository) {}
@@ -10,7 +10,7 @@ export class GetUsersInfo {
             const response = await this.usersRepository.getUsersInfo();
             return response.data.content as UserList;
         } catch (err) {
-            const error = err as Error;
+            const error = err as AppError;
             if (error.type === "api") {
                 if(error.status === 403) {
                     throw {
@@ -27,12 +27,22 @@ export class GetUsersInfo {
                         status: "TOO_MANY_REQUESTS",
                         message: error.message,
                     };
+                } else if (error.status === 401) {
+                    throw {
+                        status: "UNAUTHORIZED",
+                        message: error.message,
+                    };
+                } else if (error.status === 404) {
+                    throw {
+                        status: "NOT_FOUND",
+                        message: error.message,
+                    };
                 }
             }
             if (error.type === "validation") {
                 throw {
                     status: "VALIDATION_ERROR",
-                    message: "La estructura de datos recibida no es válida.",
+                    message: error.message,
                 };
             }
             if (error.type === "unknown_api_error") {

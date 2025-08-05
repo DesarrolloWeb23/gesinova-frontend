@@ -33,7 +33,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/ui/components/ui/dropdown-menu"
 import {
@@ -56,6 +55,9 @@ import { CreateGroup } from "@/core/domain/use-cases/CreateGroup"
 import { getMessage } from "@/core/domain/messages";
 import  Loading  from "@/ui/components/Loading"
 import { GetGroupsInfo } from "@/core/domain/use-cases/GetGroupsInfo"
+import { User } from "@/core/domain/models/User"
+import { AssignGroupToUser } from "@/core/domain/use-cases/AssignGroupToUser"
+import { UserApiService } from "@/core/infrastructure/api/services/userService"
 
 const formSchema = z.object({
     name: z.string().min(2).max(100),
@@ -63,10 +65,13 @@ const formSchema = z.object({
 
 type Props = {
     handleGroupSelect: (group: Group) => void,
+    handleUpdateUser: (idUser: number) => void,
+    newSelection?: Record<number, boolean>,
+    userSelected: User,
 }
 
 
-export const columnsGroups = (handleGroupSelect: (group: Group) => void): ColumnDef<Group>[] => [
+export const columnsGroups = (handleGroupSelect: (group: Group) => void, user: User, handleAssignUserGroup: () => void): ColumnDef<Group>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -110,10 +115,18 @@ export const columnsGroups = (handleGroupSelect: (group: Group) => void): Column
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                onClick={() =>  handleGroupSelect(groupSelected)}
-                >Gestionar permisos</DropdownMenuItem>
+                { Object.keys(user).length > 0 ?  (
+                    <DropdownMenuItem
+                    onClick={() => handleAssignUserGroup()}
+                    >
+                    Asignar grupo a usuario
+                    </DropdownMenuItem>
+                ) : (
+                    <DropdownMenuItem
+                    onClick={() =>  handleGroupSelect(groupSelected)}
+                    >Gestionar permisos
+                    </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
             </DropdownMenu>
         )
@@ -121,7 +134,7 @@ export const columnsGroups = (handleGroupSelect: (group: Group) => void): Column
     },
 ]
 
-export default function TableGroups( { handleGroupSelect }: Props) {
+export default function TableGroups( { handleGroupSelect, newSelection = {}, userSelected, handleUpdateUser }: Props) {
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -144,26 +157,6 @@ export default function TableGroups( { handleGroupSelect }: Props) {
     const handleAccessDenied = () => {
         setAccessDenied(true);
     }
-
-    
-    const tableGroups = useReactTable({
-        data: groups,
-        columns: columnsGroups(handleGroupSelect),
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
-        },
-    })
 
     const fetchGroupsData = async () => {
         setLoading(true);
@@ -199,6 +192,63 @@ export default function TableGroups( { handleGroupSelect }: Props) {
         }
     }
 
+    //funcion para asginar grupo a un usuario
+    const handleAssignUserGroup = async() => {
+        setLoading(true);
+        const assignGroupUseCase = new AssignGroupToUser(new UserApiService());
+        
+        try {
+            const groupSelectedCodenames = groups.filter((_, index) => rowSelection[index]).map(p => p.name);
+
+            if (!groupSelectedCodenames.length) {
+                setLoading(false);
+                throw new Error("No group selected");
+            }
+            await toast.promise(
+                assignGroupUseCase.execute(userSelected.username, groupSelectedCodenames)
+                .then( (response) => {
+                    if (response.message === "GROUP_ASSIGNED") {
+                        handleUpdateUser(userSelected.id);
+                    }
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setLoading(false);
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    success: getMessage("success", "success"),
+                    error: (error) => 
+                        error?.message
+                } 
+            );
+        } catch (error) {
+            setLoading(false);
+            console.error("Error al iniciar sesión:", error);
+        }
+    }
+    
+    const tableGroups = useReactTable({
+        data: groups,
+        columns: columnsGroups(handleGroupSelect, userSelected, handleAssignUserGroup),
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            rowSelection,
+        },
+    })
+
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (isSubmitting) return;
         setIsSubmitting(true); // Establece el estado de envío a verdadero
@@ -233,6 +283,7 @@ export default function TableGroups( { handleGroupSelect }: Props) {
     }
 
     useEffect(() => {
+        setRowSelection(newSelection);
         fetchGroupsData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
