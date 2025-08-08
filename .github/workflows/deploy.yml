@@ -51,7 +51,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /d C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com
+            Set-Location "C:\inetpub\vhosts\pijaossalud.com\gesinova.pijaossalud.com"
+            Write-Host "Directorio actual:"
+            Get-Location
+            Write-Host "Contenido del .env:"
+            Get-Content .env
             npm install
             npm run build
   
