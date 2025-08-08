@@ -66,46 +66,6 @@ export class AuthApiService implements AuthRepository {
         }
     }
 
-    //funcion secured
-    async test() {
-        try {
-            const response = await http.get('/auth/secured',{withCredentials: true});
-            return response.data;
-        } catch (err: unknown) {
-            if (err instanceof ZodError) {
-                // Error de validación Zod en respuesta de la API
-                throw {
-                    type: "validation",
-                    issues: err.errors,
-                };
-            }
-
-            // Error devuelto desde el backend (AxiosError)
-            if (err instanceof AxiosError && err.response?.data) {
-                const parsed = ApiErrorDTO.safeParse(err.response.data);
-                if (parsed.success) {
-                    throw {
-                        type: "api",
-                        ...parsed.data,
-                    };
-                } else {
-                    // Respuesta de error de API no coincide con el DTO
-                    throw {
-                        type: "unknown_api_error",
-                        issues: parsed.error.errors,
-                    };
-                }
-            }
-
-            // Error desconocido
-            console.error("Error inesperado", err);
-            throw {
-                type: "unknown",
-                issues: err,
-            };
-        }
-    }
-
     //funcion para habilitar mfa
     async enableMFA(id: number, method: number): Promise<AuthEnableResponse>  {
         try {

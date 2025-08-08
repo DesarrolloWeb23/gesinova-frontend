@@ -1,5 +1,9 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { toast } from "sonner";
+import { GetUserInfo } from "@/core/domain/use-cases/GetUserInfo";
+import { UserApiService } from "@/core/infrastructure/api/services/userService";
 
 type ViewContextType = {
     view: string;
@@ -13,16 +17,40 @@ const ViewContext = createContext<ViewContextType | undefined>(undefined);
 export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
     const [view, setView] = useState("");
     const [subView, setSubView] = useState("");
+    const { logout } = useAuth();
 
     useEffect(() => {
-        const savedView = localStorage.getItem("currentView");
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+                                            
+        const validateToken = async () => {
+            const savedView = localStorage.getItem("currentView");
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token")
 
-        if (savedView) {
-            setView(savedView);
-        } else {
-            setView(token ? "dashboard" : "login");
-        }
+            if (!token) {
+                setView("login");
+                return;
+            }
+
+            try {
+                const userService = new GetUserInfo(new UserApiService());
+                const res = await userService.execute()
+
+                if (res) {
+                    if (savedView) {setView(savedView);} 
+                    setView("dashboard");
+                } else {
+                    logout();
+                    setView("login");
+                }
+            } catch (error) {
+                toast.error((error as Error).message || "Error al validar el token");
+                sessionStorage.removeItem("token"); 
+                localStorage.removeItem("token"); 
+                setView("login");
+            }
+        };
+
+        validateToken();
+
     }, []);
 
     useEffect(() => {
