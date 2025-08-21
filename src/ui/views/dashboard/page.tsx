@@ -19,6 +19,7 @@ import Company from "@/ui/subViews/company/page";
 import Support from "@/ui/subViews/support/page";
 import { MdNotificationsActive } from "react-icons/md";
 import { useView } from "@/ui/context/ViewContext";
+import { decodeJwt, JwtPayload } from "@/lib/jwt";
 
 const subViewsMap: Record<string, React.ComponentType> = {
     dashboard: SubDashboard,
@@ -35,6 +36,8 @@ export default function Dashboard() {
     const user = sessionStorage.getItem("user");
     const SubViewComponent = subViewsMap[subView];
     const [notificationCount, setNotificationCount] = useState(0);
+    // const { usertoken } = useAuth();
+    const [accessDenied, setAccessDenied] = useState(false);
 
     //funcion que simula la obtención de notificaciones
     const fetchNotifications = () => {
@@ -42,6 +45,29 @@ export default function Dashboard() {
         const notifications = Math.floor(Math.random() * 10); // Simula entre 0 y 9 notificaciones
         setNotificationCount(notifications);
     }
+
+    //funcion para validar que tiene los permisos para ingresar
+    const validateUserPermissions = (subView: string | null) => {
+        setAccessDenied(false);
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        let usertoken: JwtPayload | null;
+
+        if (token) {
+            usertoken = decodeJwt(token);
+        } else {
+            usertoken = null;
+        }
+
+        if (usertoken) {
+            if (subView && subView !== "dashboard") {
+                //recorrer los permisos del usuario y validar si tiene acceso a la vista
+                const hasAccess = usertoken.permissions.includes(subView);
+                if (!hasAccess) {
+                    setAccessDenied(true);
+                }
+            }
+        }
+    };
 
     useEffect(() => {
         const savedView = sessionStorage.getItem("SubView");
@@ -58,6 +84,7 @@ export default function Dashboard() {
     useEffect(() => {
         if (subView) {
             sessionStorage.setItem("SubView", subView);
+            //validateUserPermissions(subView);
         }
     }, [subView]); 
 
@@ -97,7 +124,14 @@ export default function Dashboard() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1 shadow-lg shadow-blue-500/50">
-                        {SubViewComponent ? <SubViewComponent /> : <p>Vista no encontrada</p>}
+                        {accessDenied ? 
+                            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                                <h2 className="text-xl font-semibold text-red-600">Acceso Denegado</h2>
+                                <p className="mt-2 text-muted-foreground">
+                                    No tienes permisos para acceder a esta sección.
+                                </p>
+                            </div> 
+                        : SubViewComponent ? <SubViewComponent /> : <p>Vista no encontrada</p>}
                     </div>
                 </div>
             </SidebarInset>

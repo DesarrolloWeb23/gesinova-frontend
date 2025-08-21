@@ -19,38 +19,42 @@ export default function Manage(){
 
     return (
         <>
-            <div className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1">
+            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full sm:max-w-9/10 m-1">
                 <Card className="w-full">
-                    <CardContent className="grid gap-6">
-                        <div className="grid grid-cols-2">
-                            <div className="grid grid-cols-1">
-                                <div className='grid gap-2'>
-                                    <Label htmlFor="tabs-demo-new">Tipo de documento</Label>
-                                    <Input id="tabs-demo-new" placeholder="Tipo documento" />
-                                </div>
-                                <div className='grid gap-2'>
-                                    <Label htmlFor="tabs-demo-new">N° Documento</Label>
-                                    <Input id="tabs-demo-new" placeholder="Numero" />
-                                </div>
-                                <Label htmlFor="tabs-demo-new">Nombre</Label>
-                                <Input id="tabs-demo-new" placeholder="Nombre" />
-                                <div className='grid gap-2'>
-                                    <Label htmlFor="tabs-demo-new">Numero</Label>
-                                    <Input id="tabs-demo-new" placeholder="Numero" />
-                                </div>
-                                <div className='grid gap-2'>
-                                    <Label htmlFor="tabs-demo-new">Edad</Label>
-                                    <Input id="tabs-demo-new" placeholder="Edad" />
-                                </div>
-                            </div>
-                            <div className="grid gap-3 flex items-center justify-center">
-                                <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-80 w-70 bg-gray-100">
+                    <CardContent className="">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="grid gap-2 flex items-center justify-center">
+                                <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-60 w-70 bg-gray-100">
                                     {isValid ?  <LogoBox turno="A3" /> : <CustomLoader />}
                                 </div>
                                 <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 px-4 py-1 rounded-full">
                                     <Tag className="w-4 h-4 mr-2 text-blue-600" />
                                     <span className="font-semibold">Servicio:</span> CONSULTA - LLAMADO # 0 DE 2
                                 </Badge>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                                <div className='grid grid-cols-2 gap-2'>
+                                    <div className='grid gap-2'>
+                                        <Label htmlFor="tabs-demo-new">Tipo de documento</Label>
+                                        <Input id="tabs-demo-new" placeholder="Tipo documento" />
+                                    </div>
+                                    <div className='grid gap-2'>
+                                        <Label htmlFor="tabs-demo-new">N° Documento</Label>
+                                        <Input id="tabs-demo-new" placeholder="Numero" />
+                                    </div>
+                                </div>
+                                <Label htmlFor="tabs-demo-new">Nombre</Label>
+                                <Input id="tabs-demo-new" placeholder="Nombre" />
+                                <div className='grid grid-cols-2 gap-2'>
+                                    <div className='grid gap-2'>
+                                        <Label htmlFor="tabs-demo-new">Numero</Label>
+                                        <Input id="tabs-demo-new" placeholder="Numero" />
+                                    </div>
+                                    <div className='grid gap-2'>
+                                        <Label htmlFor="tabs-demo-new">Edad</Label>
+                                        <Input id="tabs-demo-new" placeholder="Edad" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
@@ -67,7 +71,7 @@ export default function Manage(){
                     </CardFooter>
                 </Card>
             </div>
-            <div  className="animate-in fade-in slide-in-from-top-8 duration-700 max-w-1/2 w-full m-1">
+            <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
                 <Card className="w-full">
                     <CardContent className="grid gap-6">
                         <div className="text-center text-2xl font-bold">

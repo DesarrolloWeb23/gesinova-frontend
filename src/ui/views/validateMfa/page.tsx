@@ -115,7 +115,7 @@ export default function ValidateMfa() {
                 />
 
                 <div className="flex items-center justify-between">
-                  <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
+                  <Button type="button" onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
                     <TbArrowBackUp />{getMessage("ui", "mfa_validation_back")}
                   </Button>
                   <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>

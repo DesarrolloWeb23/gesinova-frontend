@@ -54,7 +54,7 @@ function Button({
   if (variant === "secondary") {
     return (
       <Comp className={baseClass} {...props}>
-        <div className="relative w-[190px] h-[50px] flex items-center justify-center content bg-secondary rounded-xl gap-2">
+        <div className="relative w-[190px] h-[50px] flex items-center justify-center content bg-secondary rounded-xl gap-2 text-pretty">
           {children}
         </div>
       </Comp>

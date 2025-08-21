@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
     Tabs,
     TabsContent,
@@ -20,12 +21,14 @@ import {
 import Trigger from "@/ui/subViews/transfer/trigger";
 import Manage from "@/ui/subViews/transfer/manage";
 import Start from "@/ui/subViews/transfer/start";
-
+import CreateAttentionService from "@/ui/subViews/transfer/create-attention-service";
 
 export default function Transfer() {
+    const [tab, setTab] = useState("start")
+
     return (
         <div className="flex-1 outline-none grid-cols-1 animate-in fade-in slide-in-from-top-8 duration-900">
-            <Tabs defaultValue="start">
+            <Tabs value={tab} onValueChange={setTab}>
                 <TabsList className="grid w-full grid-cols-5 border-b border-b-slate-200 dark:border-b-slate-700 bg-transparent m-1">
                     <TabsTrigger value="start">Inicio</TabsTrigger>
                     <TabsTrigger value="trigger">Generar</TabsTrigger>
@@ -33,15 +36,17 @@ export default function Transfer() {
                     <TabsTrigger value="report">Reportes</TabsTrigger>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <TabsTrigger value="more">
+                            <div className="inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm">
                                 <a >...</a>
-                            </TabsTrigger>
+                            </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56" align="start">
                             <DropdownMenuLabel>Mas opciones</DropdownMenuLabel>
                             <DropdownMenuGroup>
                                 <DropdownMenuItem>
-                                    Opcion 1
+                                    <TabsTrigger value="create-attention-service">
+                                        Crear servicio de atención
+                                    </TabsTrigger>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
@@ -66,11 +71,14 @@ export default function Transfer() {
                 <TabsContent value="start">
                     <Start />
                 </TabsContent>
-                <TabsContent value="trigger" className="grid grid-cols-1 flex align-center justify-center">
+                <TabsContent value="trigger" className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center">
                     <Trigger />
                 </TabsContent>
                 <TabsContent value="manage" className="grid grid-cols-1 flex align-center justify-center">
                     <Manage />
+                </TabsContent>
+                <TabsContent value="create-attention-service" className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center">
+                    <CreateAttentionService />
                 </TabsContent>
             </Tabs>
         </div>
