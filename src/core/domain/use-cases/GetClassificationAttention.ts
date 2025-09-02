@@ -1,20 +1,20 @@
 import { Error as AppError } from "@/core/domain/models/Error";
-import { AttentionService } from "@/core/domain/models/AttentionServices";
+import { ClassificationAttention } from "@/core/domain/models/ClassificationAttention";
 import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 
-export class GetAttentionServices {
+export class GetClassificationAttention {
     constructor(private transferRepository: TransferRepository) {}
 
-    async execute(): Promise<AttentionService[]> {
+    async execute(): Promise<ClassificationAttention[]> {
         try {
-            const response = await this.transferRepository.getAttentionServices();
+            const response = await this.transferRepository.getClassificationAttention();
             return response.data.content;
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {
-                if (error.status === 403) {
+                if(error.status === 403) {
                     throw {
-                        status: "GROUP_CREATION_FORBIDDEN",
+                        status: "ACCESS_DENIED",
                         message: error.message,
                     };
                 } else if (error.status === 400) {
@@ -35,11 +35,6 @@ export class GetAttentionServices {
                 } else if (error.status === 404) {
                     throw {
                         status: "NOT_FOUND",
-                        message: error.message,
-                    };
-                } else if (error.status === 500) {
-                    throw {
-                        status: "INTERNAL_SERVER_ERROR",
                         message: error.message,
                     };
                 }

@@ -10,3 +10,5 @@ export interface  Turn {
         label: string;
     };
 }
+
+export type TurnList = Turn[];

@@ -13,6 +13,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { decodeJwt, JwtPayload } from "@/lib/jwt";
+import { AttentionModule } from '@/core/domain/models/AttentionModules';
+import { GetAttentionModules } from '@/core/domain/use-cases/GetAttentionModules';
+import Loading from '@/ui/components/Loading';
 
 const formSchema = z.object({
     code: z.string().min(2, getMessage("errors", "zod_username_required")).max(3, getMessage("errors", "zod_username_too_long")),
@@ -23,6 +26,8 @@ const formSchema = z.object({
 export default function CreateAttentionService() {
     const [attentionServices, setAttentionServices] = useState<AttentionService[]>([]);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [attentionModules, setAttentionModules] = useState<AttentionModule[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -35,6 +40,7 @@ export default function CreateAttentionService() {
 
     //funcion para consultar los servicios de atencion
     const handleGetAttentionServices = async () => {
+        setIsLoading(true);
         const attentionServiceUseCase = new GetAttentionServices(new TransferService());
         try {
             await toast.promise(
@@ -52,6 +58,31 @@ export default function CreateAttentionService() {
             );
         } catch (error) {
             console.error("Error al consultar los servicios de atención:", error);
+        }
+    }
+
+    //funcion para consultar los modulos de atencion
+    const handleGetAttentionModules = async () => {
+        const attentionModuleUseCase = new GetAttentionModules(new TransferService());
+        try {
+            await toast.promise(
+                attentionModuleUseCase.execute()
+                .then((response) => {
+                    setAttentionModules(response);
+                    setIsLoading(false);
+                })
+                .catch((error) => {
+                    setIsLoading(false);
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => error?.message
+                }
+            );
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error al consultar los modulos de atención:", error);
         }
     }
 
@@ -78,6 +109,7 @@ export default function CreateAttentionService() {
     useEffect(() => {
         validateUserPermissions();
         handleGetAttentionServices();
+        handleGetAttentionModules();
     }, []);
 
     if (accessDenied) {
@@ -87,6 +119,14 @@ export default function CreateAttentionService() {
                 <p className="mt-2 text-muted-foreground">
                     No tienes permisos para acceder a esta sección.
                 </p>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div className="col-span-2 max-sm:col-span-3 p-4 flex items-center justify-center flex h-full">
+                <Loading />
             </div>
         );
     }
@@ -142,8 +182,11 @@ export default function CreateAttentionService() {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                        <SelectItem value="CC">Cedula</SelectItem>
-                                                        <SelectItem value="TI">Tarjeta de identidad</SelectItem>
+                                                            {attentionModules.map((module) => (
+                                                                <SelectItem key={module.id} value={module.internalCode}>
+                                                                    {module.name}
+                                                                </SelectItem>
+                                                            ))}
                                                         </SelectGroup>
                                                     </SelectContent>
                                                 </Select>

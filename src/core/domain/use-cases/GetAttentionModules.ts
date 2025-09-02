@@ -1,13 +1,14 @@
-import { Error as AppError } from "@/core/domain/models/Error";
-import { AttentionService } from "@/core/domain/models/AttentionServices";
 import { TransferRepository } from "@/core/domain/ports/TransferRepository";
+import { AttentionModule } from "@/core/domain/models/AttentionModules";
+import { Error as AppError } from "@/core/domain/models/Error";
 
-export class GetAttentionServices {
+
+export class GetAttentionModules {
     constructor(private transferRepository: TransferRepository) {}
 
-    async execute(): Promise<AttentionService[]> {
+    async execute(): Promise<AttentionModule[]> {
         try {
-            const response = await this.transferRepository.getAttentionServices();
+            const response = await this.transferRepository.getAttentionModules();
             return response.data.content;
         } catch (err) {
             const error = err as AppError;

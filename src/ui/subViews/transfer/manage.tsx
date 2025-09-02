@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/ui/components/ui/card";
 import { Input } from "@/ui/components/ui/input";
 import { Label } from "@/ui/components/ui/label";
@@ -6,16 +6,389 @@ import { Button } from "@/ui/components/ui/button";
 import LogoBox  from "@/ui/components/LogoBox";
 import { Badge } from "@/ui/components/ui/badge";
 import { Bell } from "lucide-react";
-import Image from "next/image";
 import { Tag } from "lucide-react";
 import { BsBackpack2Fill } from "react-icons/bs";
 import CustomLoader from "@/ui/components/CustomLoader";
 import { HiMiniBellAlert } from "react-icons/hi2";
 import { FaUserCheck, FaArrowsRotate, FaUserSlash } from "react-icons/fa6";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/ui/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, 
+    DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/ui/components/ui/dialog";
+import { toast } from 'sonner';
+import { TransferService } from '@/core/infrastructure/api/services/TransferService';
+import { getMessage } from '@/core/domain/messages';
+import { ScrollArea } from '@/ui/components/ui/scroll-area';
+import { Separator } from '@/ui/components/ui/separator';
+import { Turn } from '@/core/domain/models/Turn';
+import { AdvanceTurnState } from '@/core/domain/use-cases/AdvanceTurnState';
+import { CancelTurn } from '@/core/domain/use-cases/CancelTurn';
+import { Turns } from '@/core/domain/models/Turns';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/ui/components/ui/form';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/ui/components/ui/select';
+import { AttentionService } from '@/core/domain/models/AttentionServices';
+import { GetAttentionServices } from '@/core/domain/use-cases/GetAttentionServices';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { TransferTurn } from '@/core/domain/use-cases/TransferTurn';
+import { GetTurnsByState } from '@/core/domain/ports/GetTurnsByState';
+import Trigger from './trigger';
+import Loading from '@/ui/components/Loading';
+import { AlertDialog, AlertDialogAction, 
+    AlertDialogCancel, AlertDialogContent, 
+    AlertDialogDescription, AlertDialogFooter, 
+    AlertDialogHeader, AlertDialogTitle, 
+    AlertDialogTrigger } from '@/ui/components/ui/alert-dialog';
+import { GetTurns } from '@/core/domain/use-cases/GetTurns';
+
+const formSchema = z.object({
+    attentionService: z.string().min(1).max(100)
+});
 
 export default function Manage(){
-    const [isValid, setIsValid] = useState(false);
+    const [turns, setTurns] = useState<Turns[]>([]);
+    const [selectedTurn, setSelectedTurn] = useState<Turns | null>(null);
+    const [turnsPending, setTurnsPending] = useState<Turn[]>([]);
+    const [turnsCompleted, setTurnsCompleted] = useState<string>("0");
+    const [turnsCancelled, setTurnsCancelled] = useState<string>("0");
+    const [attentionServices, setAttentionServices] = useState<AttentionService[]>([]);
+    const closeRef = useRef<HTMLButtonElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    //variable que controla el estado de los turnos a consultar cuando se carga el componente, 1 = pendientes, 2 = completados, 3 = cancelados
+    const state = 1;
+    const didFetch = useRef(false);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            attentionService: ""
+        }
+    });
+
+    // //funcion para obtener los turnos
+    async function fetchTurns() {
+        setIsLoading(true);
+        const getTurnsUseCase = new GetTurns(new TransferService());
+        try {
+            await toast.promise( 
+                getTurnsUseCase.execute()
+                .then((response) => {
+                    //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
+                    const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
+                    //asigna los turnos a los estados correspondientes
+                    const { pending, completed, cancelled } = splitTurns(response);
+                    setTurnsPending(pending);
+                    // setTurnsCompleted(completed);
+                    // setTurnsCancelled(cancelled);
+                    setTurns(filteredTurns);
+                    setIsLoading(false);
+                })
+                .catch ((error) => {
+                    setIsLoading(false);
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => 
+                        error?.message
+                }
+            );
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error al consultar el afiliado:", error);
+        }
+    }
+
+    //funcion para obtener los turnos por estado
+    async function fetchTurnsByState(state: number) {
+        setIsLoading(true);
+        const getTurnsByStateUseCase = new GetTurnsByState(new TransferService());
+        try {
+            await toast.promise(
+                getTurnsByStateUseCase.execute(state)
+                    .then((response) => {
+                        const { pending } = splitTurns(response);
+                        setTurnsPending(pending);
+                        setTurns((prevTurns) => {
+                            // IDs que vienen en la nueva respuesta
+                            const newIds = new Set(response.map(t => t.id));
+
+                            // Persistir los que ya no están en la nueva respuesta
+                            const persistedTurns = prevTurns.filter(t => !newIds.has(t.id));
+
+                            // Unir los que persisten + los nuevos (para evitar duplicados, filtra por id)
+                            const merged = [
+                                ...persistedTurns,
+                                ...response.filter(
+                                    newTurn => !persistedTurns.some(oldTurn => oldTurn.id === newTurn.id)
+                                )
+                            ];
+
+                            return merged;
+                        });
+                        setIsLoading(false);
+                    })
+                    .catch((error) => {
+                        setIsLoading(false);
+                        throw error;
+                    }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) =>
+                        error?.message
+                }
+            );
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error al consultar los turnos por estado:", error);
+        }
+    }
+
+    //funcion para avanzar el estado del turno
+    async function handleAdvanceTurnState(turn: Turns) {
+        const advanceTurnStateUseCase = new AdvanceTurnState(new TransferService());
+        try {
+            await toast.promise(
+                advanceTurnStateUseCase.execute(turn.id)
+                    .then((response) => {
+                        //actualiza la lista de turnos
+                        // setTurns((prevTurns) =>
+                        //     prevTurns.map((turn) =>
+                        //         turn.id === response.id ? response : turn
+                        //     )
+                        // );
+                        // Actualizar SOLO el turno que cambió
+                        setTurns((prevTurns) => 
+                            prevTurns.map((turn) =>
+                                turn.id === response.id
+                                    ? { ...turn, ...response } // fusiona el turno previo con la nueva info
+                                    : turn
+                            )
+                        );
+                        // const updatedTurn = selectedTurn;
+                        //llama a la funcion para anunciar el turno
+                        if(response.state.code === 2){
+                            announceTurn(response);
+                        }
+                        //valida si el estado del turno es finalizado
+                        if (response.state.code === 4) {
+                            setTurnsCompleted(prev => (parseInt(prev) + 1).toString());
+                            sessionStorage.setItem("turnCompleted", (parseInt(sessionStorage.getItem("turnCompleted") || "0") + 1).toString());
+                            //eliminar el selectedTurn de la lista de turnos
+                            setTurns(prev => prev.filter(turn => turn.id !== selectedTurn!.id));
+                            handleClearSelectedTurn();
+                        }else{
+                            //se modifica el estado del turno con el nuevo estado que llega de la respuesta
+                            // updatedTurn!.state = response.state;
+                            //actualiza el turno en local storage
+                            // localStorage.setItem("selectedTurn", JSON.stringify(updatedTurn));
+                            // setSelectedTurn(updatedTurn);
+                            turn.state = response.state;
+                            handleSelectTurn(turn);
+                        }
+                    })
+                    .catch((error) => {
+                        throw error;
+                    }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) =>
+                        error?.message
+                }
+            );
+        } catch (error) {
+            console.error("Error al avanzar el estado del turno:", error);
+        }
+    }
+
+    //funcion para consultar los servicios de atencion
+    async function handleGetAttentionServices() {
+        const attentionServiceUseCase = new GetAttentionServices(new TransferService());
+        try {
+            await toast.promise(
+                attentionServiceUseCase.execute()
+                .then((response) => {
+                    setAttentionServices(response);
+                })
+                .catch((error) => {
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => error?.message
+                }
+            );
+        } catch (error) {
+            console.error("Error al consultar los servicios de atención:", error);
+        }
+    }
+
+    //funcion para cancelar turno
+    async function handleCancelTurn(turnId: string) {
+        const cancelTurnUseCase = new CancelTurn(new TransferService());
+        try {
+            await toast.promise(
+                cancelTurnUseCase.execute(turnId)
+                    .then((response) => {
+                        if (response) {
+                            //eliminar el selectedTurn de la lista de turnos
+                            setTurns(prev => prev.filter(turn => turn.id !== selectedTurn!.id));
+                            handleClearSelectedTurn();
+                            //suma mas 1 a los turnos cancelados
+                            setTurnsCancelled(prev => (parseInt(prev) + 1).toString());
+                            sessionStorage.setItem("turnCancelled", (parseInt(sessionStorage.getItem("turnCancelled") || "0") + 1).toString());
+                        }
+                    })
+                    .catch((error) => {
+                        throw error;
+                    }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) =>
+                        error?.message
+                }
+            );
+        } catch (error) {
+            console.error("Error al cancelar el turno:", error);
+        }
+    }
+
+    //funcion para transferir turno
+    async function handleTransferTurn (data: z.infer<typeof formSchema>){
+        const transferTurnUseCase = new TransferTurn(new TransferService());
+        try {
+            await toast.promise(
+                transferTurnUseCase.execute(selectedTurn!.id, data.attentionService)
+                    .then((response) => {
+                        setTurns((prevTurns) =>
+                            prevTurns.map((turn) =>
+                                turn.id === response.id ? response : turn
+                            )
+                        );
+                        handleClearSelectedTurn();
+                        closeRef.current?.click();
+                    })
+                    .catch((error) => {
+                        throw error;
+                    }),
+                {
+                    success: "Turno transferido con éxito",
+                    loading: getMessage("success", "loading"),
+                    error: (error) =>
+                        error?.message
+                }
+            );
+        } catch (error) {
+            console.error("Error al transferir el turno:", error);
+        }
+    }
+
+    const announceTurn = (turn: Turn) => {
+        const messageCode = new SpeechSynthesisUtterance(`Turno número ${turn.turnCode}`);
+        messageCode.lang = "es-ES"; // español (puedes probar con "es-CO")
+        messageCode.rate = 0.8;     // velocidad (1 es normal, 0.8 más lento, 1.2 más rápido)
+        messageCode.pitch = 1;      // tono
+        //valida si el turno tiene nombre
+        if(turn.firstName) {
+            const messageName =  new SpeechSynthesisUtterance(`${turn.firstName + " " + turn.lastName}`);
+            messageName.lang = "es-ES";
+            messageName.rate = 0.8;       // velocidad (1 es normal, 0.8 más lento, 1.2 más rápido)
+            messageName.pitch = 1;      // tono
+            window.speechSynthesis.speak(messageCode);
+            window.speechSynthesis.speak(messageName);
+        }else{
+            const messageIdentification =  new SpeechSynthesisUtterance(`${turn.identificationNumber}`);
+            messageIdentification.lang = "es-ES";
+            messageIdentification.rate = 0.8;       // velocidad (1 es normal, 0.8 más lento, 1.2 más rápido)
+            messageIdentification.pitch = 1;      // tono
+            window.speechSynthesis.speak(messageCode);
+            window.speechSynthesis.speak(messageIdentification);
+        }
+    };
+
+    //funcion para seleccionar un turno
+    const handleSelectTurn = useCallback((turn: Turn) => {
+        //almacen el turno en local storage
+        localStorage.setItem("selectedTurn", JSON.stringify(turn));
+        setSelectedTurn(turn as Turns);
+    }, []);
+
+    //funcion para limpiar el turno seleccionado
+    const handleClearSelectedTurn = () => {
+        localStorage.removeItem("selectedTurn");
+        setSelectedTurn(null);
+    }
+
+    //funcion para llamar al siguiente turno
+    const handleCallTurn = () => {
+        const turn: Turns | null = getLastTurn();
+        if (!turn) {
+            toast.error("No hay turnos disponibles para llamar");
+            return;
+        }
+        handleAdvanceTurnState(turn!);
+    }
+
+    //funcion para dividir los turnos en diferentes estados
+    function splitTurns(turns: Turn[]) {
+        return {
+            pending: turns.filter(t => t.state.code === 1),
+            completed: turns.filter(t => t.state.code === 4),
+            cancelled: turns.filter(t => t.state.code === 5),
+        };
+    }
+
+    //funcion que toma los turnos y devuelve el ultimo turno 
+    const getLastTurn = (): Turns | null => {
+        if (turns.length === 0) return null;
+        return turns[0];
+    };
+
+    useEffect(() => {
+        if (didFetch.current) return;
+        // didFetch.current = true;
+        // fetchTurnsByState(state);
+        //fetchTurns();
+        setIsLoading(true);
+        const getTurnsUseCase = new GetTurns(new TransferService());
+        try {
+            toast.promise( 
+                getTurnsUseCase.execute()
+                .then((response) => {
+                    //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
+                    const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
+                    //asigna los turnos a los estados correspondientes
+                    const { pending, completed, cancelled } = splitTurns(response);
+                    setTurnsPending(pending);
+                    // setTurnsCompleted(completed);
+                    // setTurnsCancelled(cancelled);
+                    setTurns(filteredTurns);
+                    setIsLoading(false);
+                    didFetch.current = true;
+                })
+                .catch ((error) => {
+                    setIsLoading(false);
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => 
+                        error?.message
+                }
+            );
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error al consultar el afiliado:", error);
+        }
+        setTurnsCancelled(sessionStorage.getItem("turnCancelled") || "0");
+        setTurnsCompleted(sessionStorage.getItem("turnCompleted") || "0");
+        //valida si hay un turno cargado en local storage y si lo hay lo carga al selectedturn
+        const storedTurn = localStorage.getItem("selectedTurn");
+        if (storedTurn) {
+            setSelectedTurn(JSON.parse(storedTurn));
+        }
+        const interval = setInterval(() => fetchTurns(), 10000); // cada 10 segundos
+        return () => clearInterval(interval); // limpiar al desmontar
+    }, []);
 
     return (
         <>
@@ -24,28 +397,44 @@ export default function Manage(){
                     <CardContent className="">
                         <div className="grid grid-cols-1 gap-4">
                             <div className="grid gap-2 flex items-center justify-center">
-                                <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-60 w-70 bg-gray-100">
-                                    {isValid ?  <LogoBox turno="A3" /> : <CustomLoader />}
+                                <div className="flex items-center justify-center rounded-lg relative gap-2">
+                                    {/** boton en la parte superior derecha para ver detalles del turno */}
+                                    <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-60 w-70 bg-gray-100 relative">
+                                    {selectedTurn && (
+                                        <div className={` ${selectedTurn.state?.code !== 1 ? 'hidden' : ''} absolute top-2 right-4 cursor-pointer`} onClick={() => handleClearSelectedTurn()}>
+                                            x
+                                        </div>
+                                    )}
+                                        {selectedTurn ?  <LogoBox turno={selectedTurn.turnCode} /> : <CustomLoader />}
+                                    </div>
                                 </div>
-                                <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 px-4 py-1 rounded-full">
-                                    <Tag className="w-4 h-4 mr-2 text-blue-600" />
-                                    <span className="font-semibold">Servicio:</span> CONSULTA - LLAMADO # 0 DE 2
-                                </Badge>
+                                <div className={`${selectedTurn ? '' : 'hidden'} flex items-center justify-center rounded-lg relative gap-2`}>
+                                    <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 px-4 py-1 rounded-full">
+                                        <Tag className="w-4 h-4 mr-2 text-blue-600" />
+                                        <span className="font-semibold">Servicio:</span> {selectedTurn ? selectedTurn.attentionService?.name : "Sin servicio registrado"}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-cyan-600 border-cyan-300 bg-cyan-50 px-4 py-1 rounded-full">
+                                        <Tag className="w-4 h-4 mr-2 text-cyan-600" />
+                                        <span className="font-semibold">Prioridad:</span> {selectedTurn ? selectedTurn.classificationAttention?.attentionType?.description : "Sin prioridad"}
+                                    </Badge>
+                                </div>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
                                 <div className='grid grid-cols-2 gap-2'>
                                     <div className='grid gap-2'>
                                         <Label htmlFor="tabs-demo-new">Tipo de documento</Label>
-                                        <Input id="tabs-demo-new" placeholder="Tipo documento" />
+                                        <Input id="tabs-demo-new" placeholder="Tipo documento" defaultValue={selectedTurn?.identificationType} readOnly/>
                                     </div>
                                     <div className='grid gap-2'>
                                         <Label htmlFor="tabs-demo-new">N° Documento</Label>
-                                        <Input id="tabs-demo-new" placeholder="Numero" />
+                                        <Input id="tabs-demo-new" placeholder="Numero" defaultValue={selectedTurn?.identificationNumber} readOnly/>
                                     </div>
                                 </div>
                                 <Label htmlFor="tabs-demo-new">Nombre</Label>
-                                <Input id="tabs-demo-new" placeholder="Nombre" />
-                                <div className='grid grid-cols-2 gap-2'>
+                                <Input id="tabs-demo-new" placeholder="Nombre" defaultValue={
+                                    selectedTurn ? selectedTurn.firstName + " " + selectedTurn.lastName : ""
+                                } readOnly/>
+                                {/* <div className='grid grid-cols-2 gap-2'> 
                                     <div className='grid gap-2'>
                                         <Label htmlFor="tabs-demo-new">Numero</Label>
                                         <Input id="tabs-demo-new" placeholder="Numero" />
@@ -54,19 +443,101 @@ export default function Manage(){
                                         <Label htmlFor="tabs-demo-new">Edad</Label>
                                         <Input id="tabs-demo-new" placeholder="Edad" />
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </CardContent>
                     <CardFooter className="grid grid-cols-1 gap-2">
                         <div className="flex justify-center gap-4">
-                            <Button onClick={() => setIsValid(!isValid)} disabled={isValid} variant={'tertiary'}><HiMiniBellAlert />Llamar</Button>
-                            <Button onClick={() => setIsValid(!isValid)} disabled={!isValid} className='bg-green-500'><FaUserCheck />Finalizar</Button>
+                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code === 3 ? true : false} variant={'tertiary'}><HiMiniBellAlert />
+                            {selectedTurn && selectedTurn.state?.code === 2 ? 'Atender' : 'Llamar'}
+                            </Button>
+                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true} className='bg-green-500'><FaUserCheck />Finalizar</Button>
                         </div>
                         <div className="flex justify-center gap-4" >
-                            <Button className={`${isValid ? '' : 'hidden'} bg-orange-500`} ><FaArrowsRotate />Tranferir</Button>
-                            <Button className={`${isValid ? '' : 'hidden'}`}>Soltar</Button>
-                            <Button className={`${isValid ? '' : 'hidden'}`} variant={'destructive'}><FaUserSlash />Cancelar</Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button 
+                                    onClick={() => handleGetAttentionServices()} 
+                                    className={`${selectedTurn ? '' : 'hidden'} bg-orange-500`} 
+                                    >
+                                    <FaArrowsRotate /> Tranferir
+                                    </Button>
+                                </DialogTrigger>
+
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(handleTransferTurn)}>
+                                            <DialogHeader>
+                                            <DialogTitle>Transferir Turno</DialogTitle>
+                                            <DialogDescription>
+                                                Seleccione el servicio al cual desea transferir el turno.
+                                            </DialogDescription>
+                                            </DialogHeader>
+
+                                            <div className="grid gap-3">
+                                                <FormField
+                                                control={form.control}
+                                                name="attentionService"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                    <FormLabel htmlFor="tabs-demo-current">Servicio:</FormLabel>
+                                                    <FormControl>
+                                                        <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Seleccione servicio" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                            {attentionServices?.map(service => (
+                                                                <SelectItem key={service.id} value={service.id.toString()}>
+                                                                {service.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    </FormItem>
+                                                )}
+                                                />
+                                            </div>
+
+                                            <DialogFooter>
+                                                <DialogClose asChild>
+                                                    <Button ref={closeRef} variant="outline">
+                                                    Cancelar
+                                                    </Button>
+                                                </DialogClose>
+                                                <Button type="submit">Guardar cambios</Button>
+                                            </DialogFooter>
+                                        </form>
+                                    </Form>
+                                </DialogContent>
+                            </Dialog>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <div>
+                                        <Button className={`${selectedTurn ? '' : 'hidden'}`} variant="destructive"><FaUserSlash />Cancelar</Button>
+                                    </div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Estas seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta
+                                        y eliminará tus datos de nuestros servidores.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction  onClick={() => handleCancelTurn(selectedTurn!.id.toString())} >Continuar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                            <Button onClick={() => announceTurn(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code !== 2 ? true : false} variant={'tertiary'}><HiMiniBellAlert />
+                                Rellamar
+                            </Button>
                         </div> 
                     </CardFooter>
                 </Card>
@@ -80,66 +551,117 @@ export default function Manage(){
                         <div className="flex justify-center gap-4">
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
                                 <Bell className="w-4 h-4 mr-1 text-blue-600" />
-                                Activos: 4
+                                Pendientes: {turnsPending.length}
                             </Badge>
 
                             <Badge variant="outline" className="text-red-600 bg-red-100 border-red-300">
                                 <Bell className="w-4 h-4 mr-1 text-red-600" />
-                                Atendidos: 2
+                                Cancelados: {turnsCancelled}
                             </Badge>
 
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
                                 <Bell className="w-4 h-4 mr-1 text-blue-600" />
-                                Total: 6
+                                Finalizados: {turnsCompleted}
                             </Badge>
                         </div>
-                        <div className="border border-gray-300 p-4 rounded-lg">
-                            <div className="flex items-center justify-center h-32 w-32 bg-gray-300 rounded-full mx-auto shadow-lg">
-                                <Image
-                                    src="/Logo_Gesinova.jpg"
-                                    alt="Logo Gesinova"
-                                    width={800}
-                                    height={800}
-                                    className="rounded-full object-cover"
-                                />
-                            </div>
-                        </div>
+                        {isLoading ? (
+                            <Loading />
+                        ): 
+                            <ScrollArea className="h-90 border border-gray-300 p-4 rounded-lg">
+                                <div className='grid grid-cols-3 gap-2'>
+                                    <div className='grid gap-2'>
+                                        <h1><b>Codigo</b></h1>
+                                    </div>
+                                    <div className='grid gap-2'>
+                                        <h1><b>Estado</b></h1>
+                                    </div>
+                                    <div className='grid gap-2'>
+                                        <h1><b>Prioridad</b></h1>
+                                    </div>
+                                </div>
+                                <Separator className='m-2'/>
+                                {turns.map((turn) => (
+                                <React.Fragment key={turn.id}>
+                                    <div className='grid grid-cols-3 gap-2'>
+                                        <div className='grid gap-2'>
+                                            <h1>{turn.turnCode}</h1>
+                                        </div>
+                                        <div className='grid gap-2'>
+                                            <h1>{turn.state.label}</h1>
+                                        </div>
+                                        <div className='grid gap-2'>
+                                            <h1>{turn.classificationAttention.attentionType.description }</h1>
+                                        </div>
+                                        {/* <div className='grid gap-2'>
+                                            <Button className={`text-black text-sm ${turn.state.code !== 1 ? 'hidden' : ''}`} onClick={() => handleSelectTurn(turn)} variant="outline">
+                                                <BsBackpack2Fill />
+                                                Gestionar
+                                            </Button>
+                                        </div> */}
+                                    </div>
+                                    <Separator className="my-2" />
+                                </React.Fragment>
+                                ))}
+                            </ScrollArea>
+                        }
                     </CardContent>
                     <CardFooter className="flex justify-center gap-4">
-                        <Button><BsBackpack2Fill />Ver turno</Button>
-                            <Dialog>
-                                <form>
-                                    <DialogTrigger asChild>
-                                    <Button variant="outline">Open Dialog</Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px]">
+                        <Dialog>
+                            <form>
+                                <DialogTrigger asChild>
+                                    <Button className={`${selectedTurn ? '' : 'hidden'}`}><BsBackpack2Fill />Ver turno</Button>
+                                </DialogTrigger>
+                                <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>Edit profile</DialogTitle>
-                                        <DialogDescription>
-                                        Make changes to your profile here. Click save when you&apos;re
-                                        done.
-                                        </DialogDescription>
+                                    <DialogTitle>Informacion del turno: {selectedTurn?.turnCode}</DialogTitle>
                                     </DialogHeader>
-                                    <div className="grid gap-4">
-                                        <div className="grid gap-3">
-                                        <Label htmlFor="name-1">Name</Label>
-                                        <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div className='grid gap-2'>
+                                                <Label>ID</Label>
+                                                <Input value={selectedTurn?.id} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>identificacion</Label>
+                                                <Input value={selectedTurn?.identificationType + ' ' + selectedTurn?.identificationNumber} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>Estado</Label>
+                                                <Input value={selectedTurn?.state.label} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>Nombre</Label>
+                                                <Input value={selectedTurn?.firstName + ' ' + selectedTurn?.lastName} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>Sede</Label>
+                                                <Input value={selectedTurn?.headQuarter} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>Servicio</Label>
+                                                <Input value={selectedTurn?.attentionService.name} readOnly />
+                                            </div>
+                                            <div className='grid gap-2'>
+                                                <Label>Clasificacion</Label>
+                                                <Input value={selectedTurn?.classificationAttention.description} readOnly />
+                                            </div>
                                         </div>
-                                        <div className="grid gap-3">
-                                        <Label htmlFor="username-1">Username</Label>
-                                        <Input id="username-1" name="username" defaultValue="@peduarte" />
-                                        </div>
-                                    </div>
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                        <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button type="submit">Save changes</Button>
-                                    </DialogFooter>
-                                    </DialogContent>
-                                </form>
-                            </Dialog>
-                        <Button><BsBackpack2Fill />Generar turno</Button>
+                                </DialogContent>
+                            </form>
+                        </Dialog>
+                        <Dialog>
+                            <form>
+                                <DialogTrigger asChild>
+                                    <Button><BsBackpack2Fill />Generar turno</Button>
+                                </DialogTrigger>
+                                <DialogContent className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center sm:max-w-[1200px]">
+                                    <DialogHeader>
+                                    <DialogTitle></DialogTitle>
+                                    </DialogHeader>
+                                <Trigger />
+                                </DialogContent>
+                            </form>
+                        </Dialog>
+                        <Button disabled={selectedTurn ? true : false} onClick={() => {handleCallTurn()}}><BsBackpack2Fill />Llamar turno</Button>
                     </CardFooter>
                 </Card>
             </div>

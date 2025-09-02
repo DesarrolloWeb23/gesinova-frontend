@@ -10,6 +10,7 @@ import { Toaster } from 'sonner'
 import { setErrorMap } from "zod";
 import { customZodErrorMap } from "@/ui/hooks/useZodErrorMap";
 import { useView } from "@/ui/context/ViewContext";
+import Lectern from "@/ui/views/lectern/page";
 
 export default function Home() {
   
@@ -35,6 +36,9 @@ export default function Home() {
       )}
       {view === "screen" && (
         <Screen/>
+      )}
+      {view === "lectern" && (
+        <Lectern/>
       )}
       <Toaster richColors position="top-right" />
     </main>

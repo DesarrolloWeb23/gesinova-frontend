@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/ui/components/ui/card";
 import { Button } from "@/ui/components/ui/button";
 import { Input } from "@/ui/components/ui/input";
@@ -21,6 +21,9 @@ import { TransferService } from '@/core/infrastructure/api/services/TransferServ
 import { Turn } from '@/core/domain/models/Turn';
 import { GetAttentionServices } from '@/core/domain/use-cases/GetAttentionServices';
 import { AttentionService } from '@/core/domain/models/AttentionServices';
+import { GetClassificationAttention } from '@/core/domain/use-cases/GetClassificationAttention';
+import { ClassificationAttention } from '@/core/domain/models/ClassificationAttention';
+import Loading from '@/ui/components/Loading';
 
 const formSchema = z.object({
     identificationType: z.string()
@@ -29,14 +32,27 @@ const formSchema = z.object({
     priority: z.string().min(1, getMessage("errors", "zod_priority_required"))
 })
 
+const formSchemaNewUser = z.object({
+    firstName: z.string().min(2, getMessage("errors", "zod_first_name_required")),
+    middleName: z.string().min(2, getMessage("errors", "zod_last_name_required")).nullable(),
+    firstLastName: z.string().min(2, getMessage("errors", "zod_first_last_name_required")),
+    secondLastName: z.string().min(2, getMessage("errors", "zod_second_last_name_required")).nullable(),
+    municipality: z.string().min(2, getMessage("errors", "zod_municipality_required")),
+    department: z.string().min(2, getMessage("errors", "zod_department_required"))
+})
+
+
 export default function Trigger() {
     const [isValid, setIsValid] = useState(false);
-    const [isActive, setIsActive] = useState(true);
     const [affiliate, setAffiliate] = useState<Affiliate>({} as Affiliate);
     const [priority, setPriority] = useState<string>("");
     const [turn, setTurn] = useState<Turn>({} as Turn);
     const [showModal, setShowModal] = useState(false);
     const [attentionServices, setAttentionServices] = useState<AttentionService[]>([]);
+    const [classificationAttention, setClassificationAttention] = useState<ClassificationAttention[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isRegistering, setIsRegistering] = useState(false);
+    const didFetch = useRef(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -47,6 +63,18 @@ export default function Trigger() {
         }, 
     })
 
+    const formNewUser = useForm<z.infer<typeof formSchemaNewUser>>({
+        resolver: zodResolver(formSchemaNewUser),
+        defaultValues: {
+            firstName: affiliate.firstName,
+            middleName: affiliate.middleName,
+            firstLastName: affiliate.firstLastName,
+            secondLastName: affiliate.secondLastName,
+            municipality: affiliate.municipality,
+            department: affiliate.department
+        }
+    });
+
     //funcion para consultar el afiliado por tipo de documento y numero
     const handleGetAffiliate = async (data: z.infer<typeof formSchema>) => {
         const affiliateUsesCase = new GetAffiliateByDni(new AffiliateApiService());
@@ -54,12 +82,17 @@ export default function Trigger() {
             await toast.promise( 
                 affiliateUsesCase.execute(data.identificationType, data.numberIdentification)
                 .then((response) => {
+                    setIsRegistering(false);
                     setAffiliate(response);
                     setIsValid(true);
                     setPriority(data.priority);
                 })
                 .catch ((error) => {
                     setIsValid(false);
+                    if(error.status === 'NOT_FOUND'){
+                        setIsRegistering(true);
+                        setPriority(data.priority);
+                    }
                     throw error;
                 }),
                 {
@@ -77,6 +110,7 @@ export default function Trigger() {
     //funcion para volver atras y limpiar los datos del afiliado para reiniciar el formulario
     const handleReset = () => {
         setIsValid(false);
+        setIsRegistering(false);
         setAffiliate({} as Affiliate);
         setShowModal(false)
         form.reset({
@@ -107,20 +141,57 @@ export default function Trigger() {
             console.error("Error al consultar los servicios de atención:", error);
         }
     }
+    
 
-    //funcion para generar turno
-    const handleGenerateAppointment = async ( dattentionService: number ) => {
-        if (!isValid || !affiliate) return;
+    //funcion auxiliar para generar turno
+    const handleGenerateAppointment = async (dattentionService: number) => {
+        if (!isValid) return;
 
-        const generateAppointmentUseCase = new GenerateAppointment(new TransferService());
-        //convertir priority a number
         const priorityNumber = Number(priority);
+
+        let affiliateData: Affiliate;
+
+        if (isRegistering) {
+            const valuesForm = form.getValues();
+            
+            if (!affiliate.firstName) {
+                toast.error("El campo Primer nombre es obligatorio");
+                return;
+            }
+            if (!affiliate.firstLastName) {
+                toast.error("El campo Primer apellido es obligatorio");
+                return;
+            }
+
+            affiliateData = {
+                firstName: affiliate.firstName,
+                middleName: affiliate.middleName ? affiliate.middleName : "",
+                firstLastName: affiliate.firstLastName,
+                secondLastName: affiliate.secondLastName ? affiliate.secondLastName : "",
+                email: '',
+                phone: '',
+                identificationNumber: valuesForm.numberIdentification,
+                identificationType: valuesForm.identificationType,
+                municipality: affiliate.municipality,
+                department: affiliate.department,
+            };
+
+        } else {
+            affiliateData = affiliate;
+        }
+
+        await executeGenerateAppointment(affiliateData, dattentionService, priorityNumber);
+    };
+    
+    //funcion para obtener las clasificaciones de atencion
+    const handleGetClassificationAttention = async () => {
+        const classificationAttentionUseCase = new GetClassificationAttention(new TransferService());
         try {
             await toast.promise(
-                generateAppointmentUseCase.execute(affiliate, dattentionService, priorityNumber)
+                classificationAttentionUseCase.execute()
                 .then((response) => {
-                    setTurn(response.data);
-                    setShowModal(true);
+                    setClassificationAttention(response);
+                    setLoading(false);
                 })
                 .catch((error) => {
                     throw error;
@@ -131,22 +202,58 @@ export default function Trigger() {
                 }
             );
         } catch (error) {
-            console.error("Error al generar el turno:", error);
+            console.error("Error al consultar las clasificaciones de atención:", error);
         }
     }
 
+    //funcion para generar turno
+    const executeGenerateAppointment = async (data: Affiliate, dattentionService: number, priorityNumber: number) => {
+        const generateAppointmentUseCase = new GenerateAppointment(new TransferService());
+
+        try {
+            await toast.promise(
+            generateAppointmentUseCase.execute(data, dattentionService, priorityNumber)
+                .then((response) => {
+                setTurn(response.data);
+                setShowModal(true);
+                }),
+            {
+                loading: getMessage("success", "loading"),
+                error: (error) => error?.message,
+            }
+            );
+        } catch (error) {
+            console.error("Error al generar el turno:", error);
+        }
+    };
+
+    //funcion auxiliar para verificar si el afiliado está vacío
+    const isEmptyAffiliate = (affiliate: Affiliate): boolean =>
+    !affiliate || Object.keys(affiliate).length === 0;
+
     useEffect(() => {
+        if (didFetch.current) return;
+        didFetch.current = true;
         handleGetAttentionServices();
+        handleGetClassificationAttention();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="col-span-2 max-sm:col-span-3 p-4 flex items-center justify-center flex h-full">
+                <Loading />
+            </div>
+        );
+    }
 
     return (
         <>
-            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/3 m-2">
+            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/4 m-2">
                 <Card className="w-full">
                     <CardContent >
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleGetAffiliate)} className="grid gap-6">
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 gap-6">
                                     <div className="grid gap-3">
                                         <FormField
                                             control={form.control}
@@ -156,15 +263,27 @@ export default function Trigger() {
                                                     <FormLabel>Tipo de Documento</FormLabel>
                                                     <FormControl>
                                                         <Select onValueChange={field.onChange} value={field.value}>
-                                                            <SelectTrigger className="w-[180px]">
+                                                            <SelectTrigger>
                                                                 <SelectValue placeholder="Seleccione Tipo documento" />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectGroup>
-                                                                <SelectItem value="CC">Cedula</SelectItem>
-                                                                <SelectItem value="TI">Tarjeta de identidad</SelectItem>
+                                                                    <SelectItem value="NI">NIT EMPRESA</SelectItem>
+                                                                    <SelectItem value="CC">CEDULA DE CIUDADANIA</SelectItem>
+                                                                    <SelectItem value="CD">CARNET DIPLOMATICO</SelectItem>
+                                                                    <SelectItem value="CN">CERTIFICADO DE NACIDO VIVO - DANE</SelectItem>
+                                                                    <SelectItem value="PA">PASAPORTE</SelectItem>
+                                                                    <SelectItem value="SC">SALVO CONDUCTO</SelectItem>
+                                                                    <SelectItem value="PE">PERMISO ESPECIAL DE PERMANENCIA</SelectItem>
+                                                                    <SelectItem value="NU">NUMERO UNICO IDENTIFICACION</SelectItem>
+                                                                    <SelectItem value="PT">PERMISO PROTECCION TEMPORAL</SelectItem>
+                                                                    <SelectItem value="RC">REGISTRO CIVIL</SelectItem>
+                                                                    <SelectItem value="TI">TARJETA DE IDENTIDAD</SelectItem>
+                                                                    <SelectItem value="CE">CEDULA DE EXTRANJERIA</SelectItem>
+                                                                    <SelectItem value="MS">MENOR SIN IDENTIFICACION</SelectItem>
+                                                                    <SelectItem value="AS">ADULTO SIN IDENTIFICACION</SelectItem>
                                                                 </SelectGroup>
-                                                            </SelectContent>
+                                                            </SelectContent> 
                                                         </Select>
                                                     </FormControl>
                                                 </FormItem>
@@ -201,9 +320,9 @@ export default function Trigger() {
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectGroup>
-                                                                <SelectItem value="23">Prioritario</SelectItem>
-                                                                <SelectItem value="2">Embarazadas</SelectItem>
-                                                                <SelectItem value="3">No aplica</SelectItem>
+                                                                    {classificationAttention.map(classification => (
+                                                                        <SelectItem key={classification.id} value={classification.id.toString()}>{classification.description}</SelectItem>
+                                                                    ))}
                                                                 </SelectGroup>
                                                             </SelectContent>
                                                         </Select>
@@ -214,133 +333,123 @@ export default function Trigger() {
                                     </div>
                                 </div>
                                 <div className='flex justify-end gap-2'>
+                                    <Button className={`${isValid ? '' : 'hidden'}`} variant={"ghost"} size={"icon"} onClick={handleReset}><TbArrowBackUp /></Button>
                                     <Button type="submit"  disabled={isValid}>Validar</Button>
                                 </div>
                             </form>
                         </Form>
                     </CardContent>
                     <CardFooter className="flex justify-end gap-2">
-                        <Button className={`${isValid ? '' : 'hidden'}`} variant={"ghost"} size={"icon"} onClick={handleReset}><TbArrowBackUp /></Button>
-                        <Button className={`${isValid ? '' : 'hidden'}`} variant="tertiary">Actualizar datos</Button>
+                        <Button className={`${isRegistering ? '' : 'hidden'}`} onClick={() => {setIsRegistering(true); setIsValid(true)}} variant="tertiary">Registrar usuario</Button>
                     </CardFooter>
                 </Card>
             </div>
             <div  className={`animate-in fade-in slide-in-from-top-8 duration-900 w-full lg:max-w-3/4 m-2 ${isValid ? '' : 'hidden'}`}>
                 <Card className="w-full">
                     <CardContent className="grid gap-6">
-                        <div className="grid grid-cols-4 gap-6">
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Primer nombre</Label>
-                                <Input id="tabs-demo-new" placeholder="Primer nombre" defaultValue={affiliate.firstName} />
+                    {isRegistering ? (
+                        <Form {...formNewUser}>
+                            <form className="grid gap-6">
+                                <div className="grid grid-cols-4 gap-6">
+                                    <div className="grid gap-3">
+                                        <FormField
+                                            control={formNewUser.control}
+                                            name="firstName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Primer nombre</FormLabel>
+                                                    <FormControl>
+                                                        <Input 
+                                                        placeholder="Primer nombre" {...field} defaultValue={affiliate.firstName ?? ""}
+                                                        onChange={(e) => setAffiliate({ ...affiliate, firstName: e.target.value })}/>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <FormField
+                                            control={formNewUser.control}
+                                            name="middleName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Segundo nombre</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Segundo nombre" {...field} value={affiliate.middleName ?? ""} defaultValue={affiliate.middleName ?? ""}/>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <FormField
+                                            control={formNewUser.control}
+                                            name="firstLastName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Primer apellido</FormLabel>
+                                                    <FormControl>
+                                                        <Input 
+                                                        placeholder="Primer apellido" {...field} 
+                                                        defaultValue={affiliate.firstLastName ?? ""}
+                                                        onChange={(e) => setAffiliate({ ...affiliate, firstLastName: e.target.value })}/>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <FormField
+                                            control={formNewUser.control}
+                                            name="secondLastName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Segundo apellido</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Segundo apellido" {...field} value={affiliate.secondLastName ?? ""} defaultValue={affiliate.secondLastName ?? ""}/>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <CardFooter className="grid grid-cols-2 lg:grid-cols-2 gap-2">
+                                    {attentionServices.map(service => (
+                                        <Button type="button" key={service.id} className={`${isValid ? '' : 'hidden'} text-black h-20`} onClick={() => handleGenerateAppointment(service.id)}>
+                                            <BsBackpack2Fill />
+                                            {service.name}
+                                        </Button>
+                                    ))}
+                                </CardFooter>
+                            </form>
+                        </Form>
+                    ) : (
+                        <>
+                            <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-new">Primer nombre</Label>
+                                    <Input id="tabs-demo-new" placeholder="Primer nombre" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
+                                </div>
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-new">Departamento</Label>
+                                    <Input id="tabs-demo-new" placeholder="Departamento" value={affiliate.department || ""} readOnly/>
+                                </div>
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-new">Ciudad</Label>
+                                    <Input id="tabs-demo-new" placeholder="Ciudad" value={affiliate.municipality || ""} readOnly/>
+                                </div>
                             </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Segundo nombre</Label>
-                                <Input id="tabs-demo-new" placeholder="Segundo nombre" defaultValue={affiliate.middleName} />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Primer apellido</Label>
-                                <Input id="tabs-demo-new" placeholder="Primer apellido" defaultValue={affiliate.firstLastName} />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Segundo apellido</Label>
-                                <Input id="tabs-demo-new" placeholder="Segundo apellido" defaultValue={affiliate.secondLastName} />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-6">
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Genero</Label>
-                                <Input id="tabs-demo-new" placeholder="Genero"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Celular</Label>
-                                <Input id="tabs-demo-new" placeholder="Celular" defaultValue={affiliate.phone} />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Correo</Label>
-                                <Input id="tabs-demo-new" placeholder="Correo" defaultValue={affiliate.email} />
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-3 gap-3 items-center justify-center text-center ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Fecha nacimiento</Label>
-                                <Input id="tabs-demo-new" placeholder="Fecha de nacimiento"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Fecha expedicion documento</Label>
-                                <Input id="tabs-demo-new" placeholder="Fecha de expedicion"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Nacionalidad</Label>
-                                <Input id="tabs-demo-new" placeholder="Nacionalidad"/>
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-2 gap-6 ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Departamento</Label>
-                                <Input id="tabs-demo-new" placeholder="Departamento" defaultValue={affiliate.department} />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Ciudad</Label>
-                                <Input id="tabs-demo-new" placeholder="Ciudad" defaultValue={affiliate.municipality} />
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-2 gap-6 ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Direccion de residencia</Label>
-                                <Input id="tabs-demo-new" placeholder="Direccion de residencia"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Discapacidad</Label>
-                                <Input id="tabs-demo-new" placeholder="Discapacidad"/>
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-2 gap-6 ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Comunidad indigena</Label>
-                                <Input id="tabs-demo-new" placeholder="Comunidad indigena"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Grupo etnico</Label>
-                                <Input id="tabs-demo-new" placeholder="Grupo etnico"/>
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-2 gap-6 ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Organizacion indigena</Label>
-                                <Input id="tabs-demo-new" placeholder="Organizacion indigena"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Reguardo indigena</Label>
-                                <Input id="tabs-demo-new" placeholder="Resguardo indigena"/>
-                            </div>
-                        </div>
-                        <div  className={`grid grid-cols-3 gap-6 ${isActive ? 'hidden' : ''}`}>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Codigo localidad</Label>
-                                <Input id="tabs-demo-new" placeholder="Codigo localidad"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Grupo sisben</Label>
-                                <Input id="tabs-demo-new" placeholder="Grupo sisben"/>
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="tabs-demo-new">Nivel sisben</Label>
-                                <Input id="tabs-demo-new" placeholder="Nivel sisben"/>
-                            </div>
-                        </div>
-                        <p onClick={() => setIsActive(!isActive)} className="text-blue-500 cursor-pointer text-sm w-1/6">
-                            {isActive ? "Ver más" : "Ver menos"}
-                        </p>
+                            <CardFooter className="grid grid-cols-2 lg:grid-cols-2 gap-2">
+                                {attentionServices.map(service => (
+                                    <Button key={service.id} className={`${isValid ? '' : 'hidden'} text-black whitespace-normal break-words text-center sm:text-xl lg:text-xl h-20`} onClick={() => handleGenerateAppointment(service.id)}>
+                                        <BsBackpack2Fill />
+                                        {service.name}
+                                    </Button>
+                                ))}
+                            </CardFooter>
+                        </>
+                    )}
                     </CardContent>
-                    <CardFooter className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        {/*recorree los servicios de atencion y crea un boton con cada uno*/}
-                        {attentionServices.map(service => (
-                            <Button key={service.id} className={`${isValid ? '' : 'hidden'} text-black text-sm `} onClick={() => handleGenerateAppointment(service.id)} variant="secondary">
-                                <BsBackpack2Fill />
-                                {service.name}
-                            </Button>
-                        ))}
-                    </CardFooter>
                 </Card>
                 {/* Modal */}
                 {showModal && turn && (
