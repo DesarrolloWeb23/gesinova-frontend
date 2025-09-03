@@ -17,15 +17,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [tempToken, setTempToken] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
-  
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("user");
-  //   const storedToken = localStorage.getItem("token");
-  //   const storedRefreshToken = localStorage.getItem("refreshToken");
-  //   if (storedUser && storedToken && storedRefreshToken) {
-  //     setToken(storedToken);
-  //   }
-  // }, []);
 
   const validationToken = (tempToken: string) => {
     setTempToken(tempToken);
