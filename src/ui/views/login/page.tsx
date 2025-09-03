@@ -63,10 +63,11 @@ export default function Login() {
       if (isSubmitting) return; // Previene múltiples envíos
       setIsSubmitting(true); // Establece el estado de envío a verdadero
       const loginUseCase = new LoginUser(new AuthApiService());
+      const userNameUpper = values.username.toUpperCase();
 
       try {
         await toast.promise(
-          loginUseCase.execute(values.username, values.password)  
+          loginUseCase.execute(userNameUpper, values.password)  
           .then((response) => {
 
               if (response.message === "ACTIVATE_MFA") {
@@ -97,7 +98,7 @@ export default function Login() {
             }),
           {
             loading: getMessage("success", "access_loading"),
-            success: getMessage("success", "access_success") + values.username,
+            success: getMessage("success", "access_success") + userNameUpper,
             error: (error) => 
               error?.message
           }
