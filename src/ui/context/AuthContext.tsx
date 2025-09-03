@@ -37,7 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const login = (user: User, token: string) => {
-    sessionStorage.setItem("user", user.name  + " " + user.lastName);
+    const fullName = capitalizeFullName(`${user.name} ${user.lastName}`);
+    sessionStorage.setItem("user", fullName);
 
     if (rememberMe) {
     localStorage.setItem("token", token); // Guarda el token solo si eligió "recordarme"
@@ -59,6 +60,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     sessionStorage.removeItem("rememberMe");
     window.location.href = "/";
   };
+
+  function capitalizeFullName(name: string): string {
+    return name
+      .toLowerCase()
+      .split(" ")
+      .filter(word => word.trim() !== "") // evitar dobles espacios
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
 
   return (
     <AuthContext.Provider value={{ login, logout, validationToken, tempToken, handleRememberMeChange, rememberMe }}>

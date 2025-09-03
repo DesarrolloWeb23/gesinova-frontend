@@ -1,40 +1,17 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { TwoFactor } from "@/core/domain/models/TwoFactor"
 import { Error as AppError } from "@/core/domain/models/Error";
-export class ActivateTwoFactor {
-    constructor(private authRepository: AuthRepository) {}
+import { Response } from "@/core/domain/models/Response";
+import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 
-    async execute(userId: number, method: number): Promise<TwoFactor> {
+export class CancelTurn {
+    constructor(private transferRepository: TransferRepository) {}
+
+    async execute(turnId: string): Promise<Response> {
         try {
-            const response = await this.authRepository.enableMFA(userId, method);
-
-            if (method === 1) {
-                return {
-                    message: "TOPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            } else if (method === 2) {
-                return {
-                    message: "OPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            }
-
+            const response = await this.transferRepository.cancelTurn(turnId);
             return {
-                message: "ACTIVATION_FAILED",
-                data: {
-                    qrUri: "",
-                    secretKey: "",
-                    tempToken: ""
-                }
+                status: response.status,
+                path: "/",
+                message: "PERMISSION_ASSIGNED",
             };
         } catch (err) {
             const error = err as AppError;

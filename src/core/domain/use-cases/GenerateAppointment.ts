@@ -1,47 +1,30 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { TwoFactor } from "@/core/domain/models/TwoFactor"
 import { Error as AppError } from "@/core/domain/models/Error";
-export class ActivateTwoFactor {
-    constructor(private authRepository: AuthRepository) {}
+import { TransferGenerateApiResponse, TransferRepository } from "@/core/domain/ports/TransferRepository";
+import { Affiliate } from "../models/Affiliate";
 
-    async execute(userId: number, method: number): Promise<TwoFactor> {
+export class GenerateAppointment {
+    constructor(private transferRepository: TransferRepository) {}
+
+    async execute(affiliate: Affiliate, attentionService: number, classificationAttention: number ): Promise<TransferGenerateApiResponse> {
         try {
-            const response = await this.authRepository.enableMFA(userId, method);
 
-            if (method === 1) {
-                return {
-                    message: "TOPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            } else if (method === 2) {
-                return {
-                    message: "OPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            }
-
-            return {
-                message: "ACTIVATION_FAILED",
-                data: {
-                    qrUri: "",
-                    secretKey: "",
-                    tempToken: ""
-                }
+            //concatenar middleName y firstName de affiliate
+            const data = {
+                firstName: affiliate.firstName + (affiliate.middleName ? ` ${affiliate.middleName}` : ""),
+                lastName: affiliate.firstLastName + (affiliate.secondLastName ? ` ${affiliate.secondLastName}` : ""),
+                identificationType: affiliate.identificationType,
+                identificationNumber: affiliate.identificationNumber,
+                attentionService,
+                classificationAttention: Number(classificationAttention)
             };
+            const response = await this.transferRepository.generateAppointment(data);
+            return response;
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {
-                if(error.status === 403) {
+                if (error.status === 403) {
                     throw {
-                        status: "ACCESS_DENIED",
+                        status: "GROUP_CREATION_FORBIDDEN",
                         message: error.message,
                     };
                 } else if (error.status === 400) {
@@ -62,6 +45,11 @@ export class ActivateTwoFactor {
                 } else if (error.status === 404) {
                     throw {
                         status: "NOT_FOUND",
+                        message: error.message,
+                    };
+                } else if (error.status === 500) {
+                    throw {
+                        status: "INTERNAL_SERVER_ERROR",
                         message: error.message,
                     };
                 }

@@ -109,20 +109,6 @@ http.interceptors.response.use(
           return http(originalRequest);
 
         } catch (refreshError) {
-          // localStorage.removeItem("token");
-          //window.location.href = "/";
-          // const type = 'Error de negocio';
-          // const path = originalRequest.url; 
-          // const timestamp = new Date().toISOString();
-          // const message = error.response?.data?.message;
-
-          // error.response.data = { message };
-          // error.response.data.path = path;
-          // error.response.data.error = type;
-          // error.response.data.timestamp = timestamp;
-          // error.response.data.status = error.response?.status;
-          //window.location.href = "/";
-
           return Promise.reject(refreshError);
         }
       } else {

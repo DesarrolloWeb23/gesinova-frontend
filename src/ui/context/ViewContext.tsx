@@ -51,7 +51,9 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
 
         validateToken();
 
-    }, []);
+    }, 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    []);
 
     useEffect(() => {
         if (subView) {

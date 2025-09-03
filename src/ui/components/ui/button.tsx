@@ -42,33 +42,19 @@ function Button({
   variant,
   size,
   asChild = false,
-  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
-  const baseClass = cn(buttonVariants({ variant, size, className }))
-
-  if (variant === "secondary") {
-    return (
-      <Comp className={baseClass} {...props}>
-        <div className="relative w-[190px] h-[50px] flex items-center justify-center content bg-secondary rounded-xl gap-2">
-          {children}
-        </div>
-      </Comp>
-    )
-  }
 
   return (
     <Comp
       data-slot="button"
-      className={baseClass}
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    >
-      {children}
-    </Comp>
+    />
   )
 }
 

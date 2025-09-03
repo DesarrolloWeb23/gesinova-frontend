@@ -1,4 +1,4 @@
-import { UserRepository } from "../ports/UserRepository";
+import { UserRepository } from "@/core/domain/ports/UserRepository";
 import { UserList } from "@/core/domain/models/User";
 import { Error as AppError } from "@/core/domain/models/Error";
 

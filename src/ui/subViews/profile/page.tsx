@@ -263,7 +263,6 @@ export default function Profile() {
                             <Tabs defaultValue="security">
                                 <TabsList>
                                     <TabsTrigger value="security">Seguridad</TabsTrigger>
-                                    <TabsTrigger value="configuration">Configuracion</TabsTrigger>
                                     <TabsTrigger value="password">Contraseña</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="security">
@@ -303,7 +302,7 @@ export default function Profile() {
                                                         </FormDescription>
                                                     </div>
                                                     <Dialog>
-                                                        <DialogTrigger className=" rounded-lg p-1 shadow-sm bg-red-500 text-sm text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none" >Activar</DialogTrigger>
+                                                        <DialogTrigger className=" rounded-lg p-1 shadow-sm bg-red-500 text-sm text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none" disabled={user?.mfaActive}>Activar</DialogTrigger>
                                                         <DialogContent>
                                                             <DialogHeader>
                                                             <DialogTitle>{getMessage("ui","mfa_activation_card_title")}</DialogTitle>
@@ -319,22 +318,6 @@ export default function Profile() {
                                                     <Button type="submit">Guardar</Button>
                                                 </form>
                                             </Form>
-                                        </CardContent>
-                                        <CardFooter>
-                                            
-                                        </CardFooter>
-                                    </Card>
-                                </TabsContent>
-                                <TabsContent value="configuration">
-                                    <Card className="border">
-                                        <CardHeader>
-                                            
-                                        <CardDescription>
-                                            
-                                        </CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="grid gap-6">
-                                            
                                         </CardContent>
                                         <CardFooter>
                                             
@@ -359,7 +342,7 @@ export default function Profile() {
                                                             name="oldPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Antigua Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>
@@ -373,7 +356,7 @@ export default function Profile() {
                                                             name="confirmPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Confirmar Antigua Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>
@@ -387,7 +370,7 @@ export default function Profile() {
                                                             name="newPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Nueva Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>

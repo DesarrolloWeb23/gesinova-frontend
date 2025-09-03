@@ -1,47 +1,20 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { TwoFactor } from "@/core/domain/models/TwoFactor"
+import { AffiliatesRepository } from '@/core/domain/ports/AffiliatesRepository';
 import { Error as AppError } from "@/core/domain/models/Error";
-export class ActivateTwoFactor {
-    constructor(private authRepository: AuthRepository) {}
+import { Affiliate } from '@/core/domain/models/Affiliate';
 
-    async execute(userId: number, method: number): Promise<TwoFactor> {
+export class GetAffiliateByDni {
+    constructor(private affiliatesRepository: AffiliatesRepository) {}
+
+    async execute(type: string, dni: string): Promise<Affiliate> {
         try {
-            const response = await this.authRepository.enableMFA(userId, method);
-
-            if (method === 1) {
-                return {
-                    message: "TOPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            } else if (method === 2) {
-                return {
-                    message: "OPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            }
-
-            return {
-                message: "ACTIVATION_FAILED",
-                data: {
-                    qrUri: "",
-                    secretKey: "",
-                    tempToken: ""
-                }
-            };
+            const response = await this.affiliatesRepository.findByDni(type, dni);
+            return response.data as Affiliate;
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {
-                if(error.status === 403) {
+                if (error.status === 403) {
                     throw {
-                        status: "ACCESS_DENIED",
+                        status: "GROUP_CREATION_FORBIDDEN",
                         message: error.message,
                     };
                 } else if (error.status === 400) {

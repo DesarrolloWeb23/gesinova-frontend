@@ -1,41 +1,14 @@
-import { AuthRepository } from "@/core/domain/ports/AuthRepository";
-import { TwoFactor } from "@/core/domain/models/TwoFactor"
+import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 import { Error as AppError } from "@/core/domain/models/Error";
-export class ActivateTwoFactor {
-    constructor(private authRepository: AuthRepository) {}
+import { TurnsList } from "@/core/domain/models/Turns";
 
-    async execute(userId: number, method: number): Promise<TwoFactor> {
+export class GetTurnsByState {
+    constructor(private transferRepository: TransferRepository) {}
+
+    async execute(state: number): Promise<TurnsList> {
         try {
-            const response = await this.authRepository.enableMFA(userId, method);
-
-            if (method === 1) {
-                return {
-                    message: "TOPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            } else if (method === 2) {
-                return {
-                    message: "OPT_ACTIVATED",
-                    data: {
-                        qrUri: response.data.qrUri,
-                        secretKey: response.data.secretKey,
-                        tempToken: response.data.tempToken
-                    }
-                };
-            }
-
-            return {
-                message: "ACTIVATION_FAILED",
-                data: {
-                    qrUri: "",
-                    secretKey: "",
-                    tempToken: ""
-                }
-            };
+            const response = await this.transferRepository.getTurnsByState(state);
+            return response.data.content as TurnsList;
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {
