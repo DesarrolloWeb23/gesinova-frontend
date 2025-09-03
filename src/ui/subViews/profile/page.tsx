@@ -342,7 +342,7 @@ export default function Profile() {
                                                             name="oldPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Antigua Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>
@@ -356,7 +356,7 @@ export default function Profile() {
                                                             name="confirmPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Confirmar Antigua Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>
@@ -370,7 +370,7 @@ export default function Profile() {
                                                             name="newPassword"
                                                             render={({ field }) => (
                                                                 <FormItem>
-                                                                <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
+                                                                <FormLabel>Nueva Contraseña</FormLabel>
                                                                 <FormControl>
                                                                     <Input type="password" placeholder="********" {...field} />
                                                                 </FormControl>

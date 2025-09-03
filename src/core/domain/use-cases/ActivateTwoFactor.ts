@@ -1,4 +1,4 @@
-import { AuthRepository } from "../ports/AuthRepository";
+import { AuthRepository } from "@/core/domain/ports/AuthRepository";
 import { TwoFactor } from "@/core/domain/models/TwoFactor"
 import { Error as AppError } from "@/core/domain/models/Error";
 export class ActivateTwoFactor {

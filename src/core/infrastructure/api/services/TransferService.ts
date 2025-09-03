@@ -12,9 +12,6 @@ import { ResponseDTO } from '@/core/dto/ResponseDTO';
 import { TurnDataDTO } from '@/core/dto/TurnDataDTO';
 import { AttentionModulesDTO } from '@/core/dto/AttentionModulesDTO';
 
-// const TransferGenerateApiResponseDTO = ApiResponseDTO(TurnDTO);
-// type TransferGenerateApiResponse = z.infer<typeof TransferGenerateApiResponseDTO>;
-
 const AttentionServiceApiResponseDTO = ApiResponseDTO(AttentionServicesDTO);
 type AttentionServiceApiResponse = z.infer<typeof AttentionServiceApiResponseDTO>;
 

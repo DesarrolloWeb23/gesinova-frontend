@@ -24,6 +24,7 @@ import { AttentionService } from '@/core/domain/models/AttentionServices';
 import { GetClassificationAttention } from '@/core/domain/use-cases/GetClassificationAttention';
 import { ClassificationAttention } from '@/core/domain/models/ClassificationAttention';
 import Loading from '@/ui/components/Loading';
+import { FaTicket } from "react-icons/fa6";
 
 const formSchema = z.object({
     identificationType: z.string()
@@ -227,10 +228,6 @@ export default function Trigger() {
         }
     };
 
-    //funcion auxiliar para verificar si el afiliado está vacío
-    const isEmptyAffiliate = (affiliate: Affiliate): boolean =>
-    !affiliate || Object.keys(affiliate).length === 0;
-
     useEffect(() => {
         if (didFetch.current) return;
         didFetch.current = true;
@@ -245,6 +242,26 @@ export default function Trigger() {
             </div>
         );
     }
+
+    //validacion si la peticion a la API no se completo
+    if (!attentionServices.length || !classificationAttention.length) {
+        return (
+            <div className="col-span-2 max-sm:col-span-3 p-4 flex flex-col items-center justify-center gap-4 h-full">
+                <div>No se pudieron cargar los datos</div>
+                <div>
+                    <Button
+                    onClick={() => {
+                        handleGetAttentionServices();
+                        handleGetClassificationAttention();
+                    }}
+                    >
+                    Reintentar
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
 
     return (
         <>
@@ -453,26 +470,35 @@ export default function Trigger() {
                 </Card>
                 {/* Modal */}
                 {showModal && turn && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="bg-primary rounded-xl p-6 shadow-lg w-96">
-                            <h2 className="text-xl text-center font-semibold mb-4">Turno Asignado</h2>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-xl w-96 border border-neutral-300">
+                    
+                    <h2 className="text-2xl font-semibold flex items-center justify-center text-center text-neutral-800 mb-6">
+                        <FaTicket className='mr-2'/> Turno Asignado
+                    </h2>
 
-                            <div className='mb-8 text-center underline underline-offset-4'>
-                                <p><strong>Número de turno:</strong> {turn.turnCode}</p>
-                            </div>
-                            <p><strong>Cliente:</strong> {turn.firstName} {turn.lastName}</p>
-                            <p><strong>Estado:</strong> {turn.state.label}</p>
-
-                            <div className="mt-6 flex justify-end">
-                            <button
-                                onClick={() => handleReset()}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md"
-                            >
-                                Cerrar
-                            </button>
-                            </div>
-                        </div>
+                    <div className="mb-6 text-center space-y-2">
+                        <p className="text-lg font-medium text-neutral-700">
+                        <span className="font-semibold text-neutral-900">Número:</span> {turn.turnCode}
+                        </p>
+                        <p className="text-neutral-700">
+                        <span className="font-semibold">Afiliado:</span> {turn.firstName} {turn.lastName}
+                        </p>
+                        <p className="text-neutral-700">
+                        <span className="font-semibold">Estado:</span> {turn.state.label}
+                        </p>
                     </div>
+
+                    <div className="flex justify-center">
+                        <button
+                        onClick={() => handleReset()}
+                        className="px-5 py-2 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors shadow-sm"
+                        >
+                        Cerrar
+                        </button>
+                    </div>
+                    </div>
+                </div>
                 )}
             </div>
         </>

@@ -1,5 +1,5 @@
 import { Error as AppError } from "@/core/domain/models/Error";
-import { TransferGenerateApiResponse, TransferRepository } from "../ports/TransferRepository";
+import { TransferGenerateApiResponse, TransferRepository } from "@/core/domain/ports/TransferRepository";
 import { Affiliate } from "../models/Affiliate";
 
 export class GenerateAppointment {

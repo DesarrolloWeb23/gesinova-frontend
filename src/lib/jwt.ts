@@ -5,7 +5,6 @@ export interface JwtPayload {
     exp: number;
     iat: number;
     permissions: string[];
-    [key: string]: any; // por si tu token trae más claims
 }
 
 export const decodeJwt = (token: string): JwtPayload | null => {

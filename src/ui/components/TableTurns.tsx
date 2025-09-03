@@ -1,7 +1,6 @@
 "use client"
 import * as React from "react"
 import { Button } from "@/ui/components/ui/button"
-import { Input } from "@/ui/components/ui/input"
 import {
     Table,
     TableBody,
@@ -10,7 +9,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/ui/components/ui/table"
-import { ChevronDown } from "lucide-react"
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -26,48 +24,27 @@ import {
 import { Checkbox } from "@/ui/components/ui/checkbox"
 import { MoreHorizontal } from "lucide-react"
 import { useState, useEffect } from "react"
-import { Group, GroupList } from "@/core/domain/models/Group";
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/ui/components/ui/dropdown-menu"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/ui/components/ui/dialog"
-import { Label } from "@/ui/components/ui/label"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { GroupApiService } from "@/core/infrastructure/api/services/GroupApiService"
 import { toast } from 'sonner'
-import { CreateGroup } from "@/core/domain/use-cases/CreateGroup"
 import { getMessage } from "@/core/domain/messages";
 import  Loading  from "@/ui/components/Loading"
-import { GetGroupsInfo } from "@/core/domain/use-cases/GetGroupsInfo"
-import { User } from "@/core/domain/models/User"
-import { AssignGroupToUser } from "@/core/domain/use-cases/AssignGroupToUser"
-import { UserApiService } from "@/core/infrastructure/api/services/userService"
-import { GetTurnsByState } from "@/core/domain/ports/GetTurnsByState"
+import { GetTurnsByState } from "@/core/domain/use-cases/GetTurnsByState"
 import { TransferService } from "@/core/infrastructure/api/services/TransferService"
-import { Turn } from "@/core/domain/models/Turn"
 import { GetTurns } from "@/core/domain/use-cases/GetTurns"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Turns } from "@/core/domain/models/Turns"
 
 type Props = {
-    handleTurnSelect: (turn: Turn) => void,
+    handleTurnSelect: (turn: Turns) => void,
 }
 
-export const columnsTurns = (handleTurnSelect: (turn: Turn) => void): ColumnDef<Turn>[] => [
+export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef<Turns>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -127,7 +104,7 @@ export const columnsTurns = (handleTurnSelect: (turn: Turn) => void): ColumnDef<
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-        const groupSelected = row.original
+        const turnSelected = row.original
 
         return (
             <DropdownMenu>
@@ -139,18 +116,10 @@ export const columnsTurns = (handleTurnSelect: (turn: Turn) => void): ColumnDef<
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                {/* { Object.keys(user).length > 0 ?  (
                     <DropdownMenuItem
-                    onClick={() => handleAssignUserGroup()}
-                    >
-                    Asignar grupo a usuario
-                    </DropdownMenuItem>
-                ) : (
-                    <DropdownMenuItem
-                    onClick={() =>  handleGroupSelect(groupSelected)}
+                    onClick={() =>  handleTurnSelect(turnSelected)}
                     >Gestionar permisos
                     </DropdownMenuItem>
-                )} */}
             </DropdownMenuContent>
             </DropdownMenu>
         )
@@ -165,8 +134,7 @@ export default function TableTurns( { handleTurnSelect}: Props){
     const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [accessDenied, setAccessDenied] = useState(false);
-    const [turns, setTurns] = useState<any[]>([]);
-    
+    const [turns, setTurns] = useState<Turns[]>([]);
 
     const tableTurns = useReactTable({
         data: turns,
@@ -227,6 +195,11 @@ export default function TableTurns( { handleTurnSelect}: Props){
                     })
                     .catch((error) => {
                         setIsLoading(false);
+                        // Manejo específico de error de permisos
+                        if (error?.status === 'ACCESS_DENIED') {
+                            handleAccessDenied();
+                            return;
+                        }
                         throw error;
                     }),
                 {
@@ -241,9 +214,13 @@ export default function TableTurns( { handleTurnSelect}: Props){
         }
     }
 
+    //funcion para manejar el acceso denegado
+    const handleAccessDenied = () => {
+        setAccessDenied(true);
+    }
+
     useEffect(() => {
         fetchTurns();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
 
     if (accessDenied) {
@@ -267,67 +244,19 @@ export default function TableTurns( { handleTurnSelect}: Props){
             ) : (
                 <div className="w-full p-4">
                     <div className="flex items-center py-4 space-x-2">
-                        {/* <Input
-                        placeholder="Filtrar permiso..."
-                        value={(tableTurns.getColumn("name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            tableTurns.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                        />
-                        <Dialog>
-                            <form onSubmit={form.handleSubmit(onSubmit)} > 
-                                <DialogTrigger asChild>
-                                <Button variant="outline">Crear grupo</Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Crear grupo</DialogTitle>
-                                    <DialogDescription>
-                                    Completa los campos a continuación para crear un nuevo grupo.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4">
-                                    <div className="grid gap-3">
-                                    <Label htmlFor="name-1">Nombre</Label>
-                                    <Input id="name-1" name="name" defaultValue="PERMISO_EJEMPLO" />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                    <Button variant="outline">Cancelar</Button>
-                                    </DialogClose>
-                                    <Button type="submit">Guardar cambios</Button>
-                                </DialogFooter>
-                                </DialogContent>
-                            </form>
-                        </Dialog>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="ml-auto">
-                                Columnas <ChevronDown />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                {tableTurns
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                        column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.columnDef.header as string}
-                                    </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                            </DropdownMenuContent>
-                        </DropdownMenu> */}
+                        <Select onValueChange={(value) => {fetchTurnsByState(Number(value))}}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Seleccionar estado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="1">Pendiente</SelectItem>
+                                    <SelectItem value="2">Llamado</SelectItem>
+                                    <SelectItem value="3">En atencion</SelectItem>
+                                    <SelectItem value="4">Finalizado</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="rounded-md border">
                         <Table>

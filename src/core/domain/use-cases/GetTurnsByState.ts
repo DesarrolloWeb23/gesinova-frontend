@@ -1,6 +1,6 @@
 import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 import { Error as AppError } from "@/core/domain/models/Error";
-import { TurnsList } from "../models/Turns";
+import { TurnsList } from "@/core/domain/models/Turns";
 
 export class GetTurnsByState {
     constructor(private transferRepository: TransferRepository) {}

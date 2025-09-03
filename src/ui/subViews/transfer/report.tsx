@@ -1,22 +1,14 @@
+import { Turn } from "@/core/domain/models/Turn";
 import TableTurns from "@/ui/components/TableTurns";
+import { useState } from "react";
 
 export default function Report(){
+    const [turn, setTurn] = useState<Turn | null>(null);
 
     //funcion al momento de seleccionar un turno
     const handleTurnSelect = (selectedTurn: Turn) => {
         setTurn(selectedTurn);
-
-        const groupPermissionCodes = selectedGroup.permissions?.map(p => p.codename) ?? [];
-
-        const newSelection = permissions.reduce((acc, perm, index) => {
-            if (groupPermissionCodes.includes(perm.codename)) {
-                acc[index] = true;
-            }
-            return acc;
-        }, {} as Record<number, boolean>);
-
-        setRowSelection(newSelection);
-        setTable("permissions");                 
+        console.log("Turno seleccionado:", turn);
     }
 
     return (
@@ -24,4 +16,4 @@ export default function Report(){
             <TableTurns handleTurnSelect={handleTurnSelect} />
         </>
     );
-}
+} 

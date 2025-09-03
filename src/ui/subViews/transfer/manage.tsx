@@ -30,7 +30,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { TransferTurn } from '@/core/domain/use-cases/TransferTurn';
-import { GetTurnsByState } from '@/core/domain/ports/GetTurnsByState';
 import Trigger from './trigger';
 import Loading from '@/ui/components/Loading';
 import { AlertDialog, AlertDialogAction, 
@@ -53,8 +52,6 @@ export default function Manage(){
     const [attentionServices, setAttentionServices] = useState<AttentionService[]>([]);
     const closeRef = useRef<HTMLButtonElement>(null);
     const [isLoading, setIsLoading] = useState(false);
-    //variable que controla el estado de los turnos a consultar cuando se carga el componente, 1 = pendientes, 2 = completados, 3 = cancelados
-    const state = 1;
     const didFetch = useRef(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -75,10 +72,8 @@ export default function Manage(){
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
                     //asigna los turnos a los estados correspondientes
-                    const { pending, completed, cancelled } = splitTurns(response);
+                    const { pending } = splitTurns(response);
                     setTurnsPending(pending);
-                    // setTurnsCompleted(completed);
-                    // setTurnsCancelled(cancelled);
                     setTurns(filteredTurns);
                     setIsLoading(false);
                 })
@@ -98,51 +93,6 @@ export default function Manage(){
         }
     }
 
-    //funcion para obtener los turnos por estado
-    async function fetchTurnsByState(state: number) {
-        setIsLoading(true);
-        const getTurnsByStateUseCase = new GetTurnsByState(new TransferService());
-        try {
-            await toast.promise(
-                getTurnsByStateUseCase.execute(state)
-                    .then((response) => {
-                        const { pending } = splitTurns(response);
-                        setTurnsPending(pending);
-                        setTurns((prevTurns) => {
-                            // IDs que vienen en la nueva respuesta
-                            const newIds = new Set(response.map(t => t.id));
-
-                            // Persistir los que ya no están en la nueva respuesta
-                            const persistedTurns = prevTurns.filter(t => !newIds.has(t.id));
-
-                            // Unir los que persisten + los nuevos (para evitar duplicados, filtra por id)
-                            const merged = [
-                                ...persistedTurns,
-                                ...response.filter(
-                                    newTurn => !persistedTurns.some(oldTurn => oldTurn.id === newTurn.id)
-                                )
-                            ];
-
-                            return merged;
-                        });
-                        setIsLoading(false);
-                    })
-                    .catch((error) => {
-                        setIsLoading(false);
-                        throw error;
-                    }),
-                {
-                    loading: getMessage("success", "loading"),
-                    error: (error) =>
-                        error?.message
-                }
-            );
-        } catch (error) {
-            setIsLoading(false);
-            console.error("Error al consultar los turnos por estado:", error);
-        }
-    }
-
     //funcion para avanzar el estado del turno
     async function handleAdvanceTurnState(turn: Turns) {
         const advanceTurnStateUseCase = new AdvanceTurnState(new TransferService());
@@ -150,12 +100,6 @@ export default function Manage(){
             await toast.promise(
                 advanceTurnStateUseCase.execute(turn.id)
                     .then((response) => {
-                        //actualiza la lista de turnos
-                        // setTurns((prevTurns) =>
-                        //     prevTurns.map((turn) =>
-                        //         turn.id === response.id ? response : turn
-                        //     )
-                        // );
                         // Actualizar SOLO el turno que cambió
                         setTurns((prevTurns) => 
                             prevTurns.map((turn) =>
@@ -164,7 +108,6 @@ export default function Manage(){
                                     : turn
                             )
                         );
-                        // const updatedTurn = selectedTurn;
                         //llama a la funcion para anunciar el turno
                         if(response.state.code === 2){
                             announceTurn(response);
@@ -177,11 +120,6 @@ export default function Manage(){
                             setTurns(prev => prev.filter(turn => turn.id !== selectedTurn!.id));
                             handleClearSelectedTurn();
                         }else{
-                            //se modifica el estado del turno con el nuevo estado que llega de la respuesta
-                            // updatedTurn!.state = response.state;
-                            //actualiza el turno en local storage
-                            // localStorage.setItem("selectedTurn", JSON.stringify(updatedTurn));
-                            // setSelectedTurn(updatedTurn);
                             turn.state = response.state;
                             handleSelectTurn(turn);
                         }
@@ -259,13 +197,10 @@ export default function Manage(){
             await toast.promise(
                 transferTurnUseCase.execute(selectedTurn!.id, data.attentionService)
                     .then((response) => {
-                        setTurns((prevTurns) =>
-                            prevTurns.map((turn) =>
-                                turn.id === response.id ? response : turn
-                            )
-                        );
-                        handleClearSelectedTurn();
-                        closeRef.current?.click();
+                        if(response){
+                            handleClearSelectedTurn();
+                            closeRef.current?.click();
+                        }
                     })
                     .catch((error) => {
                         throw error;
@@ -357,10 +292,8 @@ export default function Manage(){
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
                     //asigna los turnos a los estados correspondientes
-                    const { pending, completed, cancelled } = splitTurns(response);
+                    const { pending } = splitTurns(response);
                     setTurnsPending(pending);
-                    // setTurnsCompleted(completed);
-                    // setTurnsCancelled(cancelled);
                     setTurns(filteredTurns);
                     setIsLoading(false);
                     didFetch.current = true;
@@ -388,7 +321,9 @@ export default function Manage(){
         }
         const interval = setInterval(() => fetchTurns(), 10000); // cada 10 segundos
         return () => clearInterval(interval); // limpiar al desmontar
-    }, []);
+    }, 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    []);
 
     return (
         <>
@@ -531,7 +466,7 @@ export default function Manage(){
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction  onClick={() => handleCancelTurn(selectedTurn!.id.toString())} >Continuar</AlertDialogAction>
+                                    <AlertDialogAction  onClick={() => handleCancelTurn(selectedTurn!.id.toString())} className='bg-red-500 hover:bg-red-600 text-white'>Continuar</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>

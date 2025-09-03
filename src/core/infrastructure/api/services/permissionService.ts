@@ -10,10 +10,8 @@ import { z, ZodError } from 'zod';
 const UserPermissionsApiResponseDTO = ApiResponseDTO(PermissionsDTO);
 type UserPermissionsApiResponse = z.infer<typeof UserPermissionsApiResponseDTO>;
 
-
 const assignPermissionsApiResponseDTO = ApiResponseDTO(ResponseDTO);
 type AssignPermissionsApiResponse = z.infer<typeof assignPermissionsApiResponseDTO>;
-
 
 export class PermissionApiService implements PermissionsRepository {
 

@@ -1,5 +1,5 @@
 import { Error as AppError } from "@/core/domain/models/Error";
-import { Response } from "../models/Response";
+import { Response } from "@/core/domain/models/Response";
 import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 
 export class CancelTurn {
