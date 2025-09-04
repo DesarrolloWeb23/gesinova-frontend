@@ -171,7 +171,7 @@ export default function TablePermissions({
                 }),
                 {
                     loading:  getMessage("success", "sending"),
-                    success: getMessage("success", "reset_password_success"),
+                    success: getMessage("success", "assignUserPermission_success"),
                     error: (error) => 
                     error?.message
                 }
@@ -210,7 +210,7 @@ export default function TablePermissions({
                 }),
                 {
                     loading: getMessage("success", "sending"),
-                    success: getMessage("success", "reset_password_success"),
+                    success: getMessage("success", "assignGroupPermission_success"),
                     error: (error) => 
                         error?.message
                 }
@@ -243,7 +243,6 @@ export default function TablePermissions({
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 }            

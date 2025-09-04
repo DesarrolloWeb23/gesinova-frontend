@@ -181,7 +181,6 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 } 

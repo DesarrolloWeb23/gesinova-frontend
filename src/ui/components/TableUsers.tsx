@@ -100,7 +100,6 @@ async function fetchUserByUserNameFn(
             }),
         {
             loading: getMessage("success", "loading"),
-            success: getMessage("success", "success"),
             error: (error) => error?.message
         }
         );

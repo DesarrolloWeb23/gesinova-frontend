@@ -134,7 +134,6 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 }            
@@ -161,7 +160,6 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 } 
