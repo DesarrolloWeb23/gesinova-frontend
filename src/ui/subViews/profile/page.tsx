@@ -87,7 +87,6 @@ export default function Profile() {
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 }
