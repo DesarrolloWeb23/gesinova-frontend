@@ -19,6 +19,7 @@ import Company from "@/ui/subViews/company/page";
 import Support from "@/ui/subViews/support/page";
 import { MdNotificationsActive } from "react-icons/md";
 import { useView } from "@/ui/context/ViewContext";
+import UnderConstruction from "@/ui/components/UnderConstruction";
 
 const subViewsMap: Record<string, React.ComponentType> = {
     dashboard: SubDashboard,
@@ -96,7 +97,7 @@ export default function Dashboard() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1 shadow-lg shadow-blue-500/50">
-                        {SubViewComponent ? <SubViewComponent /> : <p>Vista no encontrada</p>} 
+                        {SubViewComponent ? <SubViewComponent /> : <UnderConstruction title={subView} />} 
                     </div>
                 </div>
             </SidebarInset>

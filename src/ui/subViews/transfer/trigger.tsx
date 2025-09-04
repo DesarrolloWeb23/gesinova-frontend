@@ -392,7 +392,8 @@ export default function Trigger() {
                                                 <FormItem>
                                                     <FormLabel>Segundo nombre</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Segundo nombre" {...field} value={affiliate.middleName ?? ""} defaultValue={affiliate.middleName ?? ""}/>
+                                                        <Input placeholder="Segundo nombre" {...field} value={affiliate.middleName ?? ""} 
+                                                        onChange={(e) => setAffiliate({ ...affiliate, middleName: e.target.value })}/>
                                                     </FormControl>
                                                 </FormItem>
                                             )}
@@ -423,7 +424,8 @@ export default function Trigger() {
                                                 <FormItem>
                                                     <FormLabel>Segundo apellido</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Segundo apellido" {...field} value={affiliate.secondLastName ?? ""} defaultValue={affiliate.secondLastName ?? ""}/>
+                                                        <Input placeholder="Segundo apellido" {...field} value={affiliate.secondLastName ?? ""}
+                                                        onChange={(e) => setAffiliate({ ...affiliate, secondLastName: e.target.value })}/>
                                                     </FormControl>
                                                 </FormItem>
                                             )}

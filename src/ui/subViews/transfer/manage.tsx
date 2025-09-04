@@ -480,8 +480,8 @@ export default function Manage(){
             <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
                 <Card className="w-full">
                     <CardContent className="grid gap-6">
-                        <div className="text-center text-2xl font-bold">
-                            Datos del llamado
+                        <div className="text-center font-bold">
+                            <h1 className="text-2xl">Datos del llamado</h1>
                         </div>
                         <div className="flex justify-center gap-4">
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
@@ -542,53 +542,98 @@ export default function Manage(){
                     </CardContent>
                     <CardFooter className="flex justify-center gap-4">
                         <Dialog>
-                            <form>
-                                <DialogTrigger asChild>
-                                    <Button className={`${selectedTurn ? '' : 'hidden'}`}><BsBackpack2Fill />Ver turno</Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                    <DialogTitle>Informacion del turno: {selectedTurn?.turnCode}</DialogTitle>
-                                    </DialogHeader>
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className='grid gap-2'>
-                                                <Label>ID</Label>
-                                                <Input value={selectedTurn?.id} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>identificacion</Label>
-                                                <Input value={selectedTurn?.identificationType + ' ' + selectedTurn?.identificationNumber} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>Estado</Label>
-                                                <Input value={selectedTurn?.state.label} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>Nombre</Label>
-                                                <Input value={selectedTurn?.firstName + ' ' + selectedTurn?.lastName} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>Sede</Label>
-                                                <Input value={selectedTurn?.headQuarter} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>Servicio</Label>
-                                                <Input value={selectedTurn?.attentionService.name} readOnly />
-                                            </div>
-                                            <div className='grid gap-2'>
-                                                <Label>Clasificacion</Label>
-                                                <Input value={selectedTurn?.classificationAttention.description} readOnly />
-                                            </div>
-                                        </div>
-                                </DialogContent>
-                            </form>
+                        <form>
+                            <DialogTrigger asChild>
+                                <Button className={`${selectedTurn ? '' : 'hidden'}`}><BsBackpack2Fill />Ver turno</Button>
+                            </DialogTrigger>
+
+                            <DialogContent className="sm:max-w-[800px] rounded-2xl bg-white/90 text-gray-900 shadow-xl backdrop-blur-md">
+                            <DialogHeader className="mb-6">
+                                <DialogTitle className="font-bold text-center text-gray-800">
+                                Información del turno
+                                </DialogTitle>
+                                <p className="text-center text-gray-500">
+                                Turno <span className="font-semibold">{selectedTurn?.turnCode}</span>
+                                </p>
+                            </DialogHeader>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">ID</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.id}
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">Identificación</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={
+                                    selectedTurn?.identificationType +
+                                    " " +
+                                    selectedTurn?.identificationNumber
+                                    }
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">Estado</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.state.label}
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">Nombre</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.firstName + " " + selectedTurn?.lastName}
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">Sede</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.headQuarter}
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1">
+                                <Label className="text-gray-600">Servicio</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.attentionService.name}
+                                    readOnly
+                                />
+                                </div>
+
+                                <div className="space-y-1 sm:col-span-2">
+                                <Label className="text-gray-600">Clasificación</Label>
+                                <Input
+                                    className="rounded-lg border-gray-300 bg-gray-100"
+                                    value={selectedTurn?.classificationAttention.description}
+                                    readOnly
+                                />
+                                </div>
+                            </div>
+                            </DialogContent>
+                        </form>
                         </Dialog>
                         <Dialog>
                             <form>
                                 <DialogTrigger asChild>
                                     <Button><BsBackpack2Fill />Generar turno</Button>
                                 </DialogTrigger>
-                                <DialogContent className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center sm:max-w-[1200px]">
+                                <DialogContent className="grid grid-cols-1 bg-black/50 backdrop-blur-sm flex flex-wrap md:flex-nowrap align-center justify-center sm:max-w-[1200px]">
                                     <DialogHeader>
                                     <DialogTitle></DialogTitle>
                                     </DialogHeader>

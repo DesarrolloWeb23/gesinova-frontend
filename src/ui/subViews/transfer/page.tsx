@@ -38,7 +38,7 @@ export default function Transfer() {
                     <TabsTrigger value="report">Reportes</TabsTrigger>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild className="hover:cursor-pointer">
-                            <div className="inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm">
+                            <div className="inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1">
                                 <a >Mas opciones</a>
                             </div>
                         </DropdownMenuTrigger>

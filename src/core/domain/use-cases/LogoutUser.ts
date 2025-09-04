@@ -8,7 +8,7 @@ export class LogoutUser {
     async execute(): Promise<Response> {
         try {
             const response = await this.authRepository.logout();
-            if (response.message === "Logout successful") {
+            if (response.status === 200) {
                 return {
                     status: response.status,
                     path: "/",

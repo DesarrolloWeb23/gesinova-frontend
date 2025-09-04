@@ -71,23 +71,25 @@ http.interceptors.response.use(
       const timestamp = new Date().toISOString();
       const message = error.response?.data?.message || "Demasiadas peticiones. Intenta más tarde.";
       
-      error.response.data = { message };
-      error.response.data.path = path;
-      error.response.data.error = type;
-      error.response.data.timestamp = timestamp;
-      error.response.data.status = error.response?.status;
-      return Promise.reject(error);
+      const apiError = {
+        message,
+        path,
+        error: type,
+        timestamp,
+        status: error.response?.status,
+      };
+      return Promise.reject(apiError);
     }
     
     if (error.response?.status === 401 && !originalRequest._retry) {
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
+      // localStorage.removeItem("token");
+      // sessionStorage.removeItem("token");
       originalRequest._retry = true;
       const shouldRenew = await showSessionModal();
       if (shouldRenew) {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            if (!token) {
+            if (token) {
             const response = await axios.post(
               `${baseURL}/auth/refresh`,
               {},
@@ -105,7 +107,7 @@ http.interceptors.response.use(
 
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
-
+          window.location.href = "/";
           return http(originalRequest);
 
         } catch (refreshError) {
