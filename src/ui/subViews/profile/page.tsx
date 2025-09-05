@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
-import Image from 'next/image'
 import { Button } from "@/ui/components/ui/button"
 import {
     Form,
@@ -20,7 +19,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/ui/components/ui/card"
@@ -51,6 +49,10 @@ import { User } from "@/core/domain/models/User";
 import { useView } from "@/ui/context/ViewContext";
 import { Input } from "@/ui/components/ui/input"
 import { ChangePassword } from "@/core/domain/use-cases/ChangePassword"
+import { LogoutUser } from "@/core/domain/use-cases/LogoutUser"
+import { useAuth } from "@/ui/context/AuthContext";
+import { DisableTwoFactor } from "@/core/domain/use-cases/DisableTwoFactor"
+import { Badge } from "@/ui/components/ui/badge"
 
 const FormSchema = z.object({
     oldPassword: z.string().min(4, getMessage("errors", "zod_password_required")),
@@ -63,8 +65,9 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [accessDenied, setAccessDenied] = useState(false);
-    const { setSubView } = useView();
+    const { setView, setSubView } = useView();
     const didFetch = useRef(false);
+    const { validationToken } = useAuth();
 
     const fetchUserData = async () => {
         const userService = new GetUserInfo(new UserApiService());
@@ -87,7 +90,6 @@ export default function Profile() {
                 }),
                 {
                     loading: getMessage("success", "loading"),
-                    success: getMessage("success", "success"),
                     error: (error) => 
                         error?.message
                 }
@@ -152,51 +154,67 @@ export default function Profile() {
                 twoFactorCase.execute(1, method)
                 .then((response) => {
                     if (response.message === "TOPT_ACTIVATED") {
-                    const qrWindow = window.open("", "_blank");
-                    if (qrWindow) {
-                        const html = `
-                            <html>
-                            <head>
-                                <title>QR Code</title>
-                                <style>
-                                body {
-                                    font-family: sans-serif;
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    justify-content: center;
-                                    height: 100vh;
-                                    margin: 0;
-                                    background: white;
-                                    }
-                                    img {
-                                    width: 256px;
-                                    height: 256px;
-                                    border: 1px solid #ccc;
-                                    border-radius: 8px;
-                                    }
-                                    </style>
-                                    </head>
-                                    <body>
-                                    <h2>Escanea este código QR</h2>
-                                    <img src="${response.data.qrUri}" alt="QR Code" />
-                                    </body>
-                                    </html>
-                                    `
-                                    qrWindow.document.write(html);
-                                    qrWindow.document.close();
-                                }
-                                // setView("login");
-                                toast.success(getMessage("success", "mfa_qr_code"));
+                        const qrWindow = window.open("", "_blank");
+                        if (qrWindow) {
+                            const html = `
+                                <html>
+                                <head>
+                                    <title>QR Code</title>
+                                    <style>
+                                    body {
+                                        font-family: sans-serif;
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        justify-content: center;
+                                        height: 100vh;
+                                        margin: 0;
+                                        background: white;
+                                        }
+                                        img {
+                                        width: 256px;
+                                        height: 256px;
+                                        border: 1px solid #ccc;
+                                        border-radius: 8px;
+                                        }
+                                        </style>
+                                        </head>
+                                        <body>
+                                        <h2>Escanea este código QR</h2>
+                                        <img src="${response.data.qrUri}" alt="QR Code" />
+                                        </body>
+                                        </html>
+                                        `
+                                        qrWindow.document.write(html);
+                                        qrWindow.document.close();
+                        }
+                        toast.success(getMessage("success", "mfa_qr_code"));
+                    } else if (response.message === "OPT_ACTIVATED") {
+                        toast.success(getMessage("success", "mfa_code_sent"));
                     } 
-                    
-                    if (response.message === "OPT_ACTIVATED") {
-                        // validationToken(response.data.tempToken);
-                    // setView("validateMfa");
-                    toast.success(getMessage("success", "mfa_code_sent"));
-                    } else {
-                    toast.success(getMessage("success", "mfa_activation_success"));
-                }
+                    //almacena token temporal para hacer inicio de sesion nuevamente
+                    validationToken(response.data.tempToken!);
+                    //cierre de sesion
+                    const logoutUseCase = new LogoutUser(new AuthApiService());
+            
+                    toast.promise(
+                        logoutUseCase.execute()
+                        .then((response) =>{
+                            if (response.message === "LOGOUT_SUCCESS") {
+                                setView("validateMfa");
+                                return;
+                            }else {
+                                throw new Error(response.message || "Logout failed");
+                            }
+                        }), {
+                        loading: "Cerrando sesión...",
+                        success: "Sesión cerrada correctamente",
+                        error: (error) => 
+                            error?.data?.message 
+                            ? "Error: " + error?.data?.message
+                            : "Error no manejado: " + error.message,
+                        },
+                    );
             })
                 .catch((error) => {
                     toast.error(
@@ -208,6 +226,32 @@ export default function Profile() {
             );
         } catch (error) {
             console.error("Error al activar el doble factor:", error);
+        }
+    }
+
+    //funcion para desactivar MFA
+    async function handleDisableMFA() {
+        const disableMFAUseCase = new DisableTwoFactor(new AuthApiService());
+        try {
+            toast.promise(
+                disableMFAUseCase.execute()
+                    .then((response) => {
+                        if (response.status === 200) {
+                            fetchUserData();
+                        } else {
+                            throw new Error(response.message || "Disable MFA failed");
+                        }
+                    }), {
+                    loading: "Desactivando MFA...",
+                    success: "MFA desactivado correctamente",
+                    error: (error) =>
+                        error?.data?.message
+                            ? "Error: " + error?.data?.message
+                            : "Error no manejado: " + error.message,
+                },
+            );
+        } catch (error) {
+            console.error("Error al desactivar el doble factor:", error);
         }
     }
 
@@ -239,22 +283,52 @@ export default function Profile() {
             ) : (
                 <div className="grid grid-cols-3 gap-4 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
                     <div className="col-span-2 max-sm:col-span-3 justify-between p-4">
-                        <div className="flex items-center justify-center h-32 w-32 bg-gray-300 rounded-full mx-auto shadow-lg">
-                            <Image
-                                src="/Logo_Gesinova.jpg"
-                                alt="Logo Gesinova"
-                                width={800}
-                                height={800}
-                                className="rounded-full object-cover"
-                            />
+                        {/* Avatar */}
+                        <div className="flex flex-col items-center">
+                            <div className="relative h-32 w-32">
+                                <div className="flex items-center justify-center h-32 w-32 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md">
+                                    <span className="text-4xl font-bold">
+                                        {user?.name?.[0] ?? "U"}
+                                        {user?.lastName?.[0] ?? ""}
+                                    </span>
+                                </div>
+                                <span className="absolute bottom-2 right-2 h-4 w-4 bg-green-500 border-2 border-white rounded-full"></span>
+                            </div>
+
+                            {/* Nombre usuario */}
+                            <h2 className="mt-4 font-bold text-gray-800">{user?.username}</h2>
+                            <p className="text-gray-500">{user?.name + " " + user?.lastName}</p>
                         </div>
-                        <div className="border-t border-gray-300 my-4"></div>
-                        <div className="text-center">
-                            <h2 className="text-xl font-semibold">{user?.username}</h2>
+
+                        {/* Separador */}
+                        <div className="my-6 border-t border-gray-200"></div>
+
+                        {/* Información extra */}
+                        <div className="space-y-2 text-center">
+                            <p className="text-gray-500">{user?.email}</p>
                             <div>
-                                <p>{user?.name + " " + user?.lastName}</p>
-                                <p> Grupo: {user?.groups[0]?.name || "Sin grupo"}</p>
-                                <p className="text-gray-500">{user?.email}</p>
+                                <span className="font-semibold text-gray-700">Grupo:</span>
+                                <ul className="list-disc list-inside space-y-1 space-x-1">
+                                { user?.groups[0] ? (
+                                    user.groups.map((group) => (
+                                            <Badge key={group.id}  variant="secondary">{group.name}</Badge>
+                                        ))
+                                    ) : (
+                                        <li className="text-sm text-muted-foreground">No tiene grupos asignados.</li>
+                                    )}
+                                </ul>
+                            </div>
+                            <div>
+                                <span className="font-semibold text-gray-700">Permisos:</span>
+                                <ul className="list-disc list-inside space-y-1 space-x-1">
+                                { user?.permissions[0] ? (
+                                    user.permissions.map((permission) => (
+                                            <Badge key={permission.id}  variant="secondary">{permission.name}</Badge>
+                                        ))
+                                    ) : (
+                                        <li className="text-sm text-muted-foreground">No tiene permisos asignados.</li>
+                                    )}
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -266,7 +340,7 @@ export default function Profile() {
                                     <TabsTrigger value="password">Contraseña</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="security">
-                                    <Card className="border">
+                                    <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100">
                                         <CardContent className="grid gap-6">
                                             <Form {...form}>
                                                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
@@ -295,37 +369,38 @@ export default function Profile() {
                                                         />
                                                     </div>
                                                     <FormItem className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
-                                                    <div className="space-y-0.5">
-                                                        <FormLabel>Doble factor</FormLabel>
-                                                        <FormDescription>
-                                                            Activacion del doble factor de autenticacion.
-                                                        </FormDescription>
-                                                    </div>
-                                                    <Dialog>
-                                                        <DialogTrigger className=" rounded-lg p-1 shadow-sm bg-red-500 text-sm text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none" disabled={user?.mfaActive}>Activar</DialogTrigger>
-                                                        <DialogContent>
-                                                            <DialogHeader>
-                                                            <DialogTitle>{getMessage("ui","mfa_activation_card_title")}</DialogTitle>
-                                                            <DialogDescription className="flex justify-between mt-4 gap-1">
-                                                                <div className="text-sm text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</div>
-                                                                <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
-                                                                <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
-                                                            </DialogDescription>
-                                                            </DialogHeader>
-                                                        </DialogContent>
-                                                    </Dialog>
+                                                        <div className="space-y-0.5">
+                                                            <FormLabel>Doble factor</FormLabel>
+                                                            <FormDescription>
+                                                                Activacion del doble factor de autenticacion.
+                                                            </FormDescription>
+                                                        </div>
+                                                        {user?.mfaActive ? (
+                                                            <Button type="button" variant={"destructive"} onClick={() => handleDisableMFA()}>Desactivar</Button>
+                                                        ) : (
+                                                            <Dialog>
+                                                                <DialogTrigger className="rounded-lg p-1 shadow-sm bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none" 
+                                                                    disabled={user?.mfaActive}>Activar</DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogHeader>
+                                                                    <DialogTitle>{getMessage("ui","mfa_activation_card_title")}</DialogTitle>
+                                                                    <DialogDescription className="flex justify-between mt-4 gap-1">
+                                                                        <div className="text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</div>
+                                                                        <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
+                                                                        <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
+                                                                    </DialogDescription>
+                                                                    </DialogHeader>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        )}
                                                     </FormItem>
-                                                    <Button type="submit">Guardar</Button>
                                                 </form>
                                             </Form>
                                         </CardContent>
-                                        <CardFooter>
-                                            
-                                        </CardFooter>
                                     </Card>
                                 </TabsContent>
                                 <TabsContent value="password">
-                                    <Card className="border">
+                                    <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100">
                                         <CardHeader>
                                             <CardTitle>Cambio de Contraseña</CardTitle>
                                         <CardDescription>
@@ -385,14 +460,10 @@ export default function Profile() {
                                                 </form>
                                             </Form>
                                         </CardContent>
-                                        <CardFooter>
-                                            
-                                        </CardFooter>
                                     </Card>
                                 </TabsContent>
                             </Tabs>
                         </div>
-                        
                     </div>
                 </div>
             )}

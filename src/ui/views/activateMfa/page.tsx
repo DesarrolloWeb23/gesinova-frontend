@@ -65,18 +65,15 @@ export default function ActivateMfa() {
                 qrWindow.document.write(html);
               qrWindow.document.close();
             }
-            validationToken(response.data.tempToken);
-            setView("validateMfa");
             toast.success(getMessage("success", "mfa_qr_code"));
-          } 
-          
-          if (response.message === "OPT_ACTIVATED") {
-            validationToken(response.data.tempToken);
-            setView("validateMfa");
+          } else if (response.message === "OPT_ACTIVATED") {
             toast.success(getMessage("success", "mfa_code_sent"));
           } else {
             toast.success(getMessage("success", "mfa_activation_success"));
           }
+
+          validationToken(response.data.tempToken!);
+          setView("validateMfa");
         })
         .catch((error) => {
           toast.error(
