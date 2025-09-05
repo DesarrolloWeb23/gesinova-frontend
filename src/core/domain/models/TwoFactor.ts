@@ -1,8 +1,8 @@
 export interface TwoFactor {
     message: string,
     data: {
-        qrUri: string,
-        secretKey: string,
-        tempToken: string
+        qrUri: string | undefined,
+        secretKey: string | undefined,
+        tempToken: string | undefined
     },
 }

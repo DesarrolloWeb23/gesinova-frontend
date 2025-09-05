@@ -18,10 +18,12 @@ import { LogoutUser } from '@/core/domain/use-cases/LogoutUser';
 import { AuthApiService } from '@/core/infrastructure/api/services/authService';
 import { toast } from 'sonner';
 import { useAuth } from "@/ui/context/AuthContext";
+import { useView } from "../context/ViewContext";
 
 
 export function DropdownProfile({setSubView} : {setSubView: (view: string) => void}) {
     const { logout } = useAuth();
+    const { setView } = useView();
 
     //Funcion para cerrar sesión
     async function sendLogout() {
@@ -32,6 +34,7 @@ export function DropdownProfile({setSubView} : {setSubView: (view: string) => vo
             .then((response) =>{
                 if (response.message === "LOGOUT_SUCCESS") {
                     logout();
+                    setView("dashboard");
                     return;
                 }else {
                     throw new Error(response.message || "Logout failed");

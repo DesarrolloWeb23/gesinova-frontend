@@ -227,6 +227,46 @@ export class AuthApiService implements AuthRepository {
             };
         }
     }
+
+    //funcion para inhabilitar MFA
+    async disableMFA(): Promise<AuthEnableResponse> {
+        try {
+            const response = await http.post('/auth/disabled-mfa', {}, { withCredentials: true });
+            return AuthEnableResponseDTO.parse(response.data);
+        } catch (err: unknown) {
+            if (err instanceof ZodError) {
+                // Error de validación Zod en respuesta de la API
+                throw {
+                    type: "validation",
+                    issues: err.errors,
+                };
+            }
+
+            // Error devuelto desde el backend (AxiosError)
+            if (err instanceof AxiosError && err.response?.data) {
+                const parsed = ApiErrorDTO.safeParse(err.response.data);
+                if (parsed.success) {
+                    throw {
+                        type: "api",
+                        ...parsed.data,
+                    };
+                } else {
+                    // Respuesta de error de API no coincide con el DTO
+                    throw {
+                        type: "unknown_api_error",
+                        issues: parsed.error.errors,
+                    };
+                }
+            }
+
+            // Error desconocido
+            console.error("Error inesperado", err);
+            throw {
+                type: "unknown",
+                issues: err,
+            };
+        }
+    }
 };
 
 // Puedes agregar más funciones luego: logoutUser, refreshToken, etc.
