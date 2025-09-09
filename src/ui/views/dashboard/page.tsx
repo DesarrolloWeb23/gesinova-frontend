@@ -78,7 +78,7 @@ export default function Dashboard() {
                     <DropdownProfile setSubView={setSubView}/>
                 </header>
 
-                <div className="flex flex-1 flex-col gap-1 p-4">
+                <div className="flex flex-1 flex-col gap-4 p-1">
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
@@ -96,7 +96,7 @@ export default function Dashboard() {
                             )}
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1 shadow-lg shadow-blue-500/50">
+                    <div className="bg-primary min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-1">
                         {SubViewComponent ? <SubViewComponent /> : <UnderConstruction title={subView} />} 
                     </div>
                 </div>

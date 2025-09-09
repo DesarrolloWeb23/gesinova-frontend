@@ -117,7 +117,7 @@ export default function Login() {
           ></div>
         <div id="top-image"></div>
         <div className=" flex h-9/10 w-screen items-center justify-center">
-          <Card className="absolute w-[350px]">
+          <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
                 <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
               </CardHeader>

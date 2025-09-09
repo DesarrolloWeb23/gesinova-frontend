@@ -198,6 +198,8 @@ export default function Manage(){
                 transferTurnUseCase.execute(selectedTurn!.id, data.attentionService)
                     .then((response) => {
                         if(response){
+                            setTurnsCompleted(prev => (parseInt(prev) + 1).toString());
+                            sessionStorage.setItem("turnCompleted", (parseInt(sessionStorage.getItem("turnCompleted") || "0") + 1).toString());
                             handleClearSelectedTurn();
                             closeRef.current?.click();
                         }
@@ -328,8 +330,8 @@ export default function Manage(){
     return (
         <>
             <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full sm:max-w-9/10 m-1">
-                <Card className="w-full">
-                    <CardContent className="">
+                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
+                    <CardContent>
                         <div className="grid grid-cols-1 gap-4">
                             <div className="grid gap-2 flex items-center justify-center">
                                 <div className="flex items-center justify-center rounded-lg relative gap-2">
@@ -460,8 +462,7 @@ export default function Manage(){
                                     <AlertDialogHeader>
                                     <AlertDialogTitle>Estas seguro?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta
-                                        y eliminará tus datos de nuestros servidores.
+                                        Esta acción no se puede deshacer. Para cancelar el turno seleccionado debes confirmarlo.
                                     </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -478,7 +479,7 @@ export default function Manage(){
                 </Card>
             </div>
             <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
-                <Card className="w-full">
+                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
                         <div className="text-center font-bold">
                             <h1 className="text-2xl">Datos del llamado</h1>
@@ -559,15 +560,6 @@ export default function Manage(){
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-1">
-                                <Label className="text-gray-600">ID</Label>
-                                <Input
-                                    className="rounded-lg border-gray-300 bg-gray-100"
-                                    value={selectedTurn?.id}
-                                    readOnly
-                                />
-                                </div>
-
-                                <div className="space-y-1">
                                 <Label className="text-gray-600">Identificación</Label>
                                 <Input
                                     className="rounded-lg border-gray-300 bg-gray-100"
@@ -616,7 +608,7 @@ export default function Manage(){
                                 />
                                 </div>
 
-                                <div className="space-y-1 sm:col-span-2">
+                                <div className="space-y-1">
                                 <Label className="text-gray-600">Clasificación</Label>
                                 <Input
                                     className="rounded-lg border-gray-300 bg-gray-100"
