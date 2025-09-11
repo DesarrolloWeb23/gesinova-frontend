@@ -53,6 +53,7 @@ export default function Manage(){
     const closeRef = useRef<HTMLButtonElement>(null);
     const [isLoading, setIsLoading] = useState(false);
     const didFetch = useRef(false);
+    const [isAnnouncing, setIsAnnouncing] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -220,6 +221,8 @@ export default function Manage(){
     }
 
     const announceTurn = (turn: Turn) => {
+        if (isAnnouncing) return; // Evita múltiples anuncios simultáneos
+        setIsAnnouncing(true);
         const messageCode = new SpeechSynthesisUtterance(`Turno número ${turn.turnCode}`);
         messageCode.lang = "es-ES"; // español (puedes probar con "es-CO")
         messageCode.rate = 0.8;     // velocidad (1 es normal, 0.8 más lento, 1.2 más rápido)
@@ -232,6 +235,7 @@ export default function Manage(){
             messageName.pitch = 1;      // tono
             window.speechSynthesis.speak(messageCode);
             window.speechSynthesis.speak(messageName);
+            messageName.onend = () => setIsAnnouncing(false);
         }else{
             const messageIdentification =  new SpeechSynthesisUtterance(`${turn.identificationNumber}`);
             messageIdentification.lang = "es-ES";
@@ -239,6 +243,7 @@ export default function Manage(){
             messageIdentification.pitch = 1;      // tono
             window.speechSynthesis.speak(messageCode);
             window.speechSynthesis.speak(messageIdentification);
+            messageIdentification.onend = () => setIsAnnouncing(false);
         }
     };
 
@@ -386,7 +391,7 @@ export default function Manage(){
                     </CardContent>
                     <CardFooter className="grid grid-cols-1 gap-2">
                         <div className="flex justify-center gap-4">
-                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code === 3 ? true : false} variant={'tertiary'}><HiMiniBellAlert />
+                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code === 3 || isAnnouncing ? true : false} variant={'tertiary'}><HiMiniBellAlert />
                             {selectedTurn && selectedTurn.state?.code === 2 ? 'Atender' : 'Llamar'}
                             </Button>
                             <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true} className='bg-green-500'><FaUserCheck />Finalizar</Button>
@@ -472,7 +477,7 @@ export default function Manage(){
                                 </AlertDialogContent>
                             </AlertDialog>
                             <Button onClick={() => announceTurn(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code !== 2 ? true : false} variant={'tertiary'}><HiMiniBellAlert />
-                                Rellamar
+                                {isAnnouncing === true ? 'Llamando...' : 'Rellamar'}
                             </Button>
                         </div> 
                     </CardFooter>
@@ -504,7 +509,7 @@ export default function Manage(){
                             <Loading />
                         ): 
                             <ScrollArea className="h-90 border border-gray-300 p-4 rounded-lg">
-                                <div className='grid grid-cols-3 gap-2'>
+                                <div className='grid grid-cols-4 gap-2'>
                                     <div className='grid gap-2'>
                                         <h1><b>Codigo</b></h1>
                                     </div>
@@ -514,11 +519,14 @@ export default function Manage(){
                                     <div className='grid gap-2'>
                                         <h1><b>Prioridad</b></h1>
                                     </div>
+                                    <div className='grid gap-2'>
+                                        <h1><b>Acciones</b></h1>
+                                    </div>
                                 </div>
                                 <Separator className='m-2'/>
                                 {turns.map((turn) => (
                                 <React.Fragment key={turn.id}>
-                                    <div className='grid grid-cols-3 gap-2'>
+                                    <div className='grid grid-cols-4 gap-2'>
                                         <div className='grid gap-2'>
                                             <h1>{turn.turnCode}</h1>
                                         </div>
@@ -528,12 +536,12 @@ export default function Manage(){
                                         <div className='grid gap-2'>
                                             <h1>{turn.classificationAttention.attentionType.description }</h1>
                                         </div>
-                                        {/* <div className='grid gap-2'>
+                                        <div className='grid gap-2'>
                                             <Button className={`text-black text-sm ${turn.state.code !== 1 ? 'hidden' : ''}`} onClick={() => handleSelectTurn(turn)} variant="outline">
                                                 <BsBackpack2Fill />
-                                                Gestionar
+                                                Seleccionar
                                             </Button>
-                                        </div> */}
+                                        </div>
                                     </div>
                                     <Separator className="my-2" />
                                 </React.Fragment>
