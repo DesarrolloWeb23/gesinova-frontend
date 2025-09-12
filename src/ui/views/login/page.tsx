@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/ui/components/ui/button";
 import {
   Card,
@@ -42,6 +42,7 @@ export default function Login() {
   const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
   const [showIndio, setShowIndio] = useState(true)
   const { setView } = useView();
+  const [videoFinished, setVideoFinished] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -108,14 +109,35 @@ export default function Login() {
         console.error("Error al iniciar sesión:", error);
       }
     }
-    
+
+    useEffect(() => {
+      if (localStorage.getItem("videoPlayed")) {
+        setVideoFinished(true);
+      }
+    }, []);
+
     return (
       
       <div id="container" className="h-dvh">
-        <div  className={`indio transition-opacity duration-500 animate-in fade-in slide-in-from-top-8 duration-900 ${
-          showIndio ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-          ></div>
-        <div id="top-image"></div>
+        <div
+          className={`indio absolute inset-0 transition-opacity duration-700 ${
+            videoFinished || showIndio ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+        </div>
+        <video
+          autoPlay
+          muted
+          className={`indio w-full h-full object-cover transition-opacity duration-700 ${
+            videoFinished ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+          onEnded={() => setVideoFinished(true)}
+        >
+          <source src="/video_indio.mp4" type="video/mp4" />
+          Tu navegador no soporta el video.
+        </video>
+        <div id="top-image">
+        </div>
         <div className=" flex h-9/10 w-screen items-center justify-center">
           <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
