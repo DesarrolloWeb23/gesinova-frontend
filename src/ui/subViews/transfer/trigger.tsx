@@ -266,7 +266,7 @@ export default function Trigger() {
     return (
         <>
             <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/4 m-2">
-                <Card className="w-full">
+                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent >
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleGetAffiliate)} className="grid gap-6">
@@ -285,7 +285,6 @@ export default function Trigger() {
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectGroup>
-                                                                    <SelectItem value="NI">NIT EMPRESA</SelectItem>
                                                                     <SelectItem value="CC">CEDULA DE CIUDADANIA</SelectItem>
                                                                     <SelectItem value="CD">CARNET DIPLOMATICO</SelectItem>
                                                                     <SelectItem value="CN">CERTIFICADO DE NACIDO VIVO - DANE</SelectItem>
@@ -362,7 +361,7 @@ export default function Trigger() {
                 </Card>
             </div>
             <div  className={`animate-in fade-in slide-in-from-top-8 duration-900 w-full lg:max-w-3/4 m-2 ${isValid ? '' : 'hidden'}`}>
-                <Card className="w-full">
+                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
                     {isRegistering ? (
                         <Form {...formNewUser}>
