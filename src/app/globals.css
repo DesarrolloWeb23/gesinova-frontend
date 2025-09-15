@@ -174,7 +174,19 @@
   background-size: cover;
   background-repeat: no-repeat;
 }
-  
+
+.indio_password {
+  background-image: url("indio_pijao_ojos_cerrados.png");
+  background-color: white;
+  position:fixed ;
+  top:0;
+  z-index:0;
+  height:100%;
+  width: 24%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .fancy-sidebar-edge:hover::after {
   content: "";
   position: absolute;
