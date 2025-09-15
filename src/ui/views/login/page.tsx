@@ -43,6 +43,7 @@ export default function Login() {
   const [showIndio, setShowIndio] = useState(true)
   const { setView } = useView();
   const [videoFinished, setVideoFinished] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(true);
 
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -74,7 +75,7 @@ export default function Login() {
               if (response.message === "ACTIVATE_MFA") {
                 login(response.data.user! , response.data.accessToken!);
                 validationToken(response.data.tempToken as string);
-                setView("ActivateMfa");
+                handleChangeView("ActivateMfa");
                 setIsSubmitting(false);
                 return;
               }
@@ -88,7 +89,7 @@ export default function Login() {
 
               if (response.message === "VALIDATE_MFA") {
                 validationToken(response.data.tempToken as string);
-                setView("validateMfa");
+                handleChangeView("validateMfa");
                 setIsSubmitting(false);
                 return;
               }
@@ -111,6 +112,7 @@ export default function Login() {
     }
 
     useEffect(() => {
+      setPasswordFocused(false);
       if (localStorage.getItem("videoPlayed")) {
         setVideoFinished(true);
       }
@@ -120,8 +122,8 @@ export default function Login() {
       
       <div id="container" className="h-dvh">
         <div
-          className={`indio absolute inset-0 transition-opacity duration-700 ${
-            videoFinished || showIndio ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          className={`${ passwordFocused ? 'indio_password' : 'indio'} transition-opacity duration-500 animate-in fade-in slide-in-from-top-8 duration-900 ${
+            showIndio ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
         </div>
@@ -168,7 +170,13 @@ export default function Login() {
                         <FormItem>
                           <FormLabel>{getMessage("ui", "login_password")}</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="********" {...field} />
+                            <Input type="password" placeholder="********" {...field} 
+                              onFocus={() => {
+                                setPasswordFocused(true);
+                              }}
+                              onBlur={() => {
+                                setPasswordFocused(false);
+                              }}/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
