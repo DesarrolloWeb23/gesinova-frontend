@@ -130,7 +130,7 @@ export default function Login() {
         <video
           autoPlay
           muted
-          className={`indio w-full h-full object-cover transition-opacity duration-700 ${
+          className={`indio w-full h-full object-cover transition-opacity duration-500 animate-in fade-in slide-in-from-top-8 duration-900 ${
             videoFinished ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
           onEnded={() => setVideoFinished(true)}
