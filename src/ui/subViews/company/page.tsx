@@ -82,143 +82,33 @@ export default function Company() {
     return (
         <>
         {SubViewComponent ? <SubViewComponent setView={setSubView} /> : 
-            <div className="flex-1 outline-none grid-cols-1 animate-in fade-in slide-in-from-top-8 duration-900">
+            <>
                 {loading ? (
-                    <div className="grid grid-cols-1 flex align-center justify-center">
-                        <div className="flex-1 outline-none grid-cols-1 flex align-center justify-center">
-                            <div className="max-w-3/4 w-full">
-                                <div className="flex items-center justify-between m-4">
-                                    <Card className="w-32 animate-in fade-in slide-in-from-right-8 duration-300">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg">Usuarios</h2>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <p className="text-sm ">300</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="w-32 animate-in fade-in slide-in-from-right-8 duration-500">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg">Permisos</h2>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <p className="text-sm ">300</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="w-32 animate-in fade-in slide-in-from-right-8 duration-700">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg">Usuarios</h2>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <p className="text-sm ">300</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="w-32 animate-in fade-in slide-in-from-right-8 duration-900">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg">Usuarios</h2>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <p className="text-sm ">300</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                                <div className="m-4">
-                                    <Card className="w-full animate-in fade-in slide-in-from-bottom duration-900">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg">Usuarios</h2>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-center">
-                                                <p className="text-sm ">300</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </div>
-
-                            <div className="max-w-1/3 w-full">
-                                <Card className="w-full">
-                                        <CardHeader>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="font-bold">Mi Empresa</h2>
-                                                <Button variant="outline" size="icon" className="ml-auto">
-                                                    <RiQrCodeFill className="h-5 w-5" />
-                                                </Button>
-                                            </div>
-                                            <CardDescription>
-                                                Aquí puedes gestionar la información de tu empresa.
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <Form {...form}>
-                                                <form>
-                                                    <div className="grid gap-6">
-                                                        <FormField
-                                                            control={form.control}
-                                                            name="marketing_emails"
-                                                            render={({ field }) => (
-                                                                <FormItem className="flex items-center space-x-2">
-                                                                    <FormLabel>Recibir correos de marketing</FormLabel>
-                                                                    <FormControl>
-                                                                        <Switch
-                                                                            checked={field.value}
-                                                                            onCheckedChange={field.onChange}
-                                                                        />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                        <FormField
-                                                            control={form.control}
-                                                            name="security_emails"
-                                                            render={({ field }) => (
-                                                                <FormItem className="flex items-center space-x-2">
-                                                                    <FormLabel>Recibir correos de seguridad</FormLabel>
-                                                                    <FormControl>
-                                                                        <Switch
-                                                                            checked={field.value}
-                                                                            onCheckedChange={field.onChange}
-                                                                        />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                    </div>
-                                                </form>
-                                                <div className="mt-4">
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={() => setSubView("permisos")}
-                                                    >
-                                                        Gestionar permisos de la empresa
-                                                    </Button>
-                                                </div>
-                                            </Form>
-                                        </CardContent>
-                                        <CardFooter className="flex justify-end">
-                                            <Button>
-                                                Guardar Cambios
-                                            </Button>
-                                        </CardFooter>
-                                    </Card>
-                            </div>
+                    <div className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center animate-in fade-in slide-in-from-top-8 duration-900">
+                        <div className="w-full m-2 ">
+                            <Card className="w-full">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="font-bold">Mi Empresa</h2>
+                                        <Button variant="outline" size="icon" className="ml-auto">
+                                            <RiQrCodeFill className="h-5 w-5" />
+                                        </Button>
+                                    </div>
+                                    <CardDescription>
+                                        Aquí puedes gestionar la información de tu empresa.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="mt-4">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setSubView("permisos")}
+                                        >
+                                            Gestionar permisos de la empresa
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 ) : (
@@ -226,7 +116,7 @@ export default function Company() {
                     <Loading />
                 </div>
                 )}
-            </div>
+            </>
         }
         </>
     );

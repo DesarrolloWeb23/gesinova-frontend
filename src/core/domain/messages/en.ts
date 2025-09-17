@@ -20,6 +20,8 @@ export const messages = {
     mfa_validation_success: "Multi-factor authentication validation successful.",
     reset_password_success: "Password reset email sent successfully.",
     password_change_success: "Password changed successfully.",
+    assignUserPermission_success: "Permissions assigned to user successfully.",
+    assignGroupPermission_success: "Permissions assigned to group successfully.",
   },
   ui: {
       wait: "Please wait...",

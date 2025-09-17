@@ -65,7 +65,7 @@ const formSchema = z.object({
 
 type Props = {
     handleGroupSelect: (group: Group) => void,
-    handleUpdateUser: (idUser: number) => void,
+    handleUpdateUser: (idUser: number, NewRowSelection: Record<number, boolean>) => void,
     newSelection?: Record<number, boolean>,
     userSelected: User,
 }
@@ -207,7 +207,7 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
                 assignGroupUseCase.execute(userSelected.username, groupSelectedCodenames)
                 .then( (response) => {
                     if (response.message === "GROUP_ASSIGNED") {
-                        handleUpdateUser(userSelected.id);
+                        handleUpdateUser(userSelected.id, rowSelection);
                     }
                     setLoading(false);
                 })
@@ -309,7 +309,7 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
                 <div className="w-full p-4">
                     <div className="flex items-center py-4 space-x-2">
                         <Input
-                        placeholder="Filtrar permiso..."
+                        placeholder="Filtrar grupo..."
                         value={(tableGroups.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
                             tableGroups.getColumn("name")?.setFilterValue(event.target.value)

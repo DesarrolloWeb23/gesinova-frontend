@@ -200,7 +200,7 @@ function CompUser({ onSearch }: CompUserProps)  {
     })
 
     return (
-        <div className="w-2/5 text-center">
+        <div className="w-2/5 text-center mx-auto">
             <div className="m-2">
                 <p>Buscar usuario por nombre de usuario</p>
             </div>
@@ -229,7 +229,7 @@ function CompUser({ onSearch }: CompUserProps)  {
                 </Button>
                 </form>
             </Form>
-            <div className="flex items-center justify-between m-2">
+            <div className="flex items-center justify-between m-2 border border-gray-200 rounded-lg">
             </div>
         </div>
     )
@@ -341,7 +341,7 @@ function TableUsers({handleUserSelect }: Props) {
                     <CompUser onSearch={handleSearchByUsername} />
                     <div className="flex items-center py-4">
                         <Input
-                        placeholder="Filtrar permiso..."
+                        placeholder="Filtrar usuario..."
                         value={(tableUsers.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
                             tableUsers.getColumn("name")?.setFilterValue(event.target.value)

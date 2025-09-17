@@ -49,8 +49,8 @@ type Props = {
     newSelection?: Record<number, boolean>,
     userSelected: User,
     groupSelected: Group
-    handleUpdateUser: (id: number) => Promise<void>;
-    handleUpdateGroup: (id: number) => Promise<void>;
+    handleUpdateUser: (id: number, NewRowSelection: Record<number, boolean>) => Promise<void>;
+    handleUpdateGroup: (id: number, NewRowSelection: Record<number, boolean>) => Promise<void>;
 }
 
 export const columnsPermissions = (handleAssignUserPermission: () => void, handleAssignGroupPermission: () => void, user: User, group: Group,): ColumnDef<Permission>[] => [
@@ -161,7 +161,7 @@ export default function TablePermissions({
                 assignPermissionsUserUseCase.execute(userSelected.username, selectedPermissionCodenames)
                 .then(async (response) => {
                     if (response.message === "PERMISSION_ASSIGNED") {
-                        await handleUpdateUser(userSelected.id);
+                        await handleUpdateUser(userSelected.id, rowSelection);
 
                     }
                 })       
@@ -200,7 +200,7 @@ export default function TablePermissions({
                 assignPermissionsGroupUseCase.execute(groupSelected.id, selectedPermissionCodenames)
                 .then(async (response) => {
                     if (response.message === "PERMISSION_ASSIGNED") {
-                        await handleUpdateGroup(groupSelected.id);
+                        await handleUpdateGroup(groupSelected.id, rowSelection);
                     }
                     setLoading(false);
                 })       

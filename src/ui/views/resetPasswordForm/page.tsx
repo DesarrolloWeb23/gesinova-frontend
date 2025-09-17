@@ -109,7 +109,7 @@ export default function ResetPasswordForm() {
                   <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
                     <TbArrowBackUp />{getMessage("ui", "reset_password_back")}
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
+                  <Button type="button" disabled={isSubmitting} variant={"default"} size={"lg"}>
                     <MdOutgoingMail />{isSubmitting === true ? getMessage("ui", "wait") : getMessage("ui", "reset_password_send_code")}
                   </Button>
                 </div>
