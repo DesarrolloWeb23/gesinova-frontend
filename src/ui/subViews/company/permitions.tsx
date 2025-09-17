@@ -32,6 +32,7 @@ import TableGroups from "@/ui/components/TableGroups"
 import  { TableUsers } from "@/ui/components/TableUsers"
 import TablePermissions from "@/ui/components/TablePermissions"
 import { GetGroupsInfo } from "@/core/domain/use-cases/GetGroupsInfo"
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui/components/ui/card"
 
 
 export const columnsPermissions = (handleAssignUserPermission: () => void, handleAssignGroupPermission: () => void, user :User, group :Group): ColumnDef<Permission>[] => [
@@ -176,32 +177,10 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
         setUser(selectedUser);
 
         if (type === "permissions") {
-            // Obtener permisos del usuario
-            const userPermissionCodes = selectedUser.permissions?.map(p => p.codename) ?? [];
-
-            // Calcular qué rows seleccionar
-            const newSelection = permissions.reduce((acc, perm, index) => {
-                if (userPermissionCodes.includes(perm.codename)) {
-                acc[index] = true;
-                }
-                return acc;
-            }, {} as Record<number, boolean>);
-
-            setRowSelection(newSelection);
+            handlePermissionUserSelection(selectedUser);
             setTable("permissions");
         } else if (type === "groups") {
-            // Obtener grupos del usuario
-            const userGroupIds = selectedUser.groups?.map(g => g.id) ?? [];
-
-            // Calcular qué rows seleccionar
-            const newSelection = groups.reduce((acc, perm, index) => {
-                if (userGroupIds.includes(perm.id)) {
-                    acc[index] = true;
-                }
-                return acc;
-            }, {} as Record<number, boolean>);
-
-            setRowSelection(newSelection);
+            handleGroupUserSelection(selectedUser);
             setTable("groups");
         }
     };
@@ -209,22 +188,12 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
     //funcion al momento de seleccionar un grupo
     const handleGroupSelect = (selectedGroup: Group) => {
         setGroup(selectedGroup);
-
-        const groupPermissionCodes = selectedGroup.permissions?.map(p => p.codename) ?? [];
-
-        const newSelection = permissions.reduce((acc, perm, index) => {
-            if (groupPermissionCodes.includes(perm.codename)) {
-                acc[index] = true;
-            }
-            return acc;
-        }, {} as Record<number, boolean>);
-
-        setRowSelection(newSelection);
+        handlePermissionGroupSelection(selectedGroup);
         setTable("permissions");
     }
 
     //funcion para actualizar la variable user
-    const handleUpdateUser = async (idUser: number) => {
+    const handleUpdateUser = async (idUser: number, NewRowSelection: Record<number, boolean>) => {
         setLoading(true);
         const userInfoUseCase = new GetUserById(new UserApiService());
         try {
@@ -232,6 +201,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                 userInfoUseCase.execute(idUser)
                 .then((response) => {
                     setUser(response);
+                    setRowSelection(NewRowSelection);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -259,6 +229,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                 groupInfoUseCase.execute(idGroup)
                 .then((response) => {
                     setGroup(response);
+                    handlePermissionGroupSelection(response);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -275,6 +246,59 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
             setLoading(false);
             console.error("Error al iniciar sesión:", error);
         }
+    }
+
+    //funcion para actulizar seleeccion de filas de permisos de usuario
+    const handlePermissionUserSelection = (selectedUser: User) => {
+        // Obtener permisos del usuario
+        const userPermissionCodes = selectedUser.permissions?.map(p => p.codename) ?? [];
+
+        // Calcular qué rows seleccionar
+        const newSelection = permissions.reduce((acc, perm, index) => {
+            if (userPermissionCodes.includes(perm.codename)) {
+            acc[index] = true; 
+            }
+            return acc;
+        }, {} as Record<number, boolean>);
+
+        setRowSelection(newSelection);
+    }
+
+    //funcion para actualizar seleccion de filas de permisos de grupos
+    const handlePermissionGroupSelection = (selectedGroup: Group) => {
+        const groupPermissionCodes = selectedGroup.permissions?.map(p => p.codename) ?? [];
+
+        const newSelection = permissions.reduce((acc, perm, index) => {
+            if (groupPermissionCodes.includes(perm.codename)) {
+                acc[index] = true;
+            }
+            return acc;
+        }, {} as Record<number, boolean>);
+
+        setRowSelection(newSelection);
+    }
+
+    //funcion para actualizar seleccion deee filas de grupos de usuario
+    const handleGroupUserSelection = (selectedUser: User) => {
+        // Obtener grupos del usuario
+        const userGroupIds = selectedUser.groups?.map(g => g.id) ?? [];
+
+        // Calcular qué rows seleccionar
+        const newSelection = groups.reduce((acc, perm, index) => {
+            if (userGroupIds.includes(perm.id)) {
+                acc[index] = true;
+            }
+            return acc;
+        }, {} as Record<number, boolean>);
+
+        setRowSelection(newSelection);
+    }
+
+    const handleClearSelectedUser = () => {
+        setUser({} as User);
+        setGroup({} as Group);
+        setRowSelection({});
+        setTable("");
     }
 
     //funcion para manejar el acceso denegado
@@ -307,7 +331,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                     <Loading />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-3 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
+                <div className="flex items-center justify-between grid grid-cols-1 gap-3 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
                     <div className="flex items-center justify-between p-1">
                         <h2 className="font-bold">Permisos de usuario</h2>
                         <Button
@@ -318,58 +342,93 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                             Volver
                         </Button>
                     </div>
-                    <div className="flex w-5/6 justify-between p-4 border border-gray-200 rounded-lg mx-auto">
-                        { Object.keys(user).length > 0 ? 
-                        (
-                            <>
-                                {/* visualizar datos del usuario */}
-                                <div className="w-2/5 p-1">
-                                    <h3 className="text-lg font-semibold">{user.name} {user.lastName}</h3>
-                                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                                    <p className="text-sm text-muted-foreground">Usuario: {user.username}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Fecha de registro: {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : "Fecha no disponible"}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">Activo: {user.swActive}</p>
-                                    <p className="text-sm text-muted-foreground">Administrador: {user.swAdmin}</p>
-                                    <p className="text-sm text-muted-foreground">MFA Activo: {user.mfaActive ? "Sí" : "No"}</p>
-                                    <p className="text-sm text-muted-foreground">MFA Requerido: {user.mfaRequired ? "Sí" : "No"}</p>
-                                    <h4 className="text-md font-semibold mt-2">Grupos:</h4>
-                                    <ul className="list-disc list-inside space-y-1 space-x-1">
-                                        {user.groups.length > 0 ? (
-                                            user.groups.map((group) => (
-                                                <Badge key={group.id} variant="secondary">
-                                                    {group.name}
-                                                </Badge>
-                                            ))
-                                        ) : (
-                                            <li className="text-sm text-muted-foreground">No pertenece a ningún grupo.</li>
-                                        )}
-                                    </ul>
+                    { Object.keys(user).length > 0 ? (
+                    <div className="justify-between p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Datos del usuario */}
+                            <Card className="shadow-md border border-gray-200 relative">
+                                <div className="absolute top-2 right-4 cursor-pointer"  onClick={() => handleClearSelectedUser()}>
+                                    X
                                 </div>
-                                {/* visualizar permisos del usuario */}
-                                <div className="w-3/5">
-                                    <h4 className="text-md font-semibold">Permisos:</h4>
-                                    <ul className="list-disc list-inside space-y-1 space-x-1">
-                                        { user.permissions.length > 0 ? (
-                                            user.permissions.map((permission) => (
-                                                <Badge key={permission.id}  variant="secondary">{permission.name}</Badge>
-                                            ))
-                                        ) : (
-                                            <li className="text-sm text-muted-foreground">No tiene permisos asignados.</li>
-                                        )}
-                                    </ul>
+                            <CardHeader>
+                                <CardTitle className="text-xl font-bold">Datos del usuario</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 text-sm text-muted-foreground">
+                                <p>
+                                <span className="font-semibold text-foreground">Nombre:</span> {user.name} {user.lastName}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">Correo:</span> {user.email}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">Usuario:</span> {user.username}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">Fecha de registro:</span>{" "}
+                                {user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : "No disponible"}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">Activo:</span> {user.swActive ? "Sí" : "No"}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">Administrador:</span> {user.swAdmin ? "Sí" : "No"}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">MFA Activo:</span> {user.mfaActive ? "Sí" : "No"}
+                                </p>
+                                <p>
+                                <span className="font-semibold text-foreground">MFA Requerido:</span> {user.mfaRequired ? "Sí" : "No"}
+                                </p>
+                            </CardContent>
+                            </Card>
+
+                            {/* Permisos y Grupos */}
+                            <Card className="shadow-md border border-gray-200">
+                            <CardContent>
+                                <div className="mt-4">
+                                    <h4 className="font-semibold text-foreground mb-2">Permisos:</h4>
+                                    {user.permissions.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.permissions.map((permission) => (
+                                        <Badge key={permission.id} variant="secondary">{permission.name}</Badge>
+                                        ))}
+                                    </div>
+                                    ) : (
+                                    <p className="text-sm text-muted-foreground">No tiene permisos asignados.</p>
+                                    )}
                                 </div>
-                            </>
-                        ):
-                        Object.keys(group).length > 0 ? 
-                        (
-                            <>
-                                {/* visualizar datos del grupo */}
-                                <div className="w-2/5 p-1">
+
+
+                                <div className="mt-4">
+                                    <h4 className="font-semibold text-foreground mb-2">Grupos:</h4>
+                                    {user.groups.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                        {user.groups.map((group) => (
+                                            <Badge key={group.id} variant="secondary">{group.name}</Badge>
+                                        ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">No pertenece a ningún grupo.</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                    ): Object.keys(group).length > 0 ? (
+                    <div className="flex w-5/6 justify-between p-4">
+                        <div className="grid grid-cols-1 gap-6 w-full">
+                            {/* visualizar datos del grupo */}
+                            <Card className="w-2/5 shadow-md border border-gray-200 relative">
+                                <div className="absolute top-2 right-4 cursor-pointer"  onClick={() => handleClearSelectedUser()}>
+                                    X
+                                </div>
+                            <CardHeader>
+                                <CardTitle className="text-xl font-bold">
                                     <h3 className="text-lg font-semibold">{group.name}</h3>
-                                </div>
-                                {/* visualizar permisos del grupo */}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 text-sm text-muted-foreground">
                                 <div className="w-3/5">
                                     <h4 className="text-md font-semibold">Permisos:</h4>
                                     <ul className="list-disc list-inside space-y-1 space-x-1">
@@ -382,18 +441,20 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                                         )}
                                     </ul>
                                 </div>
-                            </>
-                        ):(
-                            <>
-                                <div className="grid grid-cols-3 gap-3 w-full">
-                                    <Button className="w-5/6 m-1" variant={table === "groups" ? "tertiary" : "outline"} onClick={() => setTable("groups")}>Grupos</Button>
-                                    <Button className="w-5/6 m-1" variant={table === "permissions" ? "tertiary" : "outline"} onClick={fetchPermissionsData}>Permisos</Button>
-                                    <Button className="w-5/6 m-1" variant={table === "users" ? "tertiary" : "outline"} onClick={() => setTable("users")}>Usuarios</Button>
-                                </div>
-                            </>
-                        )
-                        }
+                            </CardContent>
+                            </Card>
+                        </div>
                     </div>
+                    ):(
+                        <div className="flex w-5/6 justify-between p-4 border border-gray-200 rounded-lg mx-auto">
+                            <div className="grid grid-cols-3 gap-3 w-full">
+                                <Button className="w-5/6 m-1" variant={table === "groups" ? "tertiary" : "outline"} onClick={() => setTable("groups")}>Grupos</Button>
+                                <Button className="w-5/6 m-1" variant={table === "permissions" ? "tertiary" : "outline"} onClick={fetchPermissionsData}>Permisos</Button>
+                                <Button className="w-5/6 m-1" variant={table === "users" ? "tertiary" : "outline"} onClick={() => setTable("users")}>Usuarios</Button>
+                            </div>
+                        </div>
+                    )
+                    }
 
                     {table === "groups" && (
                         <TableGroups handleGroupSelect={handleGroupSelect} userSelected={user} newSelection={rowSelection} handleUpdateUser={handleUpdateUser} />
