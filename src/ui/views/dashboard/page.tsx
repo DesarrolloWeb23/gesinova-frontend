@@ -40,7 +40,7 @@ export default function Dashboard() {
     //funcion que simula la obtención de notificaciones
     const fetchNotifications = () => {
         // Simula una llamada a la API para obtener notificaciones
-        const notifications = Math.floor(Math.random() * 10); // Simula entre 0 y 9 notificaciones
+        const notifications = Math.floor(Math.random() * 0); // Simula entre 0 y 0 notificaciones
         setNotificationCount(notifications);
     }
 
