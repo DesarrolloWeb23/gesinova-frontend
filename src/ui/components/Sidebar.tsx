@@ -28,10 +28,9 @@ export function AppSidebar({
         <Sidebar {...props} className="animate-in fade-in slide-in-from-left-8 duration-350">
         <SidebarHeader>
             <VersionSwitcher
-            versions={["1.0.1", "1.1.0-alpha", "2.0.0-beta1"]}
+            versions={["1.0.1"]}
             defaultVersion={"1.0.1"}
             />
-            <SearchForm />
         </SidebarHeader>
         <SidebarContent>
             <SidebarGroup key="main">

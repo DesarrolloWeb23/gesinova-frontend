@@ -100,7 +100,6 @@ export default function Login() {
             }),
           {
             loading: getMessage("success", "access_loading"),
-            success: getMessage("success", "access_success") + userNameUpper,
             error: (error) => 
               error?.message
           }
