@@ -1,0 +1,16 @@
+name: Test SSH Connection
+
+on:
+  workflow_dispatch:   # Esto permite ejecutarlo manualmente
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: echo "Conexión SSH exitosa"

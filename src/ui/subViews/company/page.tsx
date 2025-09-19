@@ -1,22 +1,10 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/ui/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-} from "@/ui/components/ui/form"
-import { Switch } from "@/ui/components/ui/switch"
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
 } from "@/ui/components/ui/card"
 import { useState, useEffect } from "react"
@@ -24,12 +12,6 @@ import  Loading  from "@/ui/components/Loading"
 import { RiQrCodeFill } from "react-icons/ri";
 import * as React from "react"
 import Permitions from "@/ui/subViews/company/permitions";
-
-
-const FormSchema = z.object({
-    marketing_emails: z.boolean().default(false).optional(),
-    security_emails: z.boolean(),
-})
 
 //Listado de vistas secundarias
 const subViewsMap: Record<string, (props: { setView: (view: string) => void; }) => React.ReactNode> = {
@@ -71,13 +53,6 @@ export default function Company() {
             sessionStorage.setItem("company_SubView", subView);
         }
     }, [subView]); 
-
-    const form = useForm<z.infer<typeof FormSchema>>({
-            resolver: zodResolver(FormSchema),
-            defaultValues: {
-            security_emails: true,
-        },
-    })
 
     return (
         <>
