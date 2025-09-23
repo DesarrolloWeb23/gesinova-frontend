@@ -24,12 +24,10 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & { setSubView: (view: string) => void; }) {
     return (
         <Sidebar {...props} className="animate-in fade-in slide-in-from-left-8 duration-350">
-        <SidebarHeader>
             <VersionSwitcher
             versions={["1.0.1"]}
             defaultVersion={"1.0.1"}
             />
-        </SidebarHeader>
         <SidebarContent>
             <SidebarGroup key="main">
                 <SidebarGroupLabel>Menú</SidebarGroupLabel>
