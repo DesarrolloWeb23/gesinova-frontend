@@ -28,6 +28,7 @@ import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
 import { useView } from "@/ui/context/ViewContext";
+import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
   username: z.string().min(2, getMessage("errors", "zod_username_required")),
@@ -218,11 +219,7 @@ export default function Login() {
               </CardFooter>
           </Card>
         </div>
-        <div className="text-center text-xs">
-          <div><p>© 2025 Gesinova. Todos los derechos reservados.</p></div>
-          <div><a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a></div>
-          <div><a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a></div>
-        </div>
+        <Footer />
       </div>
     );
   }

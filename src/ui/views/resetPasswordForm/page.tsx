@@ -26,6 +26,7 @@ import { Input } from "@/ui/components/ui/input";
 import { TbArrowBackUp } from "react-icons/tb";
 import { MdOutgoingMail } from "react-icons/md";
 import { useView } from "@/ui/context/ViewContext";
+import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
     email: z.string({required_error: getMessage("errors", "zod_mail_required"),}).email(getMessage("errors", "zod_mail_required"))
@@ -78,49 +79,49 @@ export default function ResetPasswordForm() {
 
   return (
     
-    <div id="container" className="flex h-screen w-screen items-center justify-center">
+    <div id="container" className="h-dvh">
       <div id="top-image"></div>
-      <Card className="absolute w-[350px]">
-        <CardHeader  className="items-center justify-center">
-            <CardTitle className="font-bold text-2xl">{getMessage("ui", "reset_password_card_title")}</CardTitle>
-        </CardHeader>
-        <CardDescription className="text-center">
-          <p className="text-sm text-foreground">{getMessage("ui", "reset_password_card_subtitle")}</p>
-        </CardDescription>
-        <CardContent>
-          <div className="flex flex-col gap-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="flex h-9/10 w-screen items-center justify-center">
+        <Card className="absolute w-[350px]">
+          <CardHeader  className="items-center justify-center">
+              <CardTitle className="font-bold text-2xl">{getMessage("ui", "reset_password_card_title")}</CardTitle>
+          </CardHeader>
+          <CardDescription className="text-center">
+            <p className="text-sm text-foreground">{getMessage("ui", "reset_password_card_subtitle")}</p>
+          </CardDescription>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder={getMessage("ui", "reset_password_email_placeholder")} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder={getMessage("ui", "reset_password_email_placeholder")} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="flex items-center justify-between">
-                  <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
-                    <TbArrowBackUp />{getMessage("ui", "reset_password_back")}
-                  </Button>
-                  <Button type="button" disabled={isSubmitting} variant={"default"} size={"lg"}>
-                    <MdOutgoingMail />{isSubmitting === true ? getMessage("ui", "wait") : getMessage("ui", "reset_password_send_code")}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
-        <p>© 2025 Gesinova. Todos los derechos reservados.</p>
+                  <div className="flex items-center justify-between">
+                    <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
+                      <TbArrowBackUp />{getMessage("ui", "reset_password_back")}
+                    </Button>
+                    <Button type="button" disabled={isSubmitting} variant={"default"} size={"lg"}>
+                      <MdOutgoingMail />{isSubmitting === true ? getMessage("ui", "wait") : getMessage("ui", "reset_password_send_code")}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+      <Footer />
     </div>
   );
 }
