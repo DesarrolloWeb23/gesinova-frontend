@@ -10,17 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/70 dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80",
+          // "bg-secondary text-secondary-foreground flex flex-row justify-center items-center px-[38px] py-[15px] rounded-[16px] border border-transparent tracking-[1px] transition-all duration-150 ease-linear hover:bg-secondary/10 hover:border-secondary hover:text-secondary hover:-translate-y-[5px] hover:scale-105 active:bg-transparent active:border-[#1DC9A0] active:text-[#1DC9A0] active:translate-y-[5px] active:scale-95 disabled:bg-white/20 disabled:text-[#8E8E93] disabled:border-[#8E8E93]",
+          "bg-transparent items-center justify-center flex border-2 border-secondary  shadow-lg hover:bg-secondary  text-secondary hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-transparent items-center justify-center flex border-2 border-destructive  shadow-lg hover:bg-destructive  text-destructive hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-card dark:border-input dark:hover:bg-input/50",
+          "border bg-background shadow-md hover:bg-accent hover:text-accent-foreground dark:bg-card dark:border-input dark:hover:bg-input/50",
         secondary:
-          "relative w-[190px] m-2 text-white transition-all duration-500 ease-in-out cursor-pointer hover:-translate-y-5",
+          "bg-secondary text-secondary-foreground flex flex-row justify-center items-center px-[38px] py-[15px] rounded-[16px] border border-transparent tracking-[1px] transition-all duration-150 ease-linear hover:bg-secondary/10 hover:border-secondary hover:text-secondary hover:-translate-y-[5px] hover:scale-105 active:bg-transparent active:border-[#1DC9A0] active:text-[#1DC9A0] active:translate-y-[5px] active:scale-95 disabled:bg-white/20 disabled:text-[#8E8E93] disabled:border-[#8E8E93]",
         tertiary:
-          "bg-tertiary text-tertiary-foreground dark:bg-tertiary dark:text-tertiary-foreground hover:bg-tertiary/70 dark:hover:bg-tertiary/80",
+          "bg-tertiary items-center justify-center flex border-2 border-tertiary shadow-lg hover:bg-tertiary/70 text-foreground hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "border-2 border-accent hover:bg-accent shadow-lg hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

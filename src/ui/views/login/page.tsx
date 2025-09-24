@@ -207,7 +207,7 @@ export default function Login() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Button type="submit" disabled={isSubmitting} className="w-full">
+                      <Button type="submit" disabled={isSubmitting} className="w-full" variant={"secondary"}>
                         {isSubmitting === true ? getMessage("ui", "login_submiting") : getMessage("ui", "login_submit")}
                       </Button>
                     </div>

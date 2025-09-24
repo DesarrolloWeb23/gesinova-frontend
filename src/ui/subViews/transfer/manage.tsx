@@ -394,14 +394,14 @@ export default function Manage(){
                             <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code === 3 || isAnnouncing ? true : false} variant={'tertiary'}><HiMiniBellAlert />
                             {selectedTurn && selectedTurn.state?.code === 2 ? 'Atender' : 'Llamar'}
                             </Button>
-                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true} className='bg-green-500'><FaUserCheck />Finalizar</Button>
+                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true}><FaUserCheck />Finalizar</Button>
                         </div>
                         <div className="flex justify-center gap-4" >
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Button 
                                     onClick={() => handleGetAttentionServices()} 
-                                    className={`${selectedTurn ? '' : 'hidden'} bg-orange-500`} 
+                                    className={selectedTurn ? '' : 'hidden'}
                                     >
                                     <FaArrowsRotate /> Tranferir
                                     </Button>
@@ -537,7 +537,7 @@ export default function Manage(){
                                             <h1>{turn.classificationAttention.attentionType.description }</h1>
                                         </div>
                                         <div className='grid gap-2'>
-                                            <Button className={`text-black text-sm ${turn.state.code !== 1 ? 'hidden' : ''}`} onClick={() => handleSelectTurn(turn)} variant="outline">
+                                            <Button className={turn.state.code !== 1 ? 'hidden' : ''} onClick={() => handleSelectTurn(turn)} variant="outline">
                                                 <BsBackpack2Fill />
                                                 Seleccionar
                                             </Button>
