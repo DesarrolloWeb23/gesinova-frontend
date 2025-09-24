@@ -501,12 +501,12 @@ export default function Trigger() {
                     </div>
 
                     <div className="flex justify-center">
-                        <button
+                        <Button
                         onClick={() => handleReset()}
-                        className="px-5 py-2 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors shadow-sm"
+                        variant={'destructive'}
                         >
                         Cerrar
-                        </button>
+                        </Button>
                     </div>
                     </div>
                 </div>

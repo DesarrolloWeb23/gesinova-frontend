@@ -82,12 +82,13 @@ export default function ResetPasswordForm() {
     <div id="container" className="h-dvh">
       <div id="top-image"></div>
       <div className="flex h-9/10 w-screen items-center justify-center">
-        <Card className="absolute w-[350px]">
+        <Card className="absolute">
           <CardHeader  className="items-center justify-center">
               <CardTitle className="font-bold text-2xl">{getMessage("ui", "reset_password_card_title")}</CardTitle>
           </CardHeader>
-          <CardDescription className="text-center">
-            <p className="text-sm text-foreground">{getMessage("ui", "reset_password_card_subtitle")}</p>
+          <CardDescription className="text-center px-6 mb-4">
+            <p className="text-foreground">{getMessage("ui", "reset_password_card_text1")}</p>
+            <p className="text-foreground">{getMessage("ui", "reset_password_card_text2")}</p>
           </CardDescription>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -98,9 +99,9 @@ export default function ResetPasswordForm() {
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex items-center justify-center text-center">
                         <FormControl>
-                          <Input placeholder={getMessage("ui", "reset_password_email_placeholder")} {...field} />
+                          <Input className="w-96" placeholder={getMessage("ui", "reset_password_email_placeholder")} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
