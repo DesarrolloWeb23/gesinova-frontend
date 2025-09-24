@@ -29,7 +29,7 @@ import { useView } from "@/ui/context/ViewContext";
 import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
-    email: z.string({required_error: getMessage("errors", "zod_mail_required"),}).email(getMessage("errors", "zod_mail_required"))
+    email: z.string().email(getMessage("errors", "zod_mail_required"))
 })
 
 export default function ResetPasswordForm() {
@@ -37,12 +37,12 @@ export default function ResetPasswordForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setView } = useView();
   
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
+    const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        email: "",
+      }, 
+    })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (isSubmitting) return;
@@ -108,10 +108,10 @@ export default function ResetPasswordForm() {
                   />
 
                   <div className="flex items-center justify-between">
-                    <Button onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
+                    <Button type="button" onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
                       <TbArrowBackUp />{getMessage("ui", "reset_password_back")}
                     </Button>
-                    <Button type="button" disabled={isSubmitting} variant={"default"} size={"lg"}>
+                    <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
                       <MdOutgoingMail />{isSubmitting === true ? getMessage("ui", "wait") : getMessage("ui", "reset_password_send_code")}
                     </Button>
                   </div>

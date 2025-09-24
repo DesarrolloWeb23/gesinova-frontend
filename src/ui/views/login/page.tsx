@@ -31,7 +31,7 @@ import { useView } from "@/ui/context/ViewContext";
 import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
-  username: z.string().min(2, getMessage("errors", "zod_username_required")),
+  username: z.string().min(2, getMessage("errors", "zod_username_required")).regex(/^[A-Za-z]+$/, getMessage("errors", "zod_especial_characters")),
   password: z.string().min(4, getMessage("errors", "zod_password_required"))
 })
 

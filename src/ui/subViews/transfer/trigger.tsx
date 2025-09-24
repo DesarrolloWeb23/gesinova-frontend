@@ -164,6 +164,16 @@ export default function Trigger() {
                 return;
             }
 
+            //validar que los campos no contengan caracteres especiales ni numeros, ni espacios
+            const nameRegex = /^[A-Za-z]+$/;
+            if (!nameRegex.test(affiliate.firstName) || 
+                !nameRegex.test(affiliate.middleName) || 
+                !nameRegex.test(affiliate.firstLastName) || 
+                !nameRegex.test(affiliate.secondLastName) ) {
+                toast.error("Los nombres solo deben contener letras sin espacios ni caracteres especiales");
+                return;
+            }
+
             affiliateData = {
                 firstName: affiliate.firstName,
                 middleName: affiliate.middleName ? affiliate.middleName : "",
