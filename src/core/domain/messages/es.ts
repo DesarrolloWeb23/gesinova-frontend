@@ -9,6 +9,7 @@ export const messages = {
         zod_code_required: "El código de verificación es obligatorio.",
         zod_mail_required: "El correo electrónico es invalido.",
         zod_especial_characters: "Solo se permiten letras sin espacios ni caracteres especiales.",
+        zod_priority_required: "La prioridad es obligatoria.",
     },
     success: {
         access_success: "Acceso exitoso ",
