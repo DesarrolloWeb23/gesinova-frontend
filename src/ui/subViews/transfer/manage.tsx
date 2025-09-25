@@ -487,7 +487,7 @@ export default function Manage(){
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
                         <div className="text-center font-bold">
-                            <h1 className="text-2xl">Datos del llamado</h1>
+                            DATOS DEL LLAMADO
                         </div>
                         <div className="flex justify-center gap-4">
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
