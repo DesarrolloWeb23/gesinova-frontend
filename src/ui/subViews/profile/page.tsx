@@ -281,7 +281,7 @@ export default function Profile() {
                     <Loading />
                 </div>
             ) : (
-                <div className="grid grid-cols-3 gap-4 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
+                <div className="grid grid-cols-3 gap-4 text-foreground animate-in fade-in slide-in-from-top-8 duration-900">
                     <div className="col-span-2 max-sm:col-span-3 justify-between p-4">
                         {/* Avatar */}
                         <div className="flex flex-col items-center">
@@ -296,8 +296,8 @@ export default function Profile() {
                             </div>
 
                             {/* Nombre usuario */}
-                            <h2 className="mt-4 font-bold text-gray-800">{user?.username}</h2>
-                            <p className="text-gray-500">{user?.name + " " + user?.lastName}</p>
+                            <h2 className="mt-4 font-bold">{user?.username}</h2>
+                            <p>{user?.name + " " + user?.lastName}</p>
                         </div>
 
                         {/* Separador */}
@@ -305,9 +305,9 @@ export default function Profile() {
 
                         {/* Información extra */}
                         <div className="space-y-2 text-center">
-                            <p className="text-gray-500">{user?.email}</p>
+                            <p>{user?.email}</p>
                             <div>
-                                <span className="font-semibold text-gray-700">Grupo:</span>
+                                <span className="font-semibold">Grupo:</span>
                                 <ul className="list-disc list-inside space-y-1 space-x-1">
                                 { user?.groups[0] ? (
                                     user.groups.map((group) => (
@@ -319,7 +319,7 @@ export default function Profile() {
                                 </ul>
                             </div>
                             <div>
-                                <span className="font-semibold text-gray-700">Permisos:</span>
+                                <span className="font-semibold">Permisos:</span>
                                 <ul className="list-disc list-inside space-y-1 space-x-1">
                                 { user?.permissions[0] ? (
                                     user.permissions.map((permission) => (

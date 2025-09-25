@@ -486,7 +486,7 @@ export default function Manage(){
             <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
-                        <div className="text-center font-bold">
+                        <div className="text-center font-bold text-foreground">
                             DATOS DEL LLAMADO
                         </div>
                         <div className="flex justify-center gap-4">
@@ -509,7 +509,7 @@ export default function Manage(){
                             <Loading />
                         ): 
                             <ScrollArea className="h-90 border border-gray-300 p-4 rounded-lg">
-                                <div className='grid grid-cols-4 gap-2'>
+                                <div className='grid grid-cols-4 gap-2 text-foreground'>
                                     <div className='grid gap-2'>
                                         <h1><b>Codigo</b></h1>
                                     </div>

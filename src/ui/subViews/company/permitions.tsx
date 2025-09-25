@@ -331,7 +331,7 @@ export default function Permitions({ setView }: { setView: (view: string) => voi
                     <Loading />
                 </div>
             ) : (
-                <div className="flex items-center justify-between grid grid-cols-1 gap-3 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
+                <div className="flex items-center justify-between grid grid-cols-1 gap-3 text-foreground animate-in fade-in slide-in-from-top-8 duration-900">
                     <div className="flex items-center justify-between p-1">
                         <h2 className="font-bold">Permisos de usuario</h2>
                         <Button

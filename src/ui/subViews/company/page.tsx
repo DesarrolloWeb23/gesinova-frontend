@@ -60,8 +60,8 @@ export default function Company() {
             <>
                 {loading ? (
                     <div className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center animate-in fade-in slide-in-from-top-8 duration-900">
-                        <div className="w-full m-2 ">
-                            <Card className="w-full">
+                        <div className="w-full">
+                            <Card className="rounded-2xl shadow-lg border border-gray-100 m-4">
                                 <CardHeader>
                                     <div className="flex items-center justify-between">
                                         <h2 className="font-bold">Mi Empresa</h2>

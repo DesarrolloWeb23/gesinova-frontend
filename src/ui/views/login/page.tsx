@@ -29,6 +29,7 @@ import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
 import { useView } from "@/ui/context/ViewContext";
 import { Footer } from "@/ui/components/Footer";
+import { Label } from "@/ui/components/ui/label";
 
 const formSchema = z.object({
   username: z.string().min(2, getMessage("errors", "zod_username_required")).regex(/^[A-Za-z]+$/, getMessage("errors", "zod_especial_characters")),
@@ -143,7 +144,7 @@ export default function Login() {
         <div className=" flex h-9/10 w-screen items-center justify-center">
           <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
-                <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
+                <CardTitle className="font-bold text-2xl text-foreground">{getMessage("ui", "login_welcome")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -192,15 +193,15 @@ export default function Login() {
                           onCheckedChange={handleRememberMeChange} 
                         />
                         <div className="grid gap-1.5 leading-none">
-                          <label
+                          <Label
                             htmlFor="remember"
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
                             {getMessage("ui", "login_remember_me")}
-                          </label>
+                          </Label>
                         </div>
                       </div>
-                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm font-medium hover:cursor-pointer">
+                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm font-medium hover:cursor-pointer text-foreground">
                         {getMessage("ui", "login_forgot_password")}
                       </a>
                       

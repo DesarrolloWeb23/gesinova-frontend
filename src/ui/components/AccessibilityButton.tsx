@@ -48,7 +48,6 @@ export function AccessibilityButton() {
             <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="rounded-xl p-2 shadow-lg backdrop-blur-md bg-white/90 dark:bg-gray-900/80"
             >
             <DropdownMenuSub>
                 <DropdownMenuSubTrigger>{getMessage("ui", "accessibility_button")}</DropdownMenuSubTrigger>

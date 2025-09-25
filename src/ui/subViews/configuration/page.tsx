@@ -29,7 +29,7 @@ export default function Configuration() {
     };
 
     return (
-        <div className="grid grid-cols-1 gap-4 text-primary-foreground animate-in fade-in slide-in-from-top-8 duration-900">
+        <div className="grid grid-cols-1 gap-4 text-foreground animate-in fade-in slide-in-from-top-8 duration-900">
             <div className="flex flex-col gap-4 p-4">
                 <h1 className="font-bold">Configuración de aplicativo</h1>
                 <Separator className="my-4" />
