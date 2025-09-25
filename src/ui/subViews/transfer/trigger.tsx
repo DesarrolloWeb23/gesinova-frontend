@@ -455,8 +455,8 @@ export default function Trigger() {
                         <>
                             <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="grid gap-3">
-                                    <Label htmlFor="tabs-demo-new">Primer nombre</Label>
-                                    <Input id="tabs-demo-new" placeholder="Primer nombre" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
+                                    <Label htmlFor="tabs-demo-new">Nombre completo</Label>
+                                    <Input id="tabs-demo-new" placeholder="Nombre completo" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-new">Departamento</Label>
