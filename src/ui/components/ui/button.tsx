@@ -17,7 +17,7 @@ const buttonVariants = cva(
         outline:
           "border bg-background shadow-md hover:bg-accent hover:text-accent-foreground dark:bg-card dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground flex flex-row justify-center items-center px-[38px] py-[15px] rounded-[16px] border border-transparent tracking-[1px] transition-all duration-150 ease-linear hover:bg-secondary/10 hover:border-secondary hover:text-secondary hover:-translate-y-[5px] hover:scale-105 active:bg-transparent active:border-[#1DC9A0] active:text-[#1DC9A0] active:translate-y-[5px] active:scale-95 disabled:bg-white/20 disabled:text-[#8E8E93] disabled:border-[#8E8E93]",
+          "bg-secondary text-secondary-foreground flex flex-row justify-center items-center px-[38px] py-[15px] rounded-[16px] border border-transparent tracking-[1px] transition-all duration-150 ease-linear hover:bg-secondary/10 hover:border-secondary hover:text-secondary hover:-translate-y-[5px] hover:scale-105 disabled:bg-white/20 disabled:text-muted-foreground disabled:border-muted",
         tertiary:
           "bg-tertiary items-center justify-center flex border-2 border-tertiary shadow-lg hover:bg-tertiary/70 text-foreground hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
         ghost:
