@@ -60,7 +60,7 @@ export class LogoutUser {
             if (error.type === "unknown_api_error") {
                 throw {
                     status: "UNKNOWN_API_ERROR",
-                    message: error.message,
+                    message: "La estructura de error de la API no es válida.",
                 };
             }
             throw {
