@@ -368,7 +368,7 @@ export default function Manage(){
                                         <Input id="tabs-demo-new" placeholder="Tipo documento" defaultValue={selectedTurn?.identificationType} readOnly/>
                                     </div>
                                     <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">N° Documento</Label>
+                                        <Label htmlFor="tabs-demo-new">Número de Documento</Label>
                                         <Input id="tabs-demo-new" placeholder="Numero" defaultValue={selectedTurn?.identificationNumber} readOnly/>
                                     </div>
                                 </div>
