@@ -18,10 +18,10 @@ export default function Dashboard() {
                 <Posts />
             </div>
             <div className="grid sm:grid-cols-2 gap-2 w-full">
-                <Card className="bg-white rounded-2xl shadow-lg border border-gray-100 w-full">
+                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center mb-4 relative">
-                            <h2 className="text-lg font-bold">Más Recientes</h2>
+                            <h2 className="text-lg font-bold text-foreground">Más Recientes</h2>
                             <GoTo message='Todas las configuraciones' link=''/>
                         </div>
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
                                     <BsCSquareFill />
                                     </button>
                                 </div>
-                                <span className="text-sm font-medium text-gray-700">{app}</span>
+                                <span className="text-sm font-medium text-foreground">{app}</span>
                             </div>
                         ))}
                         </div>
@@ -46,7 +46,7 @@ export default function Dashboard() {
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center mb-4 relative">
-                            <h2 className="text-lg font-bold">Más Aplicativos</h2>
+                            <h2 className="text-lg font-bold text-foreground">Más Aplicativos</h2>
                             <GoTo message='Todas las configuraciones' link='' />
                         </div>
 
@@ -59,7 +59,7 @@ export default function Dashboard() {
                                     <GrCloudlinux />
                                     </button>
                                 </a>
-                                <span className="text-sm font-medium text-gray-700">Centro de ayuda</span>
+                                <span className="text-sm font-medium text-foreground">Centro de ayuda</span>
                             </div>
                             <div  className="flex flex-col items-center gap-2">
                                 <a className="relative" href="https://eps.gemanet.pijaossalud.com/gemanet/">
@@ -69,7 +69,7 @@ export default function Dashboard() {
                                     <GrCloudlinux />
                                     </button>
                                 </a>
-                                <span className="text-sm font-medium text-gray-700">Portal administrativo Gema Net EPS</span>
+                                <span className="text-sm font-medium text-foreground">Portal administrativo Gema Net EPS</span>
                             </div>
                             <div  className="flex flex-col items-center gap-2">
                                 <a className="relative" href="https://gemanet.pijaossalud.com/gemanet/">
@@ -79,7 +79,7 @@ export default function Dashboard() {
                                     <GrCloudlinux />
                                     </button>
                                 </a>
-                                <span className="text-sm font-medium text-gray-700">Portal administrativo Gema Net IPS</span>
+                                <span className="text-sm font-medium text-foreground">Portal administrativo Gema Net IPS</span>
                             </div>
                         </div>
                     </CardContent>
