@@ -23,12 +23,12 @@ import UnderConstruction from "@/ui/components/UnderConstruction";
 import SocialIcons from "@/ui/components/SocialIcons";
 
 const subViewsMap: Record<string, React.ComponentType> = {
-    dashboard: SubDashboard,
-    turnos: Transfer,
-    mi_perfil: Profile,
-    configuracion: Configuracion,
-    mi_empresa: Company,
-    soportes: Support,
+    Dashboard: SubDashboard,
+    Turnos: Transfer,
+    MiPerfil: Profile,
+    Configuracion: Configuracion,
+    MiEmpresa: Company,
+    Soportes: Support,
     // aqui se agregan las demás vistas
 };
 
@@ -83,7 +83,7 @@ export default function Dashboard() {
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink onClick={() => setSubView("dashboard")} className="hover:cursor-pointer">
+                                <BreadcrumbLink onClick={() => setSubView("Dashboard")} className="hover:cursor-pointer">
                                     Dashboard
                                 </BreadcrumbLink>
                             </BreadcrumbItem>

@@ -33,7 +33,7 @@ export function AppSidebar({
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem key="turnos">
-                            <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("turnos")}> 
+                            <SidebarMenuButton asChild isActive={false} onClick={() => setSubView("Turnos")}> 
                             <a ><TbTransfer />Turnos</a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

@@ -86,7 +86,7 @@ export default function Profile() {
                         return;
                     }
 
-                    setSubView("dashboard");
+                    setSubView("Dashboard");
                 }),
                 {
                     loading: getMessage("success", "loading"),
@@ -269,7 +269,7 @@ export default function Profile() {
             <p className="mt-2 text-muted-foreground">
                 No tienes permisos para acceder a esta sección.
             </p>
-            <Button className="mt-4" onClick={() => setSubView("dashboard")}>Volver</Button>
+            <Button className="mt-4" onClick={() => setSubView("Dashboard")}>Volver</Button>
             </div>
         );
     }
