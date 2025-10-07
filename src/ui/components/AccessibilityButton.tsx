@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader,
 import { BiMessageError } from "react-icons/bi";
 import Support from "@/ui/subViews/support/page";
 import { useFontSize } from "../context/FontSizeContext";
+import HoverSpeechToggle from "./HoverSpeechToggle";
 
 export function AccessibilityButton() {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -63,7 +64,14 @@ export function AccessibilityButton() {
             <DropdownMenuItem onClick={toggleFontSize}>
                 {fontSizeLabels[fontSize]}
             </DropdownMenuItem>
+            <DropdownMenuItem >
+                <HoverSpeechToggle />
+            </DropdownMenuItem>
             </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+            <HoverSpeechToggle />
         </DropdownMenu>
 
         <DropdownMenu>
