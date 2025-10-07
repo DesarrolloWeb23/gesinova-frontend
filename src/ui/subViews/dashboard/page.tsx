@@ -47,7 +47,7 @@ export default function Dashboard() {
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center mb-4 relative">
                             <h2 className="text-lg font-bold text-foreground">Más Aplicativos</h2>
-                            <GoTo message='Todas las configuraciones' link='' />
+                            <GoTo message='Todas los productos' link='' />
                         </div>
 
                         <div className="flex justify-between items-center p-4">

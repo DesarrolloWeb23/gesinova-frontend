@@ -31,17 +31,14 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/ui/components/ui/dropdown-menu"
-import { toast } from 'sonner'
-import { getMessage } from "@/core/domain/messages";
 import  Loading  from "@/ui/components/Loading"
-import { GetTurnsByState } from "@/core/domain/use-cases/GetTurnsByState"
-import { TransferService } from "@/core/infrastructure/api/services/TransferService"
-import { GetTurns } from "@/core/domain/use-cases/GetTurns"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Turns } from "@/core/domain/models/Turns"
+import { Input } from "./ui/input"
 
 type Props = {
     handleTurnSelect: (turn: Turns) => void,
+    turnsReceived: Turns[]
+    columnsTurnsReceived: ColumnDef<Turns>[]
 }
 
 export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef<Turns>[] => [
@@ -127,18 +124,17 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
     },
 ]
 
-export default function TableTurns( { handleTurnSelect}: Props){
+export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTurnsReceived}: Props){
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const [accessDenied, setAccessDenied] = useState(false);
     const [turns, setTurns] = useState<Turns[]>([]);
 
     const tableTurns = useReactTable({
         data: turns,
-        columns: columnsTurns(handleTurnSelect),
+        columns: columnsTurnsReceived ? columnsTurnsReceived : columnsTurns(handleTurnSelect),
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
@@ -155,85 +151,10 @@ export default function TableTurns( { handleTurnSelect}: Props){
         },
     })
 
-    //funcion para obtener los turnos
-    async function fetchTurns() {
-        setIsLoading(true);
-        const getTurnsUseCase = new GetTurns(new TransferService());
-        try {
-            await toast.promise( 
-                getTurnsUseCase.execute()
-                .then((response) => {
-                    setTurns(response)
-                    setIsLoading(false);
-                })
-                .catch ((error) => {
-                    setIsLoading(false);
-                    throw error;
-                }),
-                {
-                    loading: getMessage("success", "loading"),
-                    error: (error) => 
-                        error?.message
-                }
-            );
-        } catch (error) {
-            setIsLoading(false);
-            console.error("Error al consultar el afiliado:", error);
-        }
-    }
-
-    //funcion para obtener los turnos por estado
-    async function fetchTurnsByState(state: number) {
-        setIsLoading(true);
-        const getTurnsByStateUseCase = new GetTurnsByState(new TransferService());
-        try {
-            await toast.promise(
-                getTurnsByStateUseCase.execute(state)
-                    .then((response) => {
-                        setTurns(response)
-                        setIsLoading(false);
-                    })
-                    .catch((error) => {
-                        setIsLoading(false);
-                        // Manejo específico de error de permisos
-                        if (error?.status === 'ACCESS_DENIED') {
-                            handleAccessDenied();
-                            return;
-                        }
-                        throw error;
-                    }),
-                {
-                    loading: getMessage("success", "loading"),
-                    error: (error) =>
-                        error?.message
-                }
-            );
-        } catch (error) {
-            setIsLoading(false);
-            console.error("Error al consultar los turnos por estado:", error);
-        }
-    }
-
-    //funcion para manejar el acceso denegado
-    const handleAccessDenied = () => {
-        setAccessDenied(true);
-    }
-
     useEffect(() => {
-        fetchTurns();
+        setTurns(turnsReceived)
+        setIsLoading(false);
     }, []); 
-
-    if (accessDenied) {
-        return (
-            <div className="flex flex-col items-center justify-center p-4">
-                <h2 className="text-xl font-semibold text-red-600">Acceso Denegado</h2>
-                <p className="mt-2 text-muted-foreground">
-                    No tienes permisos para acceder a esta sección.
-                </p>
-                <Button className="mt-4">Volver</Button>
-            </div>
-        );
-    }
 
     return (
         <>
@@ -243,20 +164,15 @@ export default function TableTurns( { handleTurnSelect}: Props){
                 </div>
             ) : (
                 <div className="w-full p-4">
-                    <div className="flex items-center py-4 space-x-2">
-                        <Select onValueChange={(value) => {fetchTurnsByState(Number(value))}}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar estado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="1">Pendiente</SelectItem>
-                                    <SelectItem value="2">Llamado</SelectItem>
-                                    <SelectItem value="3">En atencion</SelectItem>
-                                    <SelectItem value="4">Finalizado</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                    <div className="flex items-center py-4">
+                        <Input
+                            placeholder="Filtrar turno..."
+                            value={(tableTurns.getColumn("turnCode")?.getFilterValue() as string) ?? ""}
+                            onChange={(event) =>
+                                tableTurns.getColumn("turnCode")?.setFilterValue(event.target.value)
+                            }
+                            className="max-w-sm"
+                        />
                     </div>
                     <div className="rounded-md border">
                         <Table>

@@ -52,7 +52,7 @@ export default function Dashboard() {
         if (savedView) {
             setSubView(savedView);
         } else {
-            setSubView("dashboard");
+            setSubView("Dashboard");
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
