@@ -64,9 +64,6 @@ export function AccessibilityButton() {
             <DropdownMenuItem onClick={toggleFontSize}>
                 {fontSizeLabels[fontSize]}
             </DropdownMenuItem>
-            <DropdownMenuItem >
-                <HoverSpeechToggle />
-            </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
 
