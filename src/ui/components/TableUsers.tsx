@@ -71,7 +71,7 @@ type CompUserProps = {
 };
 
 const formSchema = z.object({
-    userName: z.string().min(2, getMessage("errors", "zod_username_required")),
+    userName: z.string().min(2, getMessage("errors", "zod_username_required")).regex(/^[A-Za-z]+$/, getMessage("errors", "zod_especial_characters")),
     security_emails: z.boolean(),
 })
 

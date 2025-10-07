@@ -15,6 +15,7 @@ import { RiQrCodeFill } from "react-icons/ri";
 import { IoMailOutline } from "react-icons/io5";
 import { useAuth } from "@/ui/context/AuthContext";
 import { useView } from "@/ui/context/ViewContext";
+import { Footer } from "@/ui/components/Footer";
 
 
 export default function ActivateMfa() {
@@ -89,24 +90,24 @@ export default function ActivateMfa() {
   }
 
   return (
-    <div id="container" className="flex h-screen w-screen items-center justify-center">
+    <div id="container" className="h-dvh">
       <div id="top-image"></div>
-      <Card className="absolute w-[350px]">
-          <CardHeader  className="items-center justify-center">
-              <Button onClick={() => setView("login")} className="w-10" variant={"tertiary"}><TbArrowBackUp /></Button>
-              <CardTitle className="font-bold text-2xl">{getMessage("ui","mfa_activation_card_title")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</p>
-              <div className="flex justify-between mt-4">
-                  <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
-                  <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
-              </div>
-            </CardContent>
-      </Card>
-      <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
-        <p>© 2025 Gesinova. Todos los derechos reservados.</p>
+      <div className="flex h-9/10 w-screen items-center justify-center">
+        <Card className="absolute w-[350px]">
+            <CardHeader  className="items-center justify-center">
+                <Button onClick={() => setView("login")} className="w-10" variant={"tertiary"}><TbArrowBackUp /></Button>
+                <CardTitle className="font-bold text-2xl">{getMessage("ui","mfa_activation_card_title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-foreground">{getMessage("ui","mfa_activation_card_subtitle")}</p>
+                <div className="flex justify-between mt-4">
+                    <Button onClick={() => activate(1)} variant={"default"}><RiQrCodeFill />QR</Button>
+                    <Button onClick={() => activate(2)} variant={"default"}><IoMailOutline />Codigo</Button>
+                </div>
+              </CardContent>
+        </Card>
       </div>
+      <Footer />
     </div>
   );
 }

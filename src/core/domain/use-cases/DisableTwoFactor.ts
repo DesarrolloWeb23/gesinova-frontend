@@ -41,7 +41,7 @@ export class DisableTwoFactor {
             if (error.type === "validation") {
                 throw {
                     status: "VALIDATION_ERROR",
-                    message: error.message,
+                    message: "La estructura de datos recibida no es válida.",
                 };
             }
             if (error.type === "unknown_api_error") {

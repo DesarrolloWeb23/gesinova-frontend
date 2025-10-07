@@ -26,6 +26,7 @@ import { CodeInput } from "@/ui/components/CodeInput";
 import { TbArrowBackUp } from "react-icons/tb";
 import { BsCheck2Circle } from "react-icons/bs";
 import { useView } from "@/ui/context/ViewContext";
+import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
   code: z.string().min(6, getMessage("errors", "zod_code_required")).max(6, getMessage("errors", "zod_code_required"))
@@ -84,52 +85,52 @@ export default function ValidateMfa() {
 
   return (
     
-    <div id="container" className="flex h-screen w-screen items-center justify-center">
+    <div id="container" className="h-dvh">
       <div id="top-image"></div>
-      <Card className="absolute w-[350px]">
-        <CardHeader  className="items-center justify-center">
-          <CardTitle className="font-bold text-2xl">{getMessage("ui", "mfa_validation_card_title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-foreground">{getMessage("ui", "mfa_validation_card_subtitle")}</p>
-          <div className="flex flex-col gap-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="flex h-9/10 w-screen items-center justify-center">
+        <Card className="absolute w-[350px]">
+          <CardHeader  className="items-center justify-center">
+            <CardTitle className="font-bold text-2xl">{getMessage("ui", "mfa_validation_card_title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-foreground">{getMessage("ui", "mfa_validation_card_subtitle")}</p>
+            <div className="flex flex-col gap-4">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormControl>
-                        <CodeInput
-                          value={field.value}
-                          onChange={field.onChange}
-                          hasError={!!fieldState.error}
-                          resetTrigger={errorTrigger}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormControl>
+                          <CodeInput
+                            value={field.value}
+                            onChange={field.onChange}
+                            hasError={!!fieldState.error}
+                            resetTrigger={errorTrigger}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="flex items-center justify-between">
-                  <Button type="button" onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
-                    <TbArrowBackUp />{getMessage("ui", "mfa_validation_back")}
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
-                    <BsCheck2Circle />{isSubmitting === true ? getMessage("ui", "mfa_validation_wait") : getMessage("ui", "mfa_validation_send_code")}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center text-sm">
-        <p>© 2025 Gesinova. Todos los derechos reservados.</p>
+                  <div className="flex items-center justify-between">
+                    <Button type="button" onClick={() => setView("login")} variant={"tertiary"} size={"lg"}>
+                      <TbArrowBackUp />{getMessage("ui", "mfa_validation_back")}
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting} variant={"default"} size={"lg"}>
+                      <BsCheck2Circle />{isSubmitting === true ? getMessage("ui", "mfa_validation_wait") : getMessage("ui", "mfa_validation_send_code")}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -10,6 +10,7 @@ type ViewContextType = {
     subView: string;
     setView: (v: string) => void;
     setSubView: (v: string) => void;
+    recentSubViews: string[];
 };
 
 const ViewContext = createContext<ViewContextType | undefined>(undefined);
@@ -18,6 +19,7 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
     const [view, setView] = useState("");
     const [subView, setSubView] = useState("");
     const { logout } = useAuth();
+    const [recentSubViews, setRecentSubViews] = useState<string[]>([]);
 
     useEffect(() => {
                                             
@@ -56,13 +58,29 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
     []);
 
     useEffect(() => {
-        if (subView) {
-            sessionStorage.setItem("SubView", subView);
+        // si está vacío o es "dashboard", no guardamos nada
+        if (!subView || subView === "dashboard") return;
+
+        // Guardar en sessionStorage
+        sessionStorage.setItem("SubView", subView);
+
+        // Guardar en el historial (máximo 5, sin duplicados)
+        setRecentSubViews((prev) => {
+            const updated = [subView, ...prev.filter((v) => v !== subView)].slice(0, 5);
+            localStorage.setItem("recentSubViews", JSON.stringify(updated));
+            return updated;
+        });
+    }, [subView]);
+
+    useEffect(() => {
+        const savedRecents = localStorage.getItem("recentSubViews");
+        if (savedRecents) {
+            setRecentSubViews(JSON.parse(savedRecents));
         }
-    }, [subView]); 
+    }, []);
 
     return (
-        <ViewContext.Provider value={{ view, subView, setView, setSubView }}>
+        <ViewContext.Provider value={{ view, subView, setView, setSubView, recentSubViews }}>
         {children}
         </ViewContext.Provider>
     );

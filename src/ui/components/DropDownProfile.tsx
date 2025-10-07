@@ -62,21 +62,21 @@ export function DropdownProfile({setSubView} : {setSubView: (view: string) => vo
             <DropdownMenuContent className="w-56" align="start">
                 <DropdownMenuLabel>Mi Perfil</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => setSubView("mi_perfil")}>
+                <DropdownMenuItem onClick={() => setSubView("MiPerfil")}>
                     Gestion de perfil
                     <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSubView("configuracion")}>
+                <DropdownMenuItem onClick={() => setSubView("Configuracion")}>
                     Configuracion
                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => setSubView("mi_empresa")}>Mi empresa</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSubView("MiEmpresa")}>Mi empresa</DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSubView("soportes")}>Soporte</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSubView("Soportes")}>Soporte</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem  onClick={sendLogout}>
                     Cerrar sesión

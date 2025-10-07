@@ -16,8 +16,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader,
 import { toast } from 'sonner';
 import { TransferService } from '@/core/infrastructure/api/services/TransferService';
 import { getMessage } from '@/core/domain/messages';
-import { ScrollArea } from '@/ui/components/ui/scroll-area';
-import { Separator } from '@/ui/components/ui/separator';
 import { Turn } from '@/core/domain/models/Turn';
 import { AdvanceTurnState } from '@/core/domain/use-cases/AdvanceTurnState';
 import { CancelTurn } from '@/core/domain/use-cases/CancelTurn';
@@ -38,10 +36,48 @@ import { AlertDialog, AlertDialogAction,
     AlertDialogHeader, AlertDialogTitle, 
     AlertDialogTrigger } from '@/ui/components/ui/alert-dialog';
 import { GetTurns } from '@/core/domain/use-cases/GetTurns';
+import TableTurns from '@/ui/components/TableTurns';
+import {
+    ColumnDef,
+} from "@tanstack/react-table"
 
 const formSchema = z.object({
     attentionService: z.string().min(1).max(100)
 });
+export const columnsTurns = (handleSelectTurn: (turn: Turns) => void): ColumnDef<Turns>[] => [
+    {
+        accessorKey: "turnCode",
+        header: "Turno",
+        cell: ({ row }) => <div className="uppercase">{row.getValue("turnCode")}</div>,
+    },
+    {
+        accessorFn: (row) => row.state?.label, 
+        id: "state",
+        header: "Estado",
+        cell: ({ row }) => <div className="uppercase">{row.original.state?.label}</div>,
+    },
+    {
+        accessorFn: (row) => row.classificationAttention.attentionType.description, 
+        id: "attentionType",
+        header: "Prioridad",
+        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention.attentionType.description}</div>,
+    },
+    {
+        id: "actions",
+        enableHiding: false,
+        header: "Acciones",
+        cell: ({ row }) => {
+            const turn = row.original
+            return (
+                <Button className={turn.state.code !== 1 ? 'hidden' : ''} onClick={() => handleSelectTurn(turn)} variant="outline">
+                    <BsBackpack2Fill />
+                    Seleccionar
+                </Button>
+            )
+        }
+    }
+]
+
 
 export default function Manage(){
     const [turns, setTurns] = useState<Turns[]>([]);
@@ -368,7 +404,7 @@ export default function Manage(){
                                         <Input id="tabs-demo-new" placeholder="Tipo documento" defaultValue={selectedTurn?.identificationType} readOnly/>
                                     </div>
                                     <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">N° Documento</Label>
+                                        <Label htmlFor="tabs-demo-new">Número de Documento</Label>
                                         <Input id="tabs-demo-new" placeholder="Numero" defaultValue={selectedTurn?.identificationNumber} readOnly/>
                                     </div>
                                 </div>
@@ -394,14 +430,14 @@ export default function Manage(){
                             <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={!selectedTurn || selectedTurn.state?.code === 3 || isAnnouncing ? true : false} variant={'tertiary'}><HiMiniBellAlert />
                             {selectedTurn && selectedTurn.state?.code === 2 ? 'Atender' : 'Llamar'}
                             </Button>
-                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true} className='bg-green-500'><FaUserCheck />Finalizar</Button>
+                            <Button onClick={() => handleAdvanceTurnState(selectedTurn!)} disabled={selectedTurn && selectedTurn.state?.code === 3 ? false : true}><FaUserCheck />Finalizar</Button>
                         </div>
                         <div className="flex justify-center gap-4" >
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Button 
                                     onClick={() => handleGetAttentionServices()} 
-                                    className={`${selectedTurn ? '' : 'hidden'} bg-orange-500`} 
+                                    className={selectedTurn ? '' : 'hidden'}
                                     >
                                     <FaArrowsRotate /> Tranferir
                                     </Button>
@@ -486,8 +522,8 @@ export default function Manage(){
             <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
-                        <div className="text-center font-bold">
-                            <h1 className="text-2xl">Datos del llamado</h1>
+                        <div className="text-center font-bold text-foreground">
+                            DATOS DEL LLAMADO
                         </div>
                         <div className="flex justify-center gap-4">
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
@@ -508,45 +544,8 @@ export default function Manage(){
                         {isLoading ? (
                             <Loading />
                         ): 
-                            <ScrollArea className="h-90 border border-gray-300 p-4 rounded-lg">
-                                <div className='grid grid-cols-4 gap-2'>
-                                    <div className='grid gap-2'>
-                                        <h1><b>Codigo</b></h1>
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <h1><b>Estado</b></h1>
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <h1><b>Prioridad</b></h1>
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <h1><b>Acciones</b></h1>
-                                    </div>
-                                </div>
-                                <Separator className='m-2'/>
-                                {turns.map((turn) => (
-                                <React.Fragment key={turn.id}>
-                                    <div className='grid grid-cols-4 gap-2'>
-                                        <div className='grid gap-2'>
-                                            <h1>{turn.turnCode}</h1>
-                                        </div>
-                                        <div className='grid gap-2'>
-                                            <h1>{turn.state.label}</h1>
-                                        </div>
-                                        <div className='grid gap-2'>
-                                            <h1>{turn.classificationAttention.attentionType.description }</h1>
-                                        </div>
-                                        <div className='grid gap-2'>
-                                            <Button className={`text-black text-sm ${turn.state.code !== 1 ? 'hidden' : ''}`} onClick={() => handleSelectTurn(turn)} variant="outline">
-                                                <BsBackpack2Fill />
-                                                Seleccionar
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <Separator className="my-2" />
-                                </React.Fragment>
-                                ))}
-                            </ScrollArea>
+                            <TableTurns handleTurnSelect={handleSelectTurn} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleSelectTurn)} />
+
                         }
                     </CardContent>
                     <CardFooter className="flex justify-center gap-4">

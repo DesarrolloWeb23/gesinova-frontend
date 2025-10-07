@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/ui/components/ui/card"
 import { Input } from "@/ui/components/ui/input"
-import { Checkbox } from "@/ui/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -28,9 +27,10 @@ import { useAuth } from "@/ui/context/AuthContext";
 import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
 import { useView } from "@/ui/context/ViewContext";
+import { Footer } from "@/ui/components/Footer";
 
 const formSchema = z.object({
-  username: z.string().min(2, getMessage("errors", "zod_username_required")),
+  username: z.string().min(2, getMessage("errors", "zod_username_required")).regex(/^[A-Za-z]+$/, getMessage("errors", "zod_especial_characters")),
   password: z.string().min(4, getMessage("errors", "zod_password_required"))
 })
 
@@ -39,7 +39,7 @@ const formSchema = z.object({
 export default function Login() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
+  const {login, validationToken } = useAuth();
   const [showIndio, setShowIndio] = useState(true)
   const { setView } = useView();
   const [videoFinished, setVideoFinished] = useState(false);
@@ -142,7 +142,7 @@ export default function Login() {
         <div className=" flex h-9/10 w-screen items-center justify-center">
           <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 absolute w-[350px]">
             <CardHeader  className="items-center justify-center">
-                <CardTitle className="font-bold text-2xl">{getMessage("ui", "login_welcome")}</CardTitle>
+                <CardTitle className="font-bold text-2xl text-foreground">{getMessage("ui", "login_welcome")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -178,35 +178,18 @@ export default function Login() {
                               }}/>
                           </FormControl>
                           <FormMessage />
+                    <div className="flex items-center justify-between">
+                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm  hover:cursor-pointer text-foreground">
+                        {getMessage("ui", "login_forgot_password")}
+                      </a>
+                    </div>
                         </FormItem>
                       )}
                     />
 
-                    <div className="flex items-center justify-between">
-                      <div className="items-top flex space-x-2">
-                        
-                        <Checkbox 
-                          id="remember" 
-                          checked={rememberMe}
-                          onCheckedChange={handleRememberMeChange} 
-                        />
-                        <div className="grid gap-1.5 leading-none">
-                          <label
-                            htmlFor="remember"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {getMessage("ui", "login_remember_me")}
-                          </label>
-                        </div>
-                      </div>
-                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm font-medium hover:cursor-pointer">
-                        {getMessage("ui", "login_forgot_password")}
-                      </a>
-                      
-                    </div>
 
                     <div className="flex items-center justify-between">
-                      <Button type="submit" disabled={isSubmitting} className="w-full">
+                      <Button type="submit" disabled={isSubmitting} className="w-full" variant={"secondary"}>
                         {isSubmitting === true ? getMessage("ui", "login_submiting") : getMessage("ui", "login_submit")}
                       </Button>
                     </div>
@@ -218,11 +201,7 @@ export default function Login() {
               </CardFooter>
           </Card>
         </div>
-        <div className="text-center text-xs">
-          <div><p>© 2025 Gesinova. Todos los derechos reservados.</p></div>
-          <div><a href="https://www.login.gov/es/policy/">Prácticas de seguridad y declaración de privacidad</a></div>
-          <div><a href="https://www.login.gov/es/policy/our-privacy-act-statement/">Declaración de privacidad</a></div>
-        </div>
+        <Footer />
       </div>
     );
   }

@@ -8,6 +8,8 @@ export const messages = {
         zod_password_required: "La contraseña es obligatoria.",
         zod_code_required: "El código de verificación es obligatorio.",
         zod_mail_required: "El correo electrónico es invalido.",
+        zod_especial_characters: "Solo se permiten letras sin espacios ni caracteres especiales.",
+        zod_priority_required: "La prioridad es obligatoria.",
     },
     success: {
         access_success: "Acceso exitoso ",
@@ -39,7 +41,8 @@ export const messages = {
         mfa_activation_card_title: "Activación de Multifactor Autenticación",
         mfa_activation_card_subtitle: "Elige tu método preferido para la autenticación multifactor",
         reset_password_card_title: "Restablecer Contraseña",
-        reset_password_card_subtitle: "Ingresa el el correo electrónico asociado a tu cuenta para restablecer tu contraseña",
+        reset_password_card_text1: "Si olvidaste tu contraseña, No te preocupes. Para proteger tu información, te enviaremos un código de seguridad.",
+        reset_password_card_text2: "Por favor, ingresa el correo electrónico asociado a tu cuenta y podrás restablecer tu clave.",
         reset_password_email_placeholder: "Correo electrónico",
         reset_password_back: "Volver al inicio",
         reset_password_send_code: "Enviar código",

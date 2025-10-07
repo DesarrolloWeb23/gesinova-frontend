@@ -20,14 +20,15 @@ import Support from "@/ui/subViews/support/page";
 import { MdNotificationsActive } from "react-icons/md";
 import { useView } from "@/ui/context/ViewContext";
 import UnderConstruction from "@/ui/components/UnderConstruction";
+import SocialIcons from "@/ui/components/SocialIcons";
 
 const subViewsMap: Record<string, React.ComponentType> = {
-    dashboard: SubDashboard,
-    turnos: Transfer,
-    mi_perfil: Profile,
-    configuracion: Configuracion,
-    mi_empresa: Company,
-    soportes: Support,
+    Dashboard: SubDashboard,
+    Turnos: Transfer,
+    MiPerfil: Profile,
+    Configuracion: Configuracion,
+    MiEmpresa: Company,
+    Soportes: Support,
     // aqui se agregan las demás vistas
 };
 
@@ -51,7 +52,7 @@ export default function Dashboard() {
         if (savedView) {
             setSubView(savedView);
         } else {
-            setSubView("dashboard");
+            setSubView("Dashboard");
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -68,9 +69,9 @@ export default function Dashboard() {
             <SidebarInset>
                 <header className="bg-primary flex h-16 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
-                    <h1 className="font-bold max-sm:text-xs">Bienvenido {user}</h1>
+                    <h1 className="font-bold max-sm:text-xs hidden sm:block">Bienvenido {user}</h1>
+                    <div className="ml-auto accent text-white px-4 py-2 rounded"><SocialIcons /></div>
                     <Separator orientation="vertical" className="mr-2 h-4" />
-                    <div className="ml-auto accent text-white px-4 py-2 rounded"></div>
                     <div className="flex items-center gap-2  hover:animate-vibrate animate-in fade-in slide-in-from-right-8 duration-800">
                         <MdNotificationsActive className="text-black text-2xl dark:text-white vibrate-on-hover" />
                         <span className={notificationCount ? "bg-red-500 text-white rounded-full px-2 py-1 text-xs" : "display-none"}>{notificationCount ? notificationCount : ""}</span>
@@ -82,7 +83,7 @@ export default function Dashboard() {
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink onClick={() => setSubView("dashboard")} className="hover:cursor-pointer">
+                                <BreadcrumbLink onClick={() => setSubView("Dashboard")} className="hover:cursor-pointer">
                                     Dashboard
                                 </BreadcrumbLink>
                             </BreadcrumbItem>

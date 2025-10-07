@@ -11,7 +11,7 @@ import { z } from "zod";
 import { getMessage } from "@/core/domain/messages";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/ui/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/ui/components/ui/form';
 import { toast } from 'sonner';
 import { GetAffiliateByDni } from '@/core/domain/use-cases/GetAffiliateByDni';
 import { AffiliateApiService } from '@/core/infrastructure/api/services/AffiliateService';
@@ -29,7 +29,7 @@ import { FaTicket } from "react-icons/fa6";
 const formSchema = z.object({
     identificationType: z.string()
     .min(2, getMessage("errors", "zod_username_required")),
-    numberIdentification: z.string().min(4, getMessage("errors", "zod_password_required")),
+    numberIdentification: z.string().min(4, getMessage("errors", "zod_password_required")).regex(/^[^a-zA-Z]+$/, getMessage("errors", "zod_especial_characters")),
     priority: z.string().min(1, getMessage("errors", "zod_priority_required"))
 })
 
@@ -164,6 +164,16 @@ export default function Trigger() {
                 return;
             }
 
+            //validar que los campos no contengan caracteres especiales ni numeros, ni espacios
+            const nameRegex = /^[A-Za-z]+$/;
+            if (!nameRegex.test(affiliate.firstName) || 
+                !nameRegex.test(affiliate.middleName) || 
+                !nameRegex.test(affiliate.firstLastName) || 
+                !nameRegex.test(affiliate.secondLastName) ) {
+                toast.error("Los nombres solo deben contener letras sin espacios ni caracteres especiales");
+                return;
+            }
+
             affiliateData = {
                 firstName: affiliate.firstName,
                 middleName: affiliate.middleName ? affiliate.middleName : "",
@@ -265,12 +275,11 @@ export default function Trigger() {
 
     return (
         <>
-            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/4 m-2">
+            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/3 m-2">
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent >
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleGetAffiliate)} className="grid gap-6">
-                                <div className="grid grid-cols-1 gap-6">
                                     <div className="grid gap-3">
                                         <FormField
                                             control={form.control}
@@ -302,6 +311,7 @@ export default function Trigger() {
                                                             </SelectContent> 
                                                         </Select>
                                                     </FormControl>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
@@ -312,16 +322,16 @@ export default function Trigger() {
                                             name="numberIdentification"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>N° Documento</FormLabel>
+                                                    <FormLabel>Número de Documento</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Numero" {...field} />
+                                                        <Input placeholder="Número" {...field} className="w-1/2"/>
                                                     </FormControl>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                     </div>
-                                </div>
-                                <div className="grid gap-3 items-center justify-center text-center">
+
                                     <div className="grid gap-3">
                                         <FormField
                                             control={form.control}
@@ -331,7 +341,7 @@ export default function Trigger() {
                                                     <FormLabel htmlFor="tabs-demo-current">Prioridad</FormLabel>
                                                     <FormControl>
                                                         <Select onValueChange={field.onChange} value={field.value}>
-                                                            <SelectTrigger className="w-[180px]">
+                                                            <SelectTrigger>
                                                                 <SelectValue placeholder="Seleccione prioridad" />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -343,11 +353,11 @@ export default function Trigger() {
                                                             </SelectContent>
                                                         </Select>
                                                     </FormControl>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                     </div>
-                                </div>
                                 <div className='flex justify-end gap-2'>
                                     <Button className={`${isValid ? '' : 'hidden'}`} variant={"ghost"} size={"icon"} onClick={handleReset}><TbArrowBackUp /></Button>
                                     <Button type="submit"  disabled={isValid}>Validar</Button>
@@ -445,8 +455,8 @@ export default function Trigger() {
                         <>
                             <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="grid gap-3">
-                                    <Label htmlFor="tabs-demo-new">Primer nombre</Label>
-                                    <Input id="tabs-demo-new" placeholder="Primer nombre" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
+                                    <Label htmlFor="tabs-demo-new">Nombre completo</Label>
+                                    <Input id="tabs-demo-new" placeholder="Nombre completo" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-new">Departamento</Label>
@@ -491,12 +501,12 @@ export default function Trigger() {
                     </div>
 
                     <div className="flex justify-center">
-                        <button
+                        <Button
                         onClick={() => handleReset()}
-                        className="px-5 py-2 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors shadow-sm"
+                        variant={'destructive'}
                         >
                         Cerrar
-                        </button>
+                        </Button>
                     </div>
                     </div>
                 </div>
