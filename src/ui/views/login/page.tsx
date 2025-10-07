@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/ui/components/ui/card"
 import { Input } from "@/ui/components/ui/input"
-import { Checkbox } from "@/ui/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -29,7 +28,6 @@ import { Version } from "@/ui/components/Version";
 import { getMessage } from "@/core/domain/messages";
 import { useView } from "@/ui/context/ViewContext";
 import { Footer } from "@/ui/components/Footer";
-import { Label } from "@/ui/components/ui/label";
 
 const formSchema = z.object({
   username: z.string().min(2, getMessage("errors", "zod_username_required")).regex(/^[A-Za-z]+$/, getMessage("errors", "zod_especial_characters")),
@@ -41,7 +39,7 @@ const formSchema = z.object({
 export default function Login() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { handleRememberMeChange, rememberMe, login, validationToken } = useAuth();
+  const {login, validationToken } = useAuth();
   const [showIndio, setShowIndio] = useState(true)
   const { setView } = useView();
   const [videoFinished, setVideoFinished] = useState(false);
@@ -180,32 +178,15 @@ export default function Login() {
                               }}/>
                           </FormControl>
                           <FormMessage />
+                    <div className="flex items-center justify-between">
+                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm  hover:cursor-pointer text-foreground">
+                        {getMessage("ui", "login_forgot_password")}
+                      </a>
+                    </div>
                         </FormItem>
                       )}
                     />
 
-                    <div className="flex items-center justify-between">
-                      <div className="items-top flex space-x-2">
-                        
-                        <Checkbox 
-                          id="remember" 
-                          checked={rememberMe}
-                          onCheckedChange={handleRememberMeChange} 
-                        />
-                        <div className="grid gap-1.5 leading-none">
-                          <Label
-                            htmlFor="remember"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {getMessage("ui", "login_remember_me")}
-                          </Label>
-                        </div>
-                      </div>
-                      <a onClick={() => handleChangeView("resetPassword")} className="text-sm font-medium hover:cursor-pointer text-foreground">
-                        {getMessage("ui", "login_forgot_password")}
-                      </a>
-                      
-                    </div>
 
                     <div className="flex items-center justify-between">
                       <Button type="submit" disabled={isSubmitting} className="w-full" variant={"secondary"}>
