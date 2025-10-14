@@ -41,6 +41,7 @@ export function AccessibilityButton() {
             <Button 
                 variant="outline" size="icon" 
                 aria-label="Opciones de Accesibilidad"
+                title="Opciones de Accesibilidad"
                 className="rounded-l-lg shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl"
             >
                 <IoAccessibility />
@@ -76,7 +77,8 @@ export function AccessibilityButton() {
                 <DialogTrigger asChild>
                     <Button 
                         variant="outline" size="icon" 
-                        aria-label="Opciones de Accesibilidad"
+                        aria-label="Soporte Técnico"
+                        title="Soporte Técnico"
                         className="rounded-l-lg shadow-lg transition-transform duration-200 hover:scale-105 hover:shadow-xl"
                     >
                         <BiMessageError />

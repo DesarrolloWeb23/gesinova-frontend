@@ -33,14 +33,26 @@ export function useHoverSpeech() {
         return;
         }
 
-        const handleMouseOver = (e: MouseEvent) => {
+    const handleMouseOver = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
-        const text = target.innerText?.trim();
 
-        if (text && text.length > 2 && !target.closest(".no-voice")) {
+        // Intentar leer texto visible
+        let text = target.innerText?.trim();
+
+        // Si no hay texto visible, intentar leer atributos accesibles
+        if (!text || text.length < 2) {
+            text =
+            target.getAttribute("aria-label") ||
+            target.getAttribute("alt") ||
+            target.getAttribute("title") ||
+            "";
+        }
+
+        // Leer el texto si existe y no es vacío
+        if (text && text.length > 1 && !target.closest(".no-voice")) {
             speak(text);
         }
-        };
+    };
 
         const handleMouseOut = () => stop();
 
