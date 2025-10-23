@@ -341,7 +341,7 @@ export default function Trigger() {
                                                     <FormLabel htmlFor="tabs-demo-current">Prioridad</FormLabel>
                                                     <FormControl>
                                                         <Select onValueChange={field.onChange} value={field.value}>
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className="whitespace-normal break-words leading-none">
                                                                 <SelectValue placeholder="Seleccione prioridad" />
                                                             </SelectTrigger>
                                                             <SelectContent>
