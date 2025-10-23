@@ -7,6 +7,7 @@ import { ClassificationAttentionDTO } from "@/core/dto/ClassificationAttention";
 import { ResponseDTO } from "@/core/dto/ResponseDTO";
 import { TurnDataDTO } from "@/core/dto/TurnDataDTO";
 import { AttentionModulesDTO } from "@/core/dto/AttentionModulesDTO";
+import { TurnReportDataDTO } from "@/core/dto/ReportTurnDataDTO";
 
 export type TransferGenerateApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof TurnDTO>>>;
 export type AttentionServiceApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof AttentionServicesDTO>>>;
@@ -15,6 +16,7 @@ export type TurnApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof Tu
 export type CancelTurnApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof ResponseDTO>>>;
 export type TurnDataApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof TurnDataDTO>>>;
 export type AttentionModulesApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof AttentionModulesDTO>>>;
+export type ReportTurnDataApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof TurnReportDataDTO>>>;
 
 export interface TransferRepository {
     generateAppointment(data: GenerateAppointmentData): Promise<TransferGenerateApiResponse>;
@@ -22,8 +24,9 @@ export interface TransferRepository {
     getTurns(): Promise<TurnDataApiResponse>;
     getClassificationAttention(): Promise<ClassificationAttentionApiResponse>;
     advanceTurnState(turnId: number): Promise<TurnApiResponse>;
-    cancelTurn(turnId: string): Promise<CancelTurnApiResponse>;
+    cancelTurn(turnId: string, observation: string): Promise<CancelTurnApiResponse>;
     transferTurn(turnId: number, serviceId: string): Promise<TurnApiResponse>;
     getTurnsByState(state: number): Promise<TurnDataApiResponse>;
     getAttentionModules(): Promise<AttentionModulesApiResponse>;
+    generateTurnReport(page: string, size: string): Promise<ReportTurnDataApiResponse>;
 }

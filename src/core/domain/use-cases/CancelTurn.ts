@@ -5,9 +5,9 @@ import { TransferRepository } from "@/core/domain/ports/TransferRepository";
 export class CancelTurn {
     constructor(private transferRepository: TransferRepository) {}
 
-    async execute(turnId: string): Promise<Response> {
+    async execute(turnId: string, observation: string): Promise<Response> {
         try {
-            const response = await this.transferRepository.cancelTurn(turnId);
+            const response = await this.transferRepository.cancelTurn(turnId, observation);
             return {
                 status: response.status,
                 path: "/",
