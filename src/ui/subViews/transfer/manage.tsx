@@ -90,6 +90,7 @@ export default function Manage(){
     const [isLoading, setIsLoading] = useState(false);
     const didFetch = useRef(false);
     const [isAnnouncing, setIsAnnouncing] = useState(false);
+    const [motivo, setMotivo] = useState("")
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -198,11 +199,11 @@ export default function Manage(){
     }
 
     //funcion para cancelar turno
-    async function handleCancelTurn(turnId: string) {
+    async function handleCancelTurn(turnId: string, motivo: string) {
         const cancelTurnUseCase = new CancelTurn(new TransferService());
         try {
             await toast.promise(
-                cancelTurnUseCase.execute(turnId)
+                cancelTurnUseCase.execute(turnId, motivo)
                     .then((response) => {
                         if (response) {
                             //eliminar el selectedTurn de la lista de turnos
@@ -496,19 +497,43 @@ export default function Manage(){
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <div>
-                                        <Button className={`${selectedTurn ? '' : 'hidden'}`} variant="destructive"><FaUserSlash />Cancelar</Button>
+                                    <Button className={`${selectedTurn ? "" : "hidden"}`} variant="destructive">
+                                        <FaUserSlash />Cancelar
+                                    </Button>
                                     </div>
                                 </AlertDialogTrigger>
+
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                    <AlertDialogTitle>Estas seguro?</AlertDialogTitle>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Esta acción no se puede deshacer. Para cancelar el turno seleccionado debes confirmarlo.
+                                        Esta acción no se puede deshacer. Para cancelar el turno seleccionado debes confirmar el motivo.
                                     </AlertDialogDescription>
                                     </AlertDialogHeader>
+
+                                    <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Motivo de cancelación</label>
+                                    <Select onValueChange={setMotivo}>
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Selecciona un motivo" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                        <SelectItem value="abandono">Cancelado por abandono</SelectItem>
+                                        <SelectItem value="fuera_horario">Turno fuera del horario laboral</SelectItem>
+                                        <SelectItem value="expirado">Expiró el tiempo de atención</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    </div>
+
                                     <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction  onClick={() => handleCancelTurn(selectedTurn!.id.toString())} className='bg-red-500 hover:bg-red-600 text-white'>Continuar</AlertDialogAction>
+                                    <AlertDialogAction
+                                        disabled={!motivo}
+                                        onClick={() => handleCancelTurn(selectedTurn!.id.toString(), motivo)}
+                                        className="bg-red-500 hover:bg-red-600 text-white"
+                                    >
+                                        Continuar
+                                    </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>

@@ -1,18 +1,14 @@
-import { Error as AppError } from "@/core/domain/models/Error";
-import { Response } from "@/core/domain/models/Response";
+import { ReportTurnsList } from "@/core/domain/models/ReportTurns";
 import { TransferRepository } from "@/core/domain/ports/TransferRepository";
+import { Error as AppError } from "@/core/domain/models/Error";
 
-export class CancelTurn {
+export class GetReportTurns {
     constructor(private transferRepository: TransferRepository) {}
 
-    async execute(turnId: string, observation: string): Promise<Response> {
+    async execute(page: string, size: string): Promise<ReportTurnsList> {
         try {
-            const response = await this.transferRepository.cancelTurn(turnId, observation);
-            return {
-                status: response.status,
-                path: "/",
-                message: "PERMISSION_ASSIGNED",
-            };
+            const response = await this.transferRepository.generateTurnReport(page, size); 
+            return response.data.content as ReportTurnsList;
         } catch (err) {
             const error = err as AppError;
             if (error.type === "api") {

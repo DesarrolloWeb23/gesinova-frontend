@@ -11,6 +11,7 @@ import { ClassificationAttentionDTO } from '@/core/dto/ClassificationAttention';
 import { ResponseDTO } from '@/core/dto/ResponseDTO';
 import { TurnDataDTO } from '@/core/dto/TurnDataDTO';
 import { AttentionModulesDTO } from '@/core/dto/AttentionModulesDTO';
+import { TurnReportDataDTO } from '@/core/dto/ReportTurnDataDTO';
 
 const AttentionServiceApiResponseDTO = ApiResponseDTO(AttentionServicesDTO);
 type AttentionServiceApiResponse = z.infer<typeof AttentionServiceApiResponseDTO>;
@@ -29,6 +30,9 @@ type TurnDataApiResponse = z.infer<typeof TurnDataApiResponseDTO>;
 
 const AttentionModulesApiResponseDTO = ApiResponseDTO(AttentionModulesDTO);
 type AttentionModulesApiResponse = z.infer<typeof AttentionModulesApiResponseDTO>;
+
+const ReportTurnsApiResponseDTO = ApiResponseDTO(TurnReportDataDTO);
+type ReportTurnsApiResponse = z.infer<typeof ReportTurnsApiResponseDTO>;
 
 export class TransferService implements TransferRepository {
     
@@ -218,9 +222,9 @@ export class TransferService implements TransferRepository {
     }
 
     //funcion para cancelar turno
-    async cancelTurn(turnId: string): Promise<CancelTurnApiResponse> {
+    async cancelTurn(turnId: string, observation: string): Promise<CancelTurnApiResponse> {
         try {
-            const response = await http.post(`/turns/cancel/${turnId}`, { withCredentials: true });
+            const response = await http.post(`/turns/cancel/${turnId}`, {observation: observation}, { withCredentials: true });
             return CancelTurnApiResponseDTO.parse(response.data);
         } catch (err: unknown) {
             if (err instanceof ZodError) {
@@ -330,6 +334,42 @@ export class TransferService implements TransferRepository {
         try {
             const response = await http.get(`/attention-modules`, { withCredentials: true });
             return AttentionModulesApiResponseDTO.parse(response.data);
+        } catch (err: unknown) {
+            if (err instanceof ZodError) {
+                throw {
+                    type: "validation",
+                    issues: err.errors,
+                };
+            }
+
+            if (err instanceof AxiosError && err.response?.data) {
+                const parsed = ApiErrorDTO.safeParse(err.response.data);
+                if (parsed.success) {
+                    throw {
+                        type: "api",
+                        ...parsed.data,
+                    };
+                } else {
+                    throw {
+                        type: "unknown_api_error",
+                        issues: parsed.error.errors,
+                    };
+                }
+            }
+
+            console.error("Error inesperado", err);
+            throw {
+                type: "unknown",
+                issues: err,
+            };
+        }
+    }
+
+    //Funcion para generar reporte de turnos
+    async generateTurnReport(page: string, size: string): Promise<ReportTurnsApiResponse> {
+        try {
+            const response = await http.get(`/reports/turns?page=${page}&size=${size}`, { withCredentials: true, });
+            return ReportTurnsApiResponseDTO.parse(response.data);
         } catch (err: unknown) {
             if (err instanceof ZodError) {
                 throw {

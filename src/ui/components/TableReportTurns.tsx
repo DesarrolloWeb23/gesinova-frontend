@@ -32,17 +32,18 @@ import {
     DropdownMenuTrigger,
 } from "@/ui/components/ui/dropdown-menu"
 import  Loading  from "@/ui/components/Loading"
-import { Turns } from "@/core/domain/models/Turns"
 import { Input } from "./ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { ReportTurns } from "@/core/domain/models/ReportTurns"
 
 type Props = {
-    handleTurnSelect: (turn: Turns) => void,
-    turnsReceived: Turns[]
-    columnsTurnsReceived: ColumnDef<Turns>[]
+    handleTurnSelect: (turn: ReportTurns) => void,
+    turnsReceived: ReportTurns[]
+    columnsTurnsReceived: ColumnDef<ReportTurns>[]
+    setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef<Turns>[] => [
+export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): ColumnDef<ReportTurns>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -81,22 +82,16 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
         cell: ({ row }) => <div className="uppercase">{row.getValue("lastName")}</div>,
     },
     {
-        accessorFn: (row) => row.attentionService?.name, 
+        accessorFn: (row) => row.attentionService, 
         id: "attentionService",
         header: "Servicio",
-        cell: ({ row }) => <div className="uppercase">{row.original.attentionService?.name}</div>,
+        cell: ({ row }) => <div className="uppercase">{row.original.attentionService}</div>,
     },
     {
-        accessorFn: (row) => row.classificationAttention?.description, 
+        accessorFn: (row) => row.classificationAttention, 
         id: "classificationAttention",
         header: "Clasificación",
-        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention?.description}</div>,
-    },
-    {
-        accessorFn: (row) => row.state?.label, 
-        id: "state",
-        header: "Estado",
-        cell: ({ row }) => <div className="uppercase">{row.original.state?.label}</div>,
+        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention}</div>,
     },
     {
         id: "actions",
@@ -125,13 +120,13 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
     },
 ]
 
-export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTurnsReceived}: Props){
+export default function TableReportTurns( { handleTurnSelect, turnsReceived, columnsTurnsReceived, setPageSize}: Props){
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const [turns, setTurns] = useState<Turns[]>([]);
+    const [turns, setTurns] = useState<ReportTurns[]>([]);
     const options = [10, 20, 30, 40, 50]
 
     const tableTurns = useReactTable({
@@ -236,7 +231,8 @@ export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTu
                         <Select
                         value={tableTurns.getState().pagination.pageSize.toString()}
                         onValueChange={(value) => {
-                            tableTurns.setPageSize(Number(value))
+                            tableTurns.setPageSize(Number(value));
+                            setPageSize(Number(value));
                         }}
                         >
                             <SelectTrigger className="w-[130px] h-9">
