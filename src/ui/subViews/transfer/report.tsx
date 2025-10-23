@@ -1,44 +1,20 @@
 import { getMessage } from "@/core/domain/messages";
-import { Turn } from "@/core/domain/models/Turn";
-import { Turns } from "@/core/domain/models/Turns";
-import { GetTurns } from "@/core/domain/use-cases/GetTurns";
 import { TransferService } from "@/core/infrastructure/api/services/TransferService";
 import Loading from "@/ui/components/Loading";
-import TableTurns from "@/ui/components/TableTurns";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
     ColumnDef
-} from "@tanstack/react-table"
-import { Checkbox } from "@/ui/components/ui/checkbox";
+} from "@tanstack/react-table";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/ui/components/ui/dropdown-menu";
 import { Button } from "@/ui/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { GetReportTurns } from "@/core/domain/use-cases/GetReportTurns";
+import { ReportTurns } from "@/core/domain/models/ReportTurns";
+import TableReportTurns from "@/ui/components/TableReportTurns";
 
-export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef<Turns>[] => [
-    {
-        id: "select",
-        header: ({ table }) => (
-        <Checkbox
-            checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-        />
-        ),
-        cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-        />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
+export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): ColumnDef<ReportTurns>[] => [
     {
         accessorKey: "turnCode",
         header: "Turno",
@@ -55,22 +31,64 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
         cell: ({ row }) => <div className="uppercase">{row.getValue("lastName")}</div>,
     },
     {
-        accessorFn: (row) => row.attentionService?.name, 
+        accessorFn: (row) => row.attentionService, 
         id: "attentionService",
         header: "Servicio",
-        cell: ({ row }) => <div className="uppercase">{row.original.attentionService?.name}</div>,
+        cell: ({ row }) => <div className="uppercase">{row.original.attentionService}</div>,
     },
     {
-        accessorFn: (row) => row.classificationAttention?.description, 
+        accessorFn: (row) => row.classificationAttention, 
         id: "classificationAttention",
         header: "Clasificación",
-        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention?.description}</div>,
+        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention}</div>,
     },
     {
-        accessorFn: (row) => row.state?.label, 
-        id: "state",
-        header: "Estado",
-        cell: ({ row }) => <div className="uppercase">{row.original.state?.label}</div>,
+        accessorFn: (row) => row.department, 
+        id: "department",
+        header: "Departamento",
+        cell: ({ row }) => <div className="uppercase">{row.original.department}</div>,
+    },
+    {
+        accessorFn: (row) => row.municipality, 
+        id: "municipality",
+        header: "Municipio",
+        cell: ({ row }) => <div className="uppercase">{row.original.municipality}</div>,
+    },
+    {
+        accessorFn: (row) => row.attendedDate, 
+        id: "attendedDate",
+        header: "Fecha de atención",
+        cell: ({ row }) => <div className="uppercase">{row.original.attendedDate}</div>,
+    },
+    {
+        accessorFn: (row) => row.assignedDate, 
+        id: "assignedDate",
+        header: "Fecha de asignación",
+        cell: ({ row }) => <div className="uppercase">{row.original.assignedDate}</div>,
+    },
+    {
+        accessorFn: (row) => row.attentionTime, 
+        id: "attentionTime",
+        header: "Tiempo de atención",
+        cell: ({ row }) => <div className="uppercase">{row.original.attentionTime}</div>,
+    },
+    {
+        accessorFn: (row) => row.lastAttendedDate, 
+        id: "lastAttendedDate",
+        header: "Fecha de ultima atención",
+        cell: ({ row }) => <div className="uppercase">{row.original.lastAttendedDate}</div>,
+    },
+    {
+        accessorFn: (row) => row.totalAttentionTime, 
+        id: "totalAttentionTime",
+        header: "Tiempo total de atención",
+        cell: ({ row }) => <div className="uppercase">{row.original.totalAttentionTime}</div>,
+    },
+    {
+        accessorFn: (row) => row.userProcess, 
+        id: "userProcess",
+        header: "Tiempo de proceso del usuario",
+        cell: ({ row }) => <div className="uppercase">{row.original.userProcess}</div>,
     },
     {
         id: "actions",
@@ -80,7 +98,7 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
 
         return (
             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild className="invisible">
                 <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal />
@@ -100,23 +118,24 @@ export const columnsTurns = (handleTurnSelect: (turn: Turns) => void): ColumnDef
 ]
 
 export default function Report(){
-    const [turn, setTurn] = useState<Turn | null>(null);
-    const [turns, setTurns] = useState<Turns[]>([]);
+    const [turn, setTurn] = useState<ReportTurns | null>(null);
+    const [turns, setTurns] = useState<ReportTurns[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [pageSize, setPageSize] = useState(100);
 
     //funcion al momento de seleccionar un turno
-    const handleTurnSelect = (selectedTurn: Turn) => {
+    const handleTurnSelect = (selectedTurn: ReportTurns) => {
         setTurn(selectedTurn);
         console.log("Turno seleccionado:", turn);
     }
 
-    useEffect(() => {
+    const handleGetReportTurns = () => {
         setIsLoading(true);
-        const getTurnsUseCase = new GetTurns(new TransferService());
+        const getTurnsUseCase = new GetReportTurns(new TransferService());
         try {
             toast.promise( 
-                getTurnsUseCase.execute()
+                getTurnsUseCase.execute( "1", pageSize.toString())
                 .then((response) => {
                     setTurns(response)
                     setIsLoading(false);
@@ -137,7 +156,35 @@ export default function Report(){
         } catch (error) {
             console.error("Error al consultar el afiliado:", error);
         }
-    }, []); 
+    }
+
+    useEffect(() => {
+        setIsLoading(true);
+        const getTurnsUseCase = new GetReportTurns(new TransferService());
+        try {
+            toast.promise( 
+                getTurnsUseCase.execute( "1", pageSize.toString())
+                .then((response) => {
+                    setTurns(response)
+                    setIsLoading(false);
+                })
+                .catch ((error) => {
+                    if (error?.status === 'ACCESS_DENIED') {
+                        setAccessDenied(true);
+                        return;
+                    }
+                    throw error;
+                }),
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => 
+                        error?.message
+                }
+            );
+        } catch (error) {
+            console.error("Error al consultar el afiliado:", error);
+        }
+    }, [pageSize]); 
 
     if (accessDenied) {
         return (
@@ -151,12 +198,30 @@ export default function Report(){
         );
     }
 
+    //validacion si la peticion a la API no se completo
+    if (!turns.length) {
+        return (
+            <div className="col-span-2 max-sm:col-span-3 p-4 flex flex-col items-center justify-center gap-4 h-full">
+                <div>No se pudieron cargar los datos</div>
+                <div>
+                    <Button
+                    onClick={() => {
+                        handleGetReportTurns();
+                    }}
+                    >
+                    Reintentar
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>   
             {isLoading ? (
                 <Loading />
             ): (
-                <TableTurns handleTurnSelect={handleTurnSelect} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleTurnSelect)}/>
+                <TableReportTurns handleTurnSelect={handleTurnSelect} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleTurnSelect)} setPageSize={setPageSize}/>
             )}
         </>
     );
