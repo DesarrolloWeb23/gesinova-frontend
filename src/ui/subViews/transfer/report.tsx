@@ -9,10 +9,11 @@ import {
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/ui/components/ui/dropdown-menu";
 import { Button } from "@/ui/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { Download, MoreHorizontal } from "lucide-react";
 import { GetReportTurns } from "@/core/domain/use-cases/GetReportTurns";
 import { ReportTurns } from "@/core/domain/models/ReportTurns";
 import TableReportTurns from "@/ui/components/TableReportTurns";
+import { exportToExcel } from "@/lib/exportToExcel";
 
 export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): ColumnDef<ReportTurns>[] => [
     {
@@ -130,6 +131,10 @@ export default function Report(){
         console.log("Turno seleccionado:", turn);
     }
 
+    const handleExport = () => {
+        exportToExcel(turns, "Reporte_Turnos");
+    };
+
     const handleGetReportTurns = () => {
         setIsLoading(true);
         const getTurnsUseCase = new GetReportTurns(new TransferService());
@@ -216,13 +221,31 @@ export default function Report(){
         );
     }
 
-    return (
-        <>   
-            {isLoading ? (
-                <Loading />
-            ): (
-                <TableReportTurns handleTurnSelect={handleTurnSelect} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleTurnSelect)} setPageSize={setPageSize}/>
-            )}
-        </>
-    );
+return (
+    <>   
+        {isLoading ? (
+            <Loading />
+        ) : (
+            <>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">Reporte de Turnos</h2>
+                    <Button 
+                        onClick={handleExport} 
+                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    >
+                        <Download className="w-4 h-4" />
+                        Descargar Excel
+                    </Button>
+                </div>
+
+                <TableReportTurns 
+                    handleTurnSelect={handleTurnSelect} 
+                    turnsReceived={turns} 
+                    columnsTurnsReceived={columnsTurns(handleTurnSelect)} 
+                    setPageSize={setPageSize}
+                />
+            </>
+        )}
+    </>
+);
 } 

@@ -74,7 +74,7 @@ export default function Transfer() {
                 <TabsContent value="manage" className="grid grid-cols-1 flex align-center justify-center">
                     <Manage />
                 </TabsContent>
-                <TabsContent value="report" className="grid grid-cols-1 flex align-center justify-center">
+                <TabsContent value="report" className="grid grid-cols-1">
                     <Report />
                 </TabsContent>
                 <TabsContent value="create-attention-service" className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center">
