@@ -153,6 +153,7 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
     useEffect(() => {
         setTurns(turnsReceived)
         setIsLoading(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
 
     return (
