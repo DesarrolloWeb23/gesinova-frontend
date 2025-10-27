@@ -54,6 +54,7 @@ export default function Trigger() {
     const [loading, setLoading] = useState(true);
     const [isRegistering, setIsRegistering] = useState(false);
     const didFetch = useRef(false);
+    const [accessDenied, setAccessDenied] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -131,6 +132,11 @@ export default function Trigger() {
                     setAttentionServices(response);
                 })
                 .catch((error) => {
+                    if (error?.status === 'ACCESS_DENIED') {
+                        setAccessDenied(true);
+                        setLoading(false);
+                        return;
+                    }
                     throw error;
                 }),
                 {
@@ -205,6 +211,11 @@ export default function Trigger() {
                     setLoading(false);
                 })
                 .catch((error) => {
+                    if (error?.status === 'ACCESS_DENIED') {
+                        setAccessDenied(true);
+                        setLoading(false);
+                        return;
+                    }
                     throw error;
                 }),
                 {
@@ -255,22 +266,35 @@ export default function Trigger() {
 
     //validacion si la peticion a la API no se completo
     if (!attentionServices.length || !classificationAttention.length) {
+        if (accessDenied) {
         return (
-            <div className="col-span-2 max-sm:col-span-3 p-4 flex flex-col items-center justify-center gap-4 h-full">
-                <div>No se pudieron cargar los datos</div>
-                <div>
-                    <Button
-                    onClick={() => {
-                        handleGetAttentionServices();
-                        handleGetClassificationAttention();
-                    }}
-                    >
-                    Reintentar
-                    </Button>
-                </div>
+            <div className="flex flex-col items-center justify-center p-4">
+                <h2 className="text-xl font-semibold text-red-600">Acceso Denegado</h2>
+                <p className="mt-2 text-muted-foreground">
+                    No tienes permisos para acceder a esta sección.
+                </p>
             </div>
-        )
+        );
+        } else {
+            return (
+                <div className="col-span-2 max-sm:col-span-3 p-4 flex flex-col items-center justify-center gap-4 h-full">
+                    <div>No se pudieron cargar los datos</div>
+                    <div>
+                        <Button
+                        onClick={() => {
+                            handleGetAttentionServices();
+                            handleGetClassificationAttention();
+                        }}
+                        >
+                        Reintentar
+                        </Button>
+                    </div>
+                </div>
+            );
+        }
     }
+
+
 
 
     return (
