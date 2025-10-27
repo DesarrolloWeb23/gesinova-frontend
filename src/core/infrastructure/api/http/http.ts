@@ -15,6 +15,7 @@ export const http = axios.create({
 http.interceptors.request.use(
   async (config) => {
     const excludedRoutes = ["/auth/login", "/auth/refresh", "/auth/verify-mfa", "/auth/reset-password"];
+    
 
     
       // Evita aplicar el interceptor en rutas excluidas
@@ -88,28 +89,28 @@ http.interceptors.response.use(
       const shouldRenew = await showSessionModal();
       if (shouldRenew) {
         try {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            if (token) {
+          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+          if (token) {
             const response = await axios.post(
               `${baseURL}/auth/refresh`,
               {},
               { withCredentials: true }
             );
-    
+            
             const newToken = response.data.data.accessToken ;
-
+            
             if (localStorage.getItem("rememberMe") === "true") {
               localStorage.setItem("token", newToken);
             }
             else {
               sessionStorage.setItem("token", newToken);
             }
-
+            
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
           window.location.href = "/";
           return http(originalRequest);
-
+          
         } catch (refreshError) {
           return Promise.reject(refreshError);
         }
@@ -118,14 +119,15 @@ http.interceptors.response.use(
         const path = originalRequest.url; 
         const timestamp = new Date().toISOString();
         const message = error.response?.data?.message;
-
+        
         error.response.data = { message };
         error.response.data.path = path;
         error.response.data.error = type;
         error.response.data.timestamp = timestamp;
         error.response.data.status = error.response?.status;
+        
         window.location.href = "/";
-
+        
         return Promise.reject(error);
       }
     }

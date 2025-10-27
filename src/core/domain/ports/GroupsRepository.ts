@@ -9,5 +9,5 @@ export type GroupApiResponse = z.infer<ReturnType<typeof ApiResponseDTO<typeof G
 export interface GroupsRepository {
     getGroupsInfo(): Promise<GroupsApiResponse>;
     getGroupById(groupId: number): Promise<GroupApiResponse>;
-    createGroup(data: string[]): Promise<GroupApiResponse>;
+    createGroup(data: string): Promise<GroupApiResponse>;
 }

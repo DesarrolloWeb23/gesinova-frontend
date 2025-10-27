@@ -45,7 +45,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/ui/components/ui/dialog"
-import { Label } from "@/ui/components/ui/label"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -58,9 +57,10 @@ import { GetGroupsInfo } from "@/core/domain/use-cases/GetGroupsInfo"
 import { User } from "@/core/domain/models/User"
 import { AssignGroupToUser } from "@/core/domain/use-cases/AssignGroupToUser"
 import { UserApiService } from "@/core/infrastructure/api/services/userService"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 
 const formSchema = z.object({
-    name: z.string().min(2).max(100),
+    name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }).max(100),
 })
 
 type Props = {
@@ -260,6 +260,7 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
 
                 if (response) {
                     setIsSubmitting(false);
+                    fetchGroupsData();
                     return;
                 }
 
@@ -269,8 +270,8 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
                 throw error;
                 }),
             {
-                loading: getMessage("success", "access_loading"),
-                success: getMessage("success", "access_success"),
+                loading: getMessage("success", "loading"),
+                success: getMessage("success", "group_created"),
                 error: (error) => 
                 error?.message
             }
@@ -317,31 +318,45 @@ export default function TableGroups( { handleGroupSelect, newSelection = {}, use
                         className="max-w-sm"
                         />
                         <Dialog>
-                            <form onSubmit={form.handleSubmit(onSubmit)} > 
-                                <DialogTrigger asChild>
-                                <Button variant="outline">Crear grupo</Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Crear grupo</DialogTitle>
-                                    <DialogDescription>
-                                    Completa los campos a continuación para crear un nuevo grupo.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4">
-                                    <div className="grid gap-3">
-                                    <Label htmlFor="name-1">Nombre</Label>
-                                    <Input id="name-1" name="name" defaultValue="PERMISO_EJEMPLO" />
+                                    <DialogTrigger asChild>
+                                    <Button variant="outline">Crear grupo</Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} > 
+                                    <DialogHeader>
+                                        <DialogTitle>Crear grupo</DialogTitle>
+                                        <DialogDescription>
+                                        Completa los campos a continuación para crear un nuevo grupo.
+                                        </DialogDescription>
+                                    </DialogHeader>
+
+                                    <div className="grid gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                <FormLabel htmlFor="tabs-demo-current">Nombre</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="PERMISO_EJEMPLO" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                        />
                                     </div>
-                                </div>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                    <Button variant="outline">Cancelar</Button>
-                                    </DialogClose>
-                                    <Button type="submit">Guardar cambios</Button>
-                                </DialogFooter>
-                                </DialogContent>
-                            </form>
+
+
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                        <Button variant="outline">Cancelar</Button>
+                                        </DialogClose>
+                                        <Button type="submit">Guardar cambios</Button>
+                                    </DialogFooter>
+                                </form>
+                            </Form>
+                                    </DialogContent>
                         </Dialog>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

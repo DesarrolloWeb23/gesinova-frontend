@@ -91,9 +91,9 @@ export class GroupApiService implements GroupsRepository {
     }
 
     //funcion para crear un grupo
-    async createGroup(data: string[]): Promise<GroupApiResponse> {
+    async createGroup(name: string): Promise<GroupApiResponse> {
         try {
-            const response = await http.post('/groups', { data }, { withCredentials: true });
+            const response = await http.post('/groups', { name: name }, { withCredentials: true });
             return GroupApiResponseDTO.parse(response.data);
         } catch (err: unknown) {
             if (err instanceof ZodError) {

@@ -8,8 +8,8 @@ export class CreateGroup {
     async execute(data: string): Promise<Group> {
         try {
             //convierte el string en un array de strings
-            const groupData = data.split(',').map(item => item.trim());
-            const response = await this.groupsRepository.createGroup(groupData);
+            //const groupData = data.split(',').map(item => item.trim());
+            const response = await this.groupsRepository.createGroup(data);
             return response.data as Group;
         } catch (err) {
             const error = err as AppError;

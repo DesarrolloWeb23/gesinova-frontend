@@ -24,6 +24,7 @@ export const messages = {
     password_change_success: "Password changed successfully.",
     assignUserPermission_success: "Permissions assigned to user successfully.",
     assignGroupPermission_success: "Permissions assigned to group successfully.",
+    group_created: "Group created successfully.",
   },
   ui: {
       wait: "Please wait...",
