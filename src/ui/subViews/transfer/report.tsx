@@ -198,7 +198,6 @@ export default function Report(){
                 <p className="mt-2 text-muted-foreground">
                     No tienes permisos para acceder a esta sección.
                 </p>
-                <Button className="mt-4">Volver</Button>
             </div>
         );
     }
