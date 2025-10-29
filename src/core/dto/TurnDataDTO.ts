@@ -21,7 +21,17 @@ export const TurnDataDTO = z.object({
                     code: z.number(),
                     label: z.string().min(2).max(100)
                 }),
-                module: z.string().nullable(),
+                module: z.object(
+                    {
+                        id: z.number(),
+                        internalCode: z.string().min(2).max(10),
+                        name: z.string().min(5).max(100),
+                        swActive: z.object({
+                            code: z.number(),
+                            label: z.string().min(2).max(100)
+                        }),
+                    }
+                )
             }),
             classificationAttention: z.object({
                 id: z.number(),

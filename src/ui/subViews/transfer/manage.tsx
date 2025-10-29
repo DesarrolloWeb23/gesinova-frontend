@@ -63,6 +63,12 @@ export const columnsTurns = (handleSelectTurn: (turn: Turns) => void): ColumnDef
         cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention.attentionType.description}</div>,
     },
     {
+        accessorFn: (row) => row.attentionService.module.name,
+        id: "module",
+        header: "Modulo",
+        cell: ({ row }) => <div className="uppercase"><Badge variant="outline" className="text-green-600 border-green-300 bg-green-50 px-4 py-1 rounded-full">{row.original.attentionService.module.name}</Badge></div>,
+    },
+    {
         id: "actions",
         enableHiding: false,
         header: "Acciones",
@@ -526,11 +532,11 @@ export default function Manage(){
                                     </div>
 
                                     <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogCancel onClick={() => setMotivo("")}>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction
                                         disabled={!motivo}
                                         onClick={() => handleCancelTurn(selectedTurn!.id.toString(), motivo)}
-                                        className="bg-red-500 hover:bg-red-600 text-white"
+                                        className=""
                                     >
                                         Continuar
                                     </AlertDialogAction>
