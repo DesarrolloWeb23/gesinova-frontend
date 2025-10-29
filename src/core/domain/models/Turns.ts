@@ -17,7 +17,15 @@ export interface Turns {
             code: number,
             label: string
         },
-        module: string | null,
+        module: {
+            id: number,
+            internalCode: string,
+            name: string,
+            swActive: {
+                code: number,
+                label: string
+            },
+        }
     },
     classificationAttention: {
         id: number,

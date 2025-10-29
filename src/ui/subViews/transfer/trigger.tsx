@@ -480,7 +480,9 @@ export default function Trigger() {
                             <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-new">Nombre completo</Label>
-                                    <Input id="tabs-demo-new" placeholder="Nombre completo" value={affiliate.firstName + ' ' + affiliate.middleName + ' ' + affiliate.firstLastName + ' ' + affiliate.secondLastName || ""} readOnly/>
+                                    <Input id="tabs-demo-new" placeholder="Nombre completo" value={[affiliate.firstName, affiliate.middleName, affiliate.firstLastName, affiliate.secondLastName]
+                                    .filter(Boolean)
+                                    .join(' ')} readOnly/>
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-new">Departamento</Label>
