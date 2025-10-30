@@ -10,8 +10,8 @@ export class GenerateAppointment {
 
             //concatenar middleName y firstName de affiliate
             const data = {
-                firstName: affiliate.firstName + (affiliate.middleName ? ` ${affiliate.middleName}` : ""),
-                lastName: affiliate.firstLastName + (affiliate.secondLastName ? ` ${affiliate.secondLastName}` : ""),
+                firstName: affiliate.firstName + ' ' + (affiliate.middleName ?  affiliate.middleName : ""),
+                lastName: affiliate.firstLastName + ' ' + (affiliate.secondLastName ?  affiliate.secondLastName : ""),
                 identificationType: affiliate.identificationType,
                 identificationNumber: affiliate.identificationNumber,
                 attentionService,
