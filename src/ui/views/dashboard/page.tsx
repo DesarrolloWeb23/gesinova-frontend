@@ -21,6 +21,7 @@ import { MdNotificationsActive } from "react-icons/md";
 import { useView } from "@/ui/context/ViewContext";
 import UnderConstruction from "@/ui/components/UnderConstruction";
 import SocialIcons from "@/ui/components/SocialIcons";
+import ChangePasswordCard from "@/ui/components/ChangePasswordCard";
 
 const subViewsMap: Record<string, React.ComponentType> = {
     Dashboard: SubDashboard,
@@ -37,6 +38,7 @@ export default function Dashboard() {
     const user = sessionStorage.getItem("user");
     const SubViewComponent = subViewsMap[subView];
     const [notificationCount, setNotificationCount] = useState(0);
+    const firstLogin = localStorage.getItem("isFirstLogin");
 
     //funcion que simula la obtención de notificaciones
     const fetchNotifications = () => {
@@ -62,6 +64,14 @@ export default function Dashboard() {
             sessionStorage.setItem("SubView", subView);
         }
     }, [subView]); 
+
+    if (firstLogin === "true") {
+        return (
+            <div className="bg-primary min-h-screen flex items-center justify-center p-4">
+                <ChangePasswordCard />
+            </div>
+        )
+    }
 
     return (
         <SidebarProvider>

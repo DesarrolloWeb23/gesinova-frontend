@@ -39,8 +39,8 @@ export class TransferService implements TransferRepository {
     async generateAppointment(data: GenerateAppointmentData): Promise<TurnApiResponse> {
         try {
             const response = await http.post(`/turns/generate`, { 
-                firstName: data.firstName,
-                lastName: data.lastName,
+                firstName: data.firstName.trim(),
+                lastName: data.lastName.trim(),
                 identificationType: data.identificationType,
                 identificationNumber: data.identificationNumber,
                 attentionService: data.attentionService,
