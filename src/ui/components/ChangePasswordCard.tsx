@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/ui/components/ui/button"
 import { ChangePassword } from "@/core/domain/use-cases/ChangePassword";
-import { useView } from '../context/ViewContext';
 import { Input } from './ui/input';
 
 const FormSchema = z.object({
@@ -27,7 +26,6 @@ const FormSchema = z.object({
 }) 
 
 function ChangePasswordCard() {
-    const { setSubView } = useView();
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
