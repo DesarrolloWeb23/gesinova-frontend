@@ -384,7 +384,7 @@ export default function Manage(){
                             <div className="grid gap-2 flex items-center justify-center">
                                 <div className="flex items-center justify-center rounded-lg relative gap-2">
                                     {/** boton en la parte superior derecha para ver detalles del turno */}
-                                    <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-60 w-70 bg-gray-100 relative">
+                                    <div className="animate-in fade-in slide-in-from-top-8 duration-900 border border-gray-300 p-4 flex items-center justify-center rounded-lg  h-60 w-70 bg-input dark:bg-input/30 relative">
                                     {selectedTurn && (
                                         <div className={` ${selectedTurn.state?.code !== 1 ? 'hidden' : ''} absolute top-2 right-4 cursor-pointer`} onClick={() => handleClearSelectedTurn()}>
                                             x
@@ -460,7 +460,7 @@ export default function Manage(){
                                             </DialogDescription>
                                             </DialogHeader>
 
-                                            <div className="grid gap-3">
+                                            <div className="grid gap-4 py-4">
                                                 <FormField
                                                 control={form.control}
                                                 name="attentionService"
@@ -518,17 +518,17 @@ export default function Manage(){
                                     </AlertDialogHeader>
 
                                     <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Motivo de cancelación</label>
-                                    <Select onValueChange={setMotivo}>
-                                        <SelectTrigger>
-                                        <SelectValue placeholder="Selecciona un motivo" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                        <SelectItem value="abandono">Cancelado por abandono</SelectItem>
-                                        <SelectItem value="fuera_horario">Turno fuera del horario laboral</SelectItem>
-                                        <SelectItem value="expirado">Expiró el tiempo de atención</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                        <label className="text-sm font-medium text-gray-700">Motivo de cancelación</label>
+                                        <Select onValueChange={setMotivo}>
+                                            <SelectTrigger>
+                                            <SelectValue placeholder="Selecciona un motivo" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                            <SelectItem value="abandono">Cancelado por abandono</SelectItem>
+                                            <SelectItem value="fuera_horario">Turno fuera del horario laboral</SelectItem>
+                                            <SelectItem value="expirado">Expiró el tiempo de atención</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     <AlertDialogFooter>
@@ -557,7 +557,7 @@ export default function Manage(){
                             DATOS DEL LLAMADO
                         </div>
                         <div className="flex justify-center gap-4">
-                            <Badge variant="outline" className="text-blue-600 border-blue-300">
+                            <Badge variant="outline" className="text-blue-600 bg-blue-100 border-blue-300">
                                 <Bell className="w-4 h-4 mr-1 text-blue-600" />
                                 Pendientes: {turnsPending.length}
                             </Badge>
@@ -567,7 +567,7 @@ export default function Manage(){
                                 Cancelados: {turnsCancelled}
                             </Badge>
 
-                            <Badge variant="outline" className="text-blue-600 border-blue-300">
+                            <Badge variant="outline" className="text-blue-600 bg-blue-100 border-blue-300">
                                 <Bell className="w-4 h-4 mr-1 text-blue-600" />
                                 Finalizados: {turnsCompleted}
                             </Badge>

@@ -176,7 +176,7 @@ export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTu
                             onChange={(event) =>
                                 tableTurns.getColumn("turnCode")?.setFilterValue(event.target.value)
                             }
-                            className="max-w-sm"
+                            className="w-64"
                         />
                     </div>
                     <div className="rounded-md border">
@@ -229,11 +229,7 @@ export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTu
                         </TableBody>
                         </Table>
                     </div>
-                    <div className="flex items-center justify-end space-x-2 py-4">
-                        <div className="text-muted-foreground flex-1 text-sm">
-                        {tableTurns.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {tableTurns.getFilteredRowModel().rows.length} Fila(s) seleccionadas.
-                        </div>
+                    <div className="flex items-center  space-x-2 py-4">
                         <Select
                         value={tableTurns.getState().pagination.pageSize.toString()}
                         onValueChange={(value) => {
@@ -252,23 +248,23 @@ export default function TableTurns( { handleTurnSelect, turnsReceived, columnsTu
                                 <SelectItem value={allOption}>Mostrar todo</SelectItem>
                             </SelectContent>
                         </Select>
-                        <div className="space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => tableTurns.previousPage()}
-                            disabled={!tableTurns.getCanPreviousPage()}
-                        >
-                            Anterior
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => tableTurns.nextPage()}
-                            disabled={!tableTurns.getCanNextPage()}
-                        >
-                            Siguiente
-                        </Button>
+                        <div className="space-x-2 justify-end flex-1 flex">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => tableTurns.previousPage()}
+                                disabled={!tableTurns.getCanPreviousPage()}
+                            >
+                                Anterior
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => tableTurns.nextPage()}
+                                disabled={!tableTurns.getCanNextPage()}
+                            >
+                                Siguiente
+                            </Button>
                         </div>
                     </div>
                 </div>
