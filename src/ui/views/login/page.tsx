@@ -76,6 +76,7 @@ export default function Login() {
                 login(response.data.user! , response.data.accessToken!);
                 validationToken(response.data.tempToken as string);
                 handleChangeView("ActivateMfa");
+                localStorage.setItem("isFirstLogin", "true");
                 setIsSubmitting(false);
                 return;
               }
