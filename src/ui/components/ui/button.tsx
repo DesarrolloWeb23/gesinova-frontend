@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground flex flex-row justify-center items-center px-[38px] py-[15px] rounded-[16px] border border-transparent tracking-[1px] transition-all duration-150 ease-linear hover:bg-secondary/10 hover:border-secondary hover:text-secondary hover:-translate-y-[5px] hover:scale-105 disabled:bg-white/20 disabled:text-muted-foreground disabled:border-muted",
         tertiary:
-          "bg-tertiary items-center justify-center flex border-2 border-tertiary shadow-lg hover:bg-tertiary/70 text-foreground hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
+          "bg-transparent items-center justify-center flex border-2 border-tertiary shadow-lg hover:bg-tertiary/70 text-tertiary hover:text-white duration-300 cursor-pointer active:scale-[0.98]",
         ghost:
           "border-2 border-accent hover:bg-accent shadow-lg hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",

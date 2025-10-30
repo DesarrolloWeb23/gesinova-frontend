@@ -300,7 +300,7 @@ export default function Trigger() {
     return (
         <>
             <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/3 m-2">
-                <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
+                <Card className="rounded-2xl shadow-lg border border-gray-100 w-full ">
                     <CardContent >
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleGetAffiliate)} className="grid gap-6">
@@ -495,7 +495,7 @@ export default function Trigger() {
                             </div>
                             <CardFooter className="grid grid-cols-2 lg:grid-cols-2 gap-2">
                                 {attentionServices.map(service => (
-                                    <Button key={service.id} className={`${isValid ? '' : 'hidden'} text-black whitespace-normal break-words text-center sm:text-xl lg:text-xl h-20`} onClick={() => handleGenerateAppointment(service.id)}>
+                                    <Button key={service.id} className={`${isValid ? '' : 'hidden'} text-foreground whitespace-normal break-words text-center sm:text-xl lg:text-xl h-20`} onClick={() => handleGenerateAppointment(service.id)}>
                                         <BsBackpack2Fill />
                                         {service.name}
                                     </Button>
