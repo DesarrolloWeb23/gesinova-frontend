@@ -152,7 +152,7 @@ export class TransferService implements TransferRepository {
     //funcion para consultar los turnos
     async getTurns(): Promise<TurnDataApiResponse> {
         try {
-            const response = await http.get(`/turns`, { withCredentials: true });
+            const response = await http.get(`/turns?size=999`, { withCredentials: true });
             return TurnDataApiResponseDTO.parse(response.data);
         } catch (err: unknown) {
             if (err instanceof ZodError) {
