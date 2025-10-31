@@ -123,6 +123,7 @@ export default function Manage(){
                 })
                 .catch ((error) => {
                     setIsLoading(false);
+                    console.error(error.details);
                     throw error;
                 }),
                 {
@@ -350,6 +351,7 @@ export default function Manage(){
                 })
                 .catch ((error) => {
                     setIsLoading(false);
+                    console.error(error.details);
                     throw error;
                 }),
                 {

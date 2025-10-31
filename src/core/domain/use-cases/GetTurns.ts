@@ -43,6 +43,7 @@ export class GetTurns {
                 throw {
                     status: "VALIDATION_ERROR",
                     message: "La estructura de datos recibida no es válida.",
+                    details: error.issues,
                 };
             }
             if (error.type === "unknown_api_error") {
