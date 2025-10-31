@@ -9,6 +9,7 @@ export const TurnDataDTO = z.object({
             identificationNumber: z.string().max(50),
             firstName: z.string().min(2).max(100),
             lastName: z.string().min(2).max(100),
+            userProcess: z.string().nullable(),
             state: z.object({
                 code: z.number(),
                 label: z.string().min(2).max(100)
