@@ -48,25 +48,37 @@ export const columnsTurns = (handleSelectTurn: (turn: Turns) => void): ColumnDef
     {
         accessorKey: "turnCode",
         header: "Turno",
-        cell: ({ row }) => <div className="uppercase">{row.getValue("turnCode")}</div>,
+        cell: ({ row }) => <div >{row.getValue("turnCode")}</div>,
     },
     {
         accessorFn: (row) => row.state?.label, 
         id: "state",
         header: "Estado",
-        cell: ({ row }) => <div className="uppercase">{row.original.state?.label}</div>,
+        cell: ({ row }) => <div>{row.original.state?.label}</div>,
     },
     {
-        accessorFn: (row) => row.classificationAttention.attentionType.description, 
+        accessorFn: (row) => {
+            const text = row.classificationAttention.attentionType.description;
+            return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+        },
         id: "attentionType",
         header: "Prioridad",
-        cell: ({ row }) => <div className="uppercase">{row.original.classificationAttention.attentionType.description}</div>,
+        cell: ({ row }) => <div className="lowercase">
+                {row.original.classificationAttention.attentionType.description}
+                    {row.original.classificationAttention.attentionType.description?.toUpperCase() === "PREFERENCIAL" && (
+                    <span className="text-yellow-500"> ⭐</span>
+                )}
+            </div>,
     },
     {
         accessorFn: (row) => row.attentionService.module.name,
         id: "module",
         header: "Modulo",
-        cell: ({ row }) => <div className="uppercase"><Badge variant="outline" className="text-green-600 border-green-300 bg-green-50 px-4 py-1 rounded-full">{row.original.attentionService.module.name}</Badge></div>,
+        cell: ({ row }) => <div className="uppercase">
+                <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50 px-4 py-1 rounded-full">
+                    {row.original.attentionService.module.name}
+                </Badge>
+            </div>,
     },
     {
         id: "actions",
