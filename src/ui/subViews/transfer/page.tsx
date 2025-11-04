@@ -71,7 +71,7 @@ export default function Transfer() {
                 <TabsContent value="trigger" className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center">
                     <Trigger />
                 </TabsContent>
-                <TabsContent value="manage" className="grid grid-cols-1 flex align-center justify-center">
+                <TabsContent value="manage" className="grid grid-cols-1 flex flex-wrap md:flex-nowrap align-center justify-center">
                     <Manage />
                 </TabsContent>
                 <TabsContent value="report" className="grid grid-cols-1">
