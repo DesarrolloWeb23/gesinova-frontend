@@ -55,6 +55,7 @@ export default function Trigger() {
     const [isRegistering, setIsRegistering] = useState(false);
     const didFetch = useRef(false);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -153,7 +154,8 @@ export default function Trigger() {
     //funcion auxiliar para generar turno
     const handleGenerateAppointment = async (dattentionService: number) => {
         if (!isValid) return;
-
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         const priorityNumber = Number(priority);
 
         let affiliateData: Affiliate;
@@ -234,17 +236,23 @@ export default function Trigger() {
 
         try {
             await toast.promise(
-            generateAppointmentUseCase.execute(data, dattentionService, priorityNumber)
+                generateAppointmentUseCase.execute(data, dattentionService, priorityNumber)
                 .then((response) => {
-                setTurn(response.data);
-                setShowModal(true);
+                    setTurn(response.data);
+                    setShowModal(true);
+                    setIsSubmitting(false);
+                })
+                .catch((error) => {
+                    setIsSubmitting(false);
+                    throw error;
                 }),
-            {
-                loading: getMessage("success", "loading"),
-                error: (error) => error?.message,
-            }
+                {
+                    loading: getMessage("success", "loading"),
+                    error: (error) => error?.message,
+                }
             );
         } catch (error) {
+            setIsSubmitting(false);
             console.error("Error al generar el turno:", error);
         }
     };
@@ -467,9 +475,9 @@ export default function Trigger() {
                                 </div>
                                 <CardFooter className="grid grid-cols-2 lg:grid-cols-2 gap-2">
                                     {attentionServices.map(service => (
-                                        <Button type="button" key={service.id} className={`${isValid ? '' : 'hidden'} text-black h-20`} onClick={() => handleGenerateAppointment(service.id)}>
+                                        <Button type="button" key={service.id} className={`${isValid ? '' : 'hidden'} text-foreground whitespace-normal break-words text-center sm:text-xl lg:text-xl h-20`} onClick={() => handleGenerateAppointment(service.id)}>
                                             <BsBackpack2Fill />
-                                            {service.name}
+                                            {isSubmitting ? 'Cargando...' : service.name}
                                         </Button>
                                     ))}
                                 </CardFooter>
@@ -497,7 +505,7 @@ export default function Trigger() {
                                 {attentionServices.map(service => (
                                     <Button key={service.id} className={`${isValid ? '' : 'hidden'} text-foreground whitespace-normal break-words text-center sm:text-xl lg:text-xl h-20`} onClick={() => handleGenerateAppointment(service.id)}>
                                         <BsBackpack2Fill />
-                                        {service.name}
+                                        {isSubmitting ? 'Cargando...' : service.name}
                                     </Button>
                                 ))}
                             </CardFooter>
