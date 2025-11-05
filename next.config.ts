@@ -13,7 +13,7 @@ const ContentSecurityPolicy = `
     blob:;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' 
-    http://gesinova.pijaossalud.com
+    https://gesinovaapi.pijaossalud.com
     https://images.ctfassets.net
     https://cdn.contentful.com
     https://preview.contentful.com;
