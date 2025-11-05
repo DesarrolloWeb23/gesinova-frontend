@@ -48,6 +48,10 @@ const securityHeaders = [
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
+  {
+    key: "Permissions-Policy",
+    value: "geolocation=(), microphone=(), camera=(), payment=(), usb=(), bluetooth=(), gyroscope=(), magnetometer=(), accelerometer=(), vr=(), fullscreen=(self)",
+  },
 ];
 
 const nextConfig: NextConfig = {
