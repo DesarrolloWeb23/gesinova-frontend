@@ -121,36 +121,19 @@ export default function Profile() {
                         const qrWindow = window.open("", "_blank");
                         if (qrWindow) {
                             const html = `
-                                <html>
+                            <html>
                                 <head>
-                                    <title>QR Code</title>
-                                    <style>
-                                    body {
-                                        font-family: sans-serif;
-                                        display: flex;
-                                        flex-direction: column;
-                                        align-items: center;
-                                        justify-content: center;
-                                        height: 100vh;
-                                        margin: 0;
-                                        background: white;
-                                        }
-                                        img {
-                                        width: 256px;
-                                        height: 256px;
-                                        border: 1px solid #ccc;
-                                        border-radius: 8px;
-                                        }
-                                        </style>
-                                        </head>
-                                        <body>
-                                        <h2>Escanea este código QR</h2>
-                                        <img src="${response.data.qrUri}" alt="QR Code" />
-                                        </body>
-                                        </html>
-                                        `
-                                        qrWindow.document.write(html);
-                                        qrWindow.document.close();
+                                <title>QR Code</title>
+                                <link rel="stylesheet" href="/qr-window.css">
+                                </head>
+                                <body>
+                                <h2>Escanea este código QR</h2>
+                                <img src="${response.data.qrUri}" alt="QR Code" />
+                                </body>
+                            </html>
+                            `
+                            qrWindow.document.write(html);
+                            qrWindow.document.close();
                         }
                         toast.success(getMessage("success", "mfa_qr_code"));
                     } else if (response.message === "OPT_ACTIVATED") {

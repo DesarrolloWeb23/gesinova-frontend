@@ -904,3 +904,47 @@
   }
 }
 
+/* Estilos arbol de navidad */
+.st0{fill:#332C28;}
+.st1{fill:#00513E;}
+.st2{fill:#003828;}
+.st3{fill:#386FB1;}
+.st4{fill:#28527C;}
+.st5{fill:#EA385C;}
+.st6{fill:#E7B75C;}
+.st7{fill:#B28947;}
+
+/* Lights animations */
+.red { fill:#B22A45; animation:red-flash .6s ease-in-out infinite; }
+@keyframes red-flash {
+  40% { fill:#EA385C; }
+  80% { fill:#B22A45; }
+}
+
+.gold-lt { fill:#B28E49; animation:gold-lt-flash .6s ease-in-out infinite; }
+@keyframes gold-lt-flash {
+  40% { fill:#E7B75C; }
+  80% { fill:#B28E49; }
+}
+
+.blue-lt { fill:#2B568B; animation:blue-lt-flash .6s ease-in-out infinite; }
+@keyframes blue-lt-flash {
+  40% { fill:#386FB1; }
+  80% { fill:#2B568B; }
+}
+
+.blue-dk { fill:#1E3F61; animation:blue-dk-flash .6s ease-in-out infinite; }
+@keyframes blue-dk-flash {
+  40% { fill:#28527C; }
+  80% { fill:#1E3F61; }
+}
+
+.gold-dk { fill:#8C6D39; animation:gold-dk-flash .6s ease-in-out infinite; }
+@keyframes gold-dk-flash {
+  40% { fill:#B28947; }
+  80% { fill:#8C6D39; }
+}
+
+.g1 { animation-delay: 0s; }
+.g2 { animation-delay: .4s; }
+.g3 { animation-delay: .8s; }
