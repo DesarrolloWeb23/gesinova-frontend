@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const ContentSecurityPolicy = `
-  default-src 'none';
+  default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self'
