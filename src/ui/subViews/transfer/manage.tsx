@@ -44,11 +44,17 @@ import {
 const formSchema = z.object({
     attentionService: z.string().min(1).max(100)
 });
-export const columnsTurns = (handleSelectTurn: (turn: Turns) => void): ColumnDef<Turns>[] => [
+export const columnsTurns = (handleSelectTurn: (turn: Turns) => void, selectedTurn: Turns | null): ColumnDef<Turns>[] => [
     {
         accessorKey: "turnCode",
         header: "Turno",
         cell: ({ row }) => <div >{row.getValue("turnCode")}</div>,
+    },
+    {
+        accessorFn: (row) => row.firstName + " " + row.lastName, 
+        id: "name",
+        header: "Nombre",
+        cell: ({ row }) => <div>{row.original.firstName + " " + row.original.lastName}</div>,
     },
     {
         accessorFn: (row) => row.state?.label, 
@@ -87,7 +93,11 @@ export const columnsTurns = (handleSelectTurn: (turn: Turns) => void): ColumnDef
         cell: ({ row }) => {
             const turn = row.original
             return (
-                <Button className={turn.state.code !== 1 ? 'hidden' : ''} onClick={() => handleSelectTurn(turn)} variant="outline">
+                <Button   className={`${
+                        turn.state.code !== 1 || (selectedTurn && selectedTurn.state.code !== 1)
+                        ? 'hidden'
+                        : ''
+                    }`} onClick={() => handleSelectTurn(turn)} variant="outline">
                     <BsBackpack2Fill />
                     Seleccionar
                 </Button>
@@ -391,7 +401,7 @@ export default function Manage(){
 
     return (
         <>
-            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full sm:max-w-9/10 m-1">
+            <div className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-1/3 m-2">
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent>
                         <div className="grid grid-cols-1 gap-4">
@@ -564,7 +574,7 @@ export default function Manage(){
                     </CardFooter>
                 </Card>
             </div>
-            <div  className="animate-in fade-in slide-in-from-top-8 duration-400 max-w-1/2 w-full m-1 hidden md:block">
+            <div  className="animate-in fade-in slide-in-from-top-8 duration-400 w-full lg:max-w-3/4 m-2">
                 <Card className="bg-primary rounded-2xl shadow-lg border border-gray-100 w-full">
                     <CardContent className="grid gap-6">
                         <div className="text-center font-bold text-foreground">
@@ -589,7 +599,7 @@ export default function Manage(){
                         {isLoading ? (
                             <Loading />
                         ): 
-                            <TableTurns handleTurnSelect={handleSelectTurn} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleSelectTurn)} />
+                            <TableTurns handleTurnSelect={handleSelectTurn} turnsReceived={turns} columnsTurnsReceived={columnsTurns(handleSelectTurn, selectedTurn)} />
 
                         }
                     </CardContent>
