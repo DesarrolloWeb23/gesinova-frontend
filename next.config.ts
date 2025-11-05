@@ -5,15 +5,12 @@ const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self'
-    https://images.ctfassets.net
-    https://github.com
-    https://avatars.githubusercontent.com
-    https://*.githubusercontent.com
+    https:
     data:
     blob:;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' 
-    https://gesinovaapi.pijaossalud.com
+    http://localhost:8080
     https://images.ctfassets.net
     https://cdn.contentful.com
     https://preview.contentful.com;
