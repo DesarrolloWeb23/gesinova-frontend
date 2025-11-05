@@ -5,9 +5,14 @@ const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self'
-    https:
+    https://images.ctfassets.net
+    https://*.ctfassets.net
+    https://github.com
+    https://avatars.githubusercontent.com
+    https://*.githubusercontent.com
     data:
-    blob:;
+    blob:
+    https:;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' 
     http://localhost:8080
