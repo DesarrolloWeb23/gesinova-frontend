@@ -473,6 +473,4 @@ function TableUsers({handleUserSelect }: Props) {
     )
 }
 
-
-
 export { TableUsers, CompUser }

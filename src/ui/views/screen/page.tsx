@@ -36,9 +36,6 @@ const keys = [
 ];
 
 export default function Screen() {
-  
-  // const [isSubmitting, setIsSubmitting] = useState(false);
-  // const { login, validationToken } = useAuth();
   const { setView } = useView();
   
     const form = useForm<z.infer<typeof formSchema>>({
@@ -55,14 +52,6 @@ export default function Screen() {
         setView(view) 
       }, 500)
     }
-    
-    // const [output, setOutput] = useState('');
-
-    // const handleClick = (key: string) => {
-    //     setOutput(prev => prev + (key === 'space' ? ' ' : key));
-    // };
-    
-
     
     return (
       <div id="container" className="h-dvh">
@@ -124,10 +113,6 @@ export default function Screen() {
               ))}
               </div>
           ))}
-          {/* <div className="flex gap-2 w-[740px] justify-between mt-2">
-              <button className="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded flex-1">Space</button>
-          </div> */}
         </div>
       </div>
     );

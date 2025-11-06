@@ -81,10 +81,8 @@ http.interceptors.response.use(
       };
       return Promise.reject(apiError);
     }
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // localStorage.removeItem("token");
-      // sessionStorage.removeItem("token");
       originalRequest._retry = true;
       const shouldRenew = await showSessionModal();
       if (shouldRenew) {

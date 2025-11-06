@@ -135,6 +135,16 @@ export default function Manage(){
             await toast.promise( 
                 getTurnsUseCase.execute()
                 .then((response) => {
+                    // Actualizar los turnos y el turno almacenado en localstorage
+                    setSelectedTurn((prevTurn) => {
+                        if (!prevTurn) return null;
+                        const updated = response.find((turn) => turn.id === prevTurn.id) || prevTurn;
+
+                        // ✅ Actualizar localStorage
+                        localStorage.setItem("selectedTurn", JSON.stringify(updated));
+
+                        return updated;
+                    });
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
                     //asigna los turnos a los estados correspondientes
@@ -163,6 +173,14 @@ export default function Manage(){
     //funcion para avanzar el estado del turno
     async function handleAdvanceTurnState(turn: Turns) {
         const advanceTurnStateUseCase = new AdvanceTurnState(new TransferService());
+
+        //valida si el estado del turno es finalizado elimina el selectedTurn y genera alerta
+        if (turn.state.code === 4) {
+            handleClearSelectedTurn();
+            toast.error("El turno ya se encuentra finalizado");
+            return;
+        }
+
         try {
             await toast.promise(
                 advanceTurnStateUseCase.execute(turn.id)
@@ -353,15 +371,22 @@ export default function Manage(){
 
     useEffect(() => {
         if (didFetch.current) return;
-        // didFetch.current = true;
-        // fetchTurnsByState(state);
-        //fetchTurns();
         setIsLoading(true);
         const getTurnsUseCase = new GetTurns(new TransferService());
         try {
             toast.promise( 
                 getTurnsUseCase.execute()
                 .then((response) => {
+                    // Actualizar los turnos y el turno almacenado en localstorage
+                    setSelectedTurn((prevTurn) => {
+                        if (!prevTurn) return null;
+                        const updated = response.find((turn) => turn.id === prevTurn.id) || prevTurn;
+
+                        // ✅ Actualizar localStorage
+                        localStorage.setItem("selectedTurn", JSON.stringify(updated));
+
+                        return updated;
+                    });
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
                     //asigna los turnos a los estados correspondientes
@@ -443,16 +468,6 @@ export default function Manage(){
                                 <Input id="tabs-demo-new" placeholder="Nombre" defaultValue={
                                     selectedTurn ? selectedTurn.firstName + " " + selectedTurn.lastName : ""
                                 } readOnly/>
-                                {/* <div className='grid grid-cols-2 gap-2'> 
-                                    <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">Numero</Label>
-                                        <Input id="tabs-demo-new" placeholder="Numero" />
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">Edad</Label>
-                                        <Input id="tabs-demo-new" placeholder="Edad" />
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
                     </CardContent>
