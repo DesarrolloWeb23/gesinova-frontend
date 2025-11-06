@@ -101,19 +101,19 @@ export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): Col
 
         return (
             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                    <DropdownMenuItem
-                    onClick={() =>  handleTurnSelect(turnSelected)}
-                    >Gestionar permisos
-                    </DropdownMenuItem>
-            </DropdownMenuContent>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                        <DropdownMenuItem
+                        onClick={() =>  handleTurnSelect(turnSelected)}
+                        >Gestionar permisos
+                        </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
         )
         },

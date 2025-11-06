@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { Button } from "@/ui/components/ui/button"; // Asume que tienes el componente Button de Shadcn UI
+import { Button } from "@/ui/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuSub,
     DropdownMenuSubTrigger, 
-} from "@/ui/components/ui/dropdown-menu"; // Para el menú desplegable
+} from "@/ui/components/ui/dropdown-menu";
 import { useTheme } from "next-themes"
 import { getMessage } from "@/core/domain/messages";
 import { IoAccessibility } from "react-icons/io5";

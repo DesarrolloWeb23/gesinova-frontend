@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (user: User, token: string) => {
     const fullName = capitalizeFullName(`${user.name} ${user.lastName}`);
     sessionStorage.setItem("user", fullName);
-    sessionStorage.setItem("token", token); // O usa sessionStorage (se borra al cerrar el navegador)
+    sessionStorage.setItem("token", token);
   };
 
   const logout = () => {

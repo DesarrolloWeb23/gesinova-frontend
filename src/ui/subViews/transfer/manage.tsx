@@ -353,9 +353,6 @@ export default function Manage(){
 
     useEffect(() => {
         if (didFetch.current) return;
-        // didFetch.current = true;
-        // fetchTurnsByState(state);
-        //fetchTurns();
         setIsLoading(true);
         const getTurnsUseCase = new GetTurns(new TransferService());
         try {
@@ -443,16 +440,6 @@ export default function Manage(){
                                 <Input id="tabs-demo-new" placeholder="Nombre" defaultValue={
                                     selectedTurn ? selectedTurn.firstName + " " + selectedTurn.lastName : ""
                                 } readOnly/>
-                                {/* <div className='grid grid-cols-2 gap-2'> 
-                                    <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">Numero</Label>
-                                        <Input id="tabs-demo-new" placeholder="Numero" />
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <Label htmlFor="tabs-demo-new">Edad</Label>
-                                        <Input id="tabs-demo-new" placeholder="Edad" />
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
                     </CardContent>
