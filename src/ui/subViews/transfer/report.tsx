@@ -1,3 +1,4 @@
+import * as React from "react"
 import { getMessage } from "@/core/domain/messages";
 import { TransferService } from "@/core/infrastructure/api/services/TransferService";
 import Loading from "@/ui/components/Loading";
@@ -14,6 +15,7 @@ import { GetReportTurns } from "@/core/domain/use-cases/GetReportTurns";
 import { ReportTurns } from "@/core/domain/models/ReportTurns";
 import TableReportTurns from "@/ui/components/TableReportTurns";
 import { exportToExcel } from "@/lib/exportToExcel";
+import { decodeJwt, JwtPayload } from "@/lib/jwt";
 
 export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): ColumnDef<ReportTurns>[] => [
     {
@@ -88,7 +90,7 @@ export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): Col
     {
         accessorFn: (row) => row.userProcess, 
         id: "userProcess",
-        header: "Tiempo de proceso del usuario",
+        header: "Usuario",
         cell: ({ row }) => <div className="uppercase">{row.original.userProcess}</div>,
     },
     {
@@ -118,12 +120,15 @@ export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): Col
     },
 ]
 
+
+
 export default function Report(){
     const [turn, setTurn] = useState<ReportTurns | null>(null);
     const [turns, setTurns] = useState<ReportTurns[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
     const [pageSize, setPageSize] = useState(100);
+    const [downloadPermission, setDownloadPermission] = useState(false);
 
     //funcion al momento de seleccionar un turno
     const handleTurnSelect = (selectedTurn: ReportTurns) => {
@@ -163,7 +168,28 @@ export default function Report(){
         }
     }
 
+    const validateUserPermissions = () => {
+        setDownloadPermission(false);
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        let usertoken: JwtPayload | null;
+
+        if (token) {
+            usertoken = decodeJwt(token);
+        } else {
+            usertoken = null;
+        }
+
+        if (usertoken) {
+            //recorre el usertoken.permissions  para validar si tiene permiso de s uper admin
+            const hasSuperAdminPermission = usertoken.permissions.includes("SUPER_ADMIN");
+            if (!hasSuperAdminPermission) {
+                setDownloadPermission(true);
+            }
+        }
+    };
+
     useEffect(() => {
+        validateUserPermissions();
         setIsLoading(true);
         const getTurnsUseCase = new GetReportTurns(new TransferService());
         try {
@@ -209,9 +235,9 @@ export default function Report(){
                 <div>No se pudieron cargar los datos</div>
                 <div>
                     <Button
-                    onClick={() => {
-                        handleGetReportTurns();
-                    }}
+                        onClick={() => {
+                            handleGetReportTurns();
+                        }}
                     >
                     Reintentar
                     </Button>
@@ -226,11 +252,12 @@ return (
             <Loading />
         ) : (
             <>
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Reporte de Turnos</h2>
+                <div className="relative flex justify-end items-center mb-4">
+                    <h1 className="absolute left-1/2 -translate-x-1/2 font-bold text-foreground">REPORTE DE TURNOS</h1>
                     <Button 
                         onClick={handleExport} 
                         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        disabled={downloadPermission}
                     >
                         <Download className="w-4 h-4" />
                         Descargar Excel
