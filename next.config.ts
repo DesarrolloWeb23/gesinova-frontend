@@ -53,13 +53,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.ctfassets.net",
-        pathname: "**",
-      },
-    ],
+    unoptimized: true,
   },
 
   async headers() {
