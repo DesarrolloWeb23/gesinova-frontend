@@ -174,10 +174,10 @@ export default function Manage(){
     async function handleAdvanceTurnState(turn: Turns) {
         const advanceTurnStateUseCase = new AdvanceTurnState(new TransferService());
 
-        //valida si el estado del turno es finalizado elimina el selectedTurn y genera alerta
-        if (turn.state.code === 4) {
+        //valida si el estado del turno es finalizado o cancelado elimina el selectedTurn y genera alerta
+        if (turn.state.code === 4 || turn.state.code === 5) {
             handleClearSelectedTurn();
-            toast.error("El turno ya se encuentra finalizado");
+            toast.error("El turno ya se encuentra finalizado o cancelado");
             return;
         }
 
