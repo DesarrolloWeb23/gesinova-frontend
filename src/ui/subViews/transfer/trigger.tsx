@@ -165,10 +165,12 @@ export default function Trigger() {
             
             if (!affiliate.firstName) {
                 toast.error("El campo Primer nombre es obligatorio");
+                setIsSubmitting(false);
                 return;
             }
             if (!affiliate.firstLastName) {
                 toast.error("El campo Primer apellido es obligatorio");
+                setIsSubmitting(false);
                 return;
             }
 
@@ -179,6 +181,7 @@ export default function Trigger() {
                 !nameRegex.test(affiliate.firstLastName) || 
                 !nameRegex.test(affiliate.secondLastName) ) {
                 toast.error("Los nombres solo deben contener letras sin espacios ni caracteres especiales");
+                setIsSubmitting(false);
                 return;
             }
 
