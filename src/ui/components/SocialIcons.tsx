@@ -7,7 +7,7 @@ function SocialIcons() {
     return (
         <div className="flex items-center justify-center gap-6">
             <a
-            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.pijaossalud.com%2F"
+            href="https://m.facebook.com/people/Pijaos-Salud-Eps-Indigena/100072430669698/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground/80 hover:text-foreground transition-colors"
@@ -17,7 +17,7 @@ function SocialIcons() {
             </a>
 
             <a
-            href="https://api.whatsapp.com/send?text=Inicio https%3A%2F%2Fwww.pijaossalud.com%2F"
+            href="https://wa.me/573102133504"
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground/80 hover:text-foreground transition-colors"
