@@ -36,6 +36,16 @@ import { Input } from "./ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { ReportTurns } from "@/core/domain/models/ReportTurns"
 
+import { Calendar } from "@/ui/components/ui/calendar"
+import { Label } from "@/ui/components/ui/label"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/ui/components/ui/popover"
+import { CalendarIcon } from "lucide-react"
+import { Separator } from "./ui/separator"
+
 type Props = {
     handleTurnSelect: (turn: ReportTurns) => void,
     turnsReceived: ReportTurns[]
@@ -120,7 +130,26 @@ export const columnsTurns = (handleTurnSelect: (turn: ReportTurns) => void): Col
     },
 ]
 
-export default function TableReportTurns( { handleTurnSelect, turnsReceived, columnsTurnsReceived, setPageSize}: Props){
+function formatDate(date: Date | undefined) {
+    if (!date) {
+        return ""
+    }
+
+    return date.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+    })
+}
+
+function isValidDate(date: Date | undefined) {
+    if (!date) {
+        return false
+    }
+    return !isNaN(date.getTime())
+}
+
+export default function TableReportTurns( { handleTurnSelect, turnsReceived, columnsTurnsReceived}: Props){
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -128,6 +157,57 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
     const [isLoading, setIsLoading] = useState(true);
     const [turns, setTurns] = useState<ReportTurns[]>([]);
     const options = [10, 20, 30, 40, 50]
+    const [allTurns, setAllTurns] = useState<ReportTurns[]>([]);
+
+    const [open, setOpen] = React.useState(false)
+    const [date, setDate] = React.useState<Date | undefined>(undefined)
+    const [month, setMonth] = React.useState<Date | undefined>(date)
+    const [value, setValue] = React.useState(formatDate(date))
+
+    const [statusFilter, setStatusFilter] = useState<string>("");
+    const [userFilter, setUserFilter] = useState<string>("");
+
+
+    //funcion para filtrar por fecha
+    const handleDateSelect = (date: Date | undefined) => {
+        setTurns(allTurns);
+        //toma los turnos y filtra por la fecha seleccionada
+        if (!date) return;
+
+        const normalize = (d: Date) => d.toISOString().split("T")[0];
+
+        const selectedDate = normalize(date);
+
+        const filtered = allTurns.filter(turn => {
+            const turnDate = normalize(new Date(turn.attendedDate));
+            return turnDate === selectedDate;
+        });
+        setTurns(filtered);
+    };
+
+    //funcion para filtrar por estado //(falta incluir en el endpoint los estados de los turnos)
+    const handleStatusFilter = () => {
+        // setTurns(allTurns);
+
+        // if (!status) return;
+
+        // const filtered = allTurns.filter(turn => {
+        //     return turn.status === status;
+        // })
+        // setTurns(filtered);
+    }
+
+    //funcion para filtrar por usuario
+    const handleUserFilter = (user: string) => {
+        setTurns(allTurns);
+
+        if (!user) return;
+
+        const filtered = allTurns.filter(turn => {
+            return turn.userProcess === user.toUpperCase();
+        })
+        setTurns(filtered);
+    }
 
     const tableTurns = useReactTable({
         data: turns,
@@ -152,9 +232,19 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
 
     useEffect(() => {
         setTurns(turnsReceived)
+        setAllTurns(turnsReceived)
         setIsLoading(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
+
+    //funcion para reiniciar los filtros
+    const handleReset = () => {
+        setStatusFilter("");
+        setTurns(allTurns);
+        setDate(undefined);
+        setUserFilter("");
+        setValue("");
+    }
 
     return (
         <>
@@ -163,18 +253,143 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
                     <Loading />
                 </div>
             ) : (
-                <div className="w-full p-4">
-                    <div className="flex items-center py-4">
-                        <Input
-                            placeholder="Filtrar turno..."
-                            value={(tableTurns.getColumn("turnCode")?.getFilterValue() as string) ?? ""}
-                            onChange={(event) =>
-                                tableTurns.getColumn("turnCode")?.setFilterValue(event.target.value)
-                            }
-                            className="max-w-sm"
-                        />
+                <div className="grid grid-cols-6 w-full p-4">
+                    <div className="col-span-4 col-start-2 w-5/6 ">
+                        <div className="flex items-center gap-3">
+                            {/*filtro por fecha de atencion*/}
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="date" className="px-1">
+                                    Fecha de atencion
+                                </Label>
+                                <div className="relative flex max-w-sm">
+                                    <Input
+                                    id="date"
+                                    value={value}
+                                    placeholder="June 01, 2025"
+                                    className="bg-background pr-10"
+                                    onChange={(e) => {
+                                        const date = new Date(e.target.value)
+                                        setValue(e.target.value)
+                                        if (isValidDate(date)) {
+                                        setDate(date)
+                                        setMonth(date)
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "ArrowDown") {
+                                        e.preventDefault()
+                                        setOpen(true)
+                                        }
+                                    }}
+                                    />
+                                    <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                        id="date-picker"
+                                        variant="ghost"
+                                        className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                                        >
+                                        <CalendarIcon className="size-3.5" />
+                                        <span className="sr-only">Select date</span>
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        className="w-auto overflow-hidden p-0"
+                                        align="end"
+                                        alignOffset={-8}
+                                        sideOffset={10}
+                                    >
+                                        <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        captionLayout="dropdown"
+                                        month={month}
+                                        onMonthChange={setMonth}
+                                        onSelect={(date) => {
+                                            setDate(date)
+                                            setValue(formatDate(date))
+                                            handleDateSelect(date)
+                                            setOpen(false)
+                                        }}
+                                        />
+                                    </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            {/*filtro por estado*/}
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="date" className="px-1">
+                                    Estado
+                                </Label>
+                                <div className="relative flex max-w-sm">
+                                    <Select 
+                                        value={statusFilter} 
+                                        onValueChange={
+                                            (value) => {
+                                                setStatusFilter(value);
+                                                handleStatusFilter();
+                                            }}
+                                        disabled={true}
+                                    >
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue placeholder="Filtrar por estado" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={"1"}>Pendiente</SelectItem>
+                                            <SelectItem value={"2"}>Llamado</SelectItem>
+                                            <SelectItem value={"3"}>En atención</SelectItem>
+                                            <SelectItem value={"4"}>Finalizado</SelectItem>
+                                            <SelectItem value={"5"}>Cancelado</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            {/*filtro por usuario*/}
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="date" className="px-1">
+                                    Usuario
+                                </Label>
+                                <div className="relative flex max-w-sm">
+                                    <Input
+                                    id="user"
+                                    placeholder="Filtrar por usuario"
+                                    className="bg-background pr-10"
+                                    value={userFilter}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setUserFilter(value);
+                                        handleUserFilter(value);
+                                    }}
+                                    /> 
+                                </div>
+                            </div>
+                            {/*filtro por Codigo*/}
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="date" className="px-1">
+                                    Código de turno
+                                </Label>
+                                <div className="relative flex max-w-sm">
+                                    <Input
+                                        placeholder="Filtrar turno..."
+                                        value={(tableTurns.getColumn("turnCode")?.getFilterValue() as string) ?? ""}
+                                        onChange={(event) =>
+                                            tableTurns.getColumn("turnCode")?.setFilterValue(event.target.value)
+                                        }
+                                        className="max-w-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <Separator className="my-4" />
                     </div>
-                    <div className="rounded-md border">
+                    <div className="col-start-1 col-end-7 flex items-center py-4">
+                        <Button variant={"outline"} className="ml-auto"
+                            onClick={() => {
+                                handleReset();
+                            }}
+                            >Limpiar filtros</Button>
+                    </div>
+                    <div className="col-start-1 col-end-7 rounded-md border">
                         <Table>
                         <TableHeader>
                             {tableTurns.getHeaderGroups().map((headerGroup) => (
@@ -224,7 +439,7 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
                         </TableBody>
                         </Table>
                     </div>
-                    <div className="flex items-center justify-end space-x-2 py-4">
+                    <div className="col-start-1 col-end-7 flex items-center justify-end space-x-2 py-4">
                         <div className="text-muted-foreground flex-1 text-sm">
                         {tableTurns.getFilteredSelectedRowModel().rows.length} of{" "}
                         {tableTurns.getFilteredRowModel().rows.length} Fila(s) seleccionadas.
@@ -233,7 +448,6 @@ export default function TableReportTurns( { handleTurnSelect, turnsReceived, col
                         value={tableTurns.getState().pagination.pageSize.toString()}
                         onValueChange={(value) => {
                             tableTurns.setPageSize(Number(value));
-                            setPageSize(Number(value));
                         }}
                         >
                             <SelectTrigger className="w-[130px] h-9">
