@@ -29,4 +29,5 @@ export interface TransferRepository {
     getTurnsByState(state: number): Promise<TurnDataApiResponse>;
     getAttentionModules(): Promise<AttentionModulesApiResponse>;
     generateTurnReport(page: string, size: string): Promise<ReportTurnDataApiResponse>;
+    getTurnsById(id: number): Promise<TurnDataApiResponse>;
 }
