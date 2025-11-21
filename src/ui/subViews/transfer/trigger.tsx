@@ -83,7 +83,7 @@ export default function Trigger() {
         const affiliateUsesCase = new GetAffiliateByDni(new AffiliateApiService());
         try {
             await toast.promise( 
-                affiliateUsesCase.execute(data.identificationType, data.numberIdentification)
+                affiliateUsesCase.execute(data.identificationType, data.numberIdentification.trim())
                 .then((response) => {
                     setIsRegistering(false);
                     setAffiliate(response);
