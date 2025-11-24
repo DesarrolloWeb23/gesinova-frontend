@@ -400,4 +400,40 @@ export class TransferService implements TransferRepository {
             };
         }
     }
+
+    //funcion para obtener los turnos por id
+    async getTurnsById(id: number): Promise<TurnDataApiResponse> {
+        try {
+            const response = await http.get(`/turns?id=${id}`, { withCredentials: true });
+            return TurnDataApiResponseDTO.parse(response.data);
+        } catch (err: unknown) {
+            if (err instanceof ZodError) {
+                throw {
+                    type: "validation",
+                    issues: err.errors,
+                };
+            }
+
+            if (err instanceof AxiosError && err.response?.data) {
+                const parsed = ApiErrorDTO.safeParse(err.response.data);
+                if (parsed.success) {
+                    throw {
+                        type: "api",
+                        ...parsed.data,
+                    };
+                } else {
+                    throw {
+                        type: "unknown_api_error",
+                        issues: parsed.error.errors,
+                    };
+                }
+            }
+
+            console.error("Error inesperado", err);
+            throw {
+                type: "unknown",
+                issues: err,
+            };
+        }
+    }
 }

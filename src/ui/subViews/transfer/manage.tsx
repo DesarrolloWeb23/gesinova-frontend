@@ -40,6 +40,7 @@ import TableTurns from '@/ui/components/TableTurns';
 import {
     ColumnDef,
 } from "@tanstack/react-table"
+import { GetTurnsById } from '@/core/domain/use-cases/GetTurnsById';
 
 const formSchema = z.object({
     attentionService: z.string().min(1).max(100)
@@ -173,53 +174,72 @@ export default function Manage(){
     //funcion para avanzar el estado del turno
     async function handleAdvanceTurnState(turn: Turns) {
         const advanceTurnStateUseCase = new AdvanceTurnState(new TransferService());
-
-        //valida si el estado del turno es finalizado o cancelado elimina el selectedTurn y genera alerta
-        if (turn.state.code === 4 || turn.state.code === 5) {
-            handleClearSelectedTurn();
-            toast.error("El turno ya se encuentra finalizado o cancelado");
-            return;
-        }
+        const getTurnsById = new GetTurnsById(new TransferService());
 
         try {
             await toast.promise(
-                advanceTurnStateUseCase.execute(turn.id)
-                    .then((response) => {
-                        // Actualizar SOLO el turno que cambió
-                        setTurns((prevTurns) => 
-                            prevTurns.map((turn) =>
-                                turn.id === response.id
-                                    ? { ...turn, ...response } // fusiona el turno previo con la nueva info
-                                    : turn
-                            )
-                        );
-                        //llama a la funcion para anunciar el turno
-                        if(response.state.code === 2){
-                            announceTurn(response);
+                getTurnsById.execute(turn.id)
+                .then((response) => {
+                    if (!response) return null;
+                    // ✅ Actualizar localStorage
+                    localStorage.setItem("selectedTurn", JSON.stringify(response[0]));
+                    setSelectedTurn(response[0]);
+
+                    //valida si el estado del turno es finalizado o cancelado elimina el selectedTurn y genera alerta
+                    if (response[0].state.code === 4 || response[0].state.code === 5) {
+                        handleClearSelectedTurn();
+                        toast.error("El turno ya se encuentra finalizado o cancelado");
+                        return;
+                    }
+
+                    try {
+                        toast.promise(
+                        advanceTurnStateUseCase.execute(response[0].id)
+                            .then((response) => {
+                                // Actualizar SOLO el turno que cambió
+                                setTurns((prevTurns) => 
+                                    prevTurns.map((turn) =>
+                                        turn.id === response.id
+                                            ? { ...turn, ...response } // fusiona el turno previo con la nueva info
+                                            : turn
+                                    )
+                                );
+                                //llama a la funcion para anunciar el turno
+                                if(response.state.code === 2){
+                                    announceTurn(response);
+                                }
+                                //valida si el estado del turno es finalizado
+                                if (response.state.code === 4) {
+                                    setTurnsCompleted(prev => (parseInt(prev) + 1).toString());
+                                    sessionStorage.setItem("turnCompleted", (parseInt(sessionStorage.getItem("turnCompleted") || "0") + 1).toString());
+                                    //eliminar el selectedTurn de la lista de turnos
+                                    setTurns(prev => prev.filter(turn => turn.id !== selectedTurn!.id));
+                                    handleClearSelectedTurn();
+                                }else{
+                                    turn.state = response.state;
+                                    handleSelectTurn(turn);
+                                }
+                            })
+                            .catch((error) => {
+                                throw error;
+                            }),
+                        {
+                            loading: getMessage("success", "loading"),
+                            error: (error) =>
+                                error?.message
                         }
-                        //valida si el estado del turno es finalizado
-                        if (response.state.code === 4) {
-                            setTurnsCompleted(prev => (parseInt(prev) + 1).toString());
-                            sessionStorage.setItem("turnCompleted", (parseInt(sessionStorage.getItem("turnCompleted") || "0") + 1).toString());
-                            //eliminar el selectedTurn de la lista de turnos
-                            setTurns(prev => prev.filter(turn => turn.id !== selectedTurn!.id));
-                            handleClearSelectedTurn();
-                        }else{
-                            turn.state = response.state;
-                            handleSelectTurn(turn);
-                        }
-                    })
-                    .catch((error) => {
-                        throw error;
-                    }),
-                {
-                    loading: getMessage("success", "loading"),
-                    error: (error) =>
-                        error?.message
-                }
+                    );} catch (error) {
+                        console.error("Error al avanzar el estado del turno:", error);
+                    }
+                })
+                .catch ((error) => {
+                    setIsLoading(false);
+                    console.error(error.details);
+                    throw error;
+                }),
             );
         } catch (error) {
-            console.error("Error al avanzar el estado del turno:", error);
+            console.error("Error al consultar el turno por ID:", error);
         }
     }
 
