@@ -119,7 +119,7 @@ export default function Manage(){
     const [isLoading, setIsLoading] = useState(false);
     const didFetch = useRef(false);
     const [isAnnouncing, setIsAnnouncing] = useState(false);
-    const [motivo, setMotivo] = useState("")
+    const [reason, setReason] = useState("")
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -266,11 +266,11 @@ export default function Manage(){
     }
 
     //funcion para cancelar turno
-    async function handleCancelTurn(turnId: string, motivo: string) {
+    async function handleCancelTurn(turnId: string, reason: string) {
         const cancelTurnUseCase = new CancelTurn(new TransferService());
         try {
             await toast.promise(
-                cancelTurnUseCase.execute(turnId, motivo)
+                cancelTurnUseCase.execute(turnId, reason)
                     .then((response) => {
                         if (response) {
                             //eliminar el selectedTurn de la lista de turnos
@@ -578,7 +578,7 @@ export default function Manage(){
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-700">Motivo de cancelación</label>
-                                        <Select onValueChange={setMotivo}>
+                                        <Select onValueChange={setReason}>
                                             <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un motivo" />
                                             </SelectTrigger>
@@ -591,10 +591,10 @@ export default function Manage(){
                                     </div>
 
                                     <AlertDialogFooter>
-                                    <AlertDialogCancel onClick={() => setMotivo("")}>Cancelar</AlertDialogCancel>
+                                    <AlertDialogCancel onClick={() => setReason("")}>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction
-                                        disabled={!motivo}
-                                        onClick={() => handleCancelTurn(selectedTurn!.id.toString(), motivo)}
+                                        disabled={!reason}
+                                        onClick={() => handleCancelTurn(selectedTurn!.id.toString(), reason)}
                                         className=""
                                     >
                                         Continuar
