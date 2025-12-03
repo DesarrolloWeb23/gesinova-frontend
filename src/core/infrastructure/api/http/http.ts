@@ -82,7 +82,7 @@ http.interceptors.response.use(
       return Promise.reject(apiError);
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 ) {
       originalRequest._retry = true;
       const shouldRenew = await showSessionModal();
       if (shouldRenew) {
@@ -110,6 +110,8 @@ http.interceptors.response.use(
           return http(originalRequest);
           
         } catch (refreshError) {
+          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
           return Promise.reject(refreshError);
         }
       } else {
@@ -123,10 +125,11 @@ http.interceptors.response.use(
         error.response.data.error = type;
         error.response.data.timestamp = timestamp;
         error.response.data.status = error.response?.status;
-        
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         window.location.href = "/";
-        
         return Promise.reject(error);
+        
       }
     }
 
