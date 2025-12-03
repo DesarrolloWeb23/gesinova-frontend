@@ -141,10 +141,14 @@ export default function Manage(){
                         if (!prevTurn) return null;
                         const updated = response.find((turn) => turn.id === prevTurn.id) || prevTurn;
 
-                        // ✅ Actualizar localStorage
-                        localStorage.setItem("selectedTurn", JSON.stringify(updated));
-
-                        return updated;
+                        if(updated){
+                            // ✅ Actualizar localStorage
+                            localStorage.setItem("selectedTurn", JSON.stringify(updated));
+                            return updated;
+                        }else{
+                            localStorage.removeItem("selectedTurn");
+                            return null;
+                        }
                     });
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
@@ -402,10 +406,14 @@ export default function Manage(){
                         if (!prevTurn) return null;
                         const updated = response.find((turn) => turn.id === prevTurn.id) || prevTurn;
 
-                        // ✅ Actualizar localStorage
-                        localStorage.setItem("selectedTurn", JSON.stringify(updated));
-
-                        return updated;
+                        if(updated){
+                            // ✅ Actualizar localStorage
+                            localStorage.setItem("selectedTurn", JSON.stringify(updated));
+                            return updated;
+                        }else{
+                            localStorage.removeItem("selectedTurn");
+                            return null;
+                        }
                     });
                     //valida los turnos y los filtra para mostrar solo los que no han sigo gestionados
                     const filteredTurns = response.filter(turn => turn.state.code !== 5 && turn.state.code !== 4);
