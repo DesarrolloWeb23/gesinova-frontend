@@ -394,6 +394,9 @@ export default function Manage(){
     };
 
     useEffect(() => {
+        if (localStorage.getItem("selectedTurn") === "undefined") {
+            localStorage.removeItem("selectedTurn");
+        }
         if (didFetch.current) return;
         setIsLoading(true);
         const getTurnsUseCase = new GetTurns(new TransferService());
